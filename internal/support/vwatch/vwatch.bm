@@ -261,7 +261,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 vw_arrayIndex = CVL(MID$(vw_value$, 10, 4))
                 vw_elementoffset = _CV(_OFFSET, MID$(vw_value$, 14, LEN(vw_elementoffset)))
                 vw_varSize = CVL(MID$(vw_value$, 14 + LEN(vw_elementoffset), 4))
-                IF vw_varSize = 0 THEN PRINT "NoSize": GOTO cmdProcessingDone
+                IF vw_varSize = 0 THEN GOTO cmdProcessingDone
                 vw_i = CVI(MID$(vw_value$, 18 + LEN(vw_elementoffset), 2))
                 IF vw_i THEN
                     vw_scope$ = MID$(vw_value$, 20 + LEN(vw_elementoffset), vw_i)
@@ -316,7 +316,6 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 END IF
 
                 'vw_address now points to the actual data
-                PRINT "vw_elementoffset =" ; vw_elementoffset
                 vw_address = vw_address + vw_elementoffset
                 vw_buf$ = SPACE$(vw_varSize)
                 vw_m = _MEM(vw_address, vw_varSize)

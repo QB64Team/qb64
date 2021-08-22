@@ -357,6 +357,12 @@ FUNCTION ide2 (ignore)
         menu$(DebugMenuID, DebugMenuCallStack) = "Call #Stack...  F12": i = i + 1
         menuDesc$(m, i - 1) = "Displays the call stack of the current program's last execution"
         menu$(m, i) = "-": i = i + 1
+        DebugMenuWatchListToConsole = i
+        menu$(m, i) = "#Output Watch List to Console": i = i + 1
+        menuDesc$(m, i - 1) = "Toggles directing the output of the watch list to the console window"
+        IF WatchListToConsole THEN
+            menu$(DebugMenuID, DebugMenuWatchListToConsole) = CHR$(7) + menu$(DebugMenuID, DebugMenuWatchListToConsole)
+        END IF
         menu$(m, i) = "Set Base #TCP/IP Port Number...": i = i + 1
         menuDesc$(m, i - 1) = "Sets the initial port number for TCP/IP communication with the debuggee"
         menu$(m, i) = "#Advanced (C++)...": i = i + 1
@@ -755,6 +761,7 @@ FUNCTION ide2 (ignore)
         ready = 1
         _RESIZE OFF
         DebugMode
+        IF WatchListToConsole THEN _CONSOLE OFF
         UpdateMenuHelpLine  ""
         SELECT CASE IdeDebugMode
             CASE 1 'clean exit
@@ -4954,22 +4961,6 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            'IF RIGHT$(menu$(m, s), 17) = "Code Suggest#ions" THEN
-            '    PCOPY 2, 0
-            '    IF IdeAutoComplete = 0 THEN
-            '        IdeAutoComplete = -1
-            '        WriteConfigSetting generalSettingsSection$, "IdeAutoComplete", "True"
-            '        menu$(OptionsMenuID, OptionsMenuAutoComplete) = CHR$(7) + "Code Suggest#ions"
-            '    ELSE
-            '        IdeAutoComplete = 0
-            '        WriteConfigSetting generalSettingsSection$, "IdeAutoComplete", "False"
-            '        menu$(OptionsMenuID, OptionsMenuAutoComplete) = "Code Suggest#ions"
-            '    END IF
-            '    idechangemade = 1
-            '    PCOPY 3, 0: SCREEN , , 3, 0
-            '    GOTO ideloop
-            'END IF
-
             IF RIGHT$(menu$(m, s), 28) = "Output EXE to Source #Folder" THEN
                 PCOPY 2, 0
                 SaveExeWithSource = NOT SaveExeWithSource
@@ -4984,6 +4975,21 @@ FUNCTION ide2 (ignore)
                 idecompiled = 0
                 GOTO ideloop
             END IF
+
+            IF RIGHT$(menu$(m, s), 29) = "#Output Watch List to Console" THEN
+                PCOPY 2, 0
+                WatchListToConsole = NOT WatchListToConsole
+                IF WatchListToConsole THEN
+                    WriteConfigSetting debugSettingsSection$, "WatchListToConsole", "True"
+                    menu$(DebugMenuID, DebugMenuWatchListToConsole) = CHR$(7) + "#Output Watch List to Console"
+                ELSE
+                    WriteConfigSetting debugSettingsSection$, "WatchListToConsole", "False"
+                    menu$(DebugMenuID, DebugMenuWatchListToConsole) = "#Output Watch List to Console"
+                END IF
+                PCOPY 3, 0: SCREEN , , 3, 0
+                GOTO ideloop
+            END IF
+
 
             IF MID$(menu$(m, s), 1, 17) = "#Quick Navigation" OR MID$(menu$(m, s), 2, 17) = "#Quick Navigation" THEN
                 PCOPY 2, 0
@@ -7553,7 +7559,10 @@ SUB DebugMode
     ideshowtext
     UpdateTitleOfMainWindow
 
-    IF PauseMode <> 0 AND LEN(variableWatchList$) > 0 THEN showvWatchPanel vWatchPanel, currentSub$, totalVisibleVariables
+    IF PauseMode <> 0 AND LEN(variableWatchList$) > 0 THEN
+        IF WatchListToConsole THEN _CONSOLE ON
+        showvWatchPanel vWatchPanel, currentSub$, totalVisibleVariables
+    END IF
 
     PCOPY 3, 0
     RETURN
@@ -7622,17 +7631,21 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariabl
         IF this.x + this.w + 2 > idewx THEN this.x = idewx - (this.w + 2)
     END IF
 
-    COLOR fg, bg
-    ideboxshadow this.x, this.y, this.w, this.h
-    COLOR 15, bg
-    _PRINTSTRING (this.x + this.w - 1, this.y + this.h - 1), CHR$(254) 'resize handle
+    IF WatchListToConsole = 0 THEN
+        COLOR fg, bg
+        ideboxshadow this.x, this.y, this.w, this.h
+        COLOR 15, bg
+        _PRINTSTRING (this.x + this.w - 1, this.y + this.h - 1), CHR$(254) 'resize handle
 
-    x = LEN(title$) + 2
-    COLOR fg, bg
-    _PRINTSTRING (this.x + (this.w \ 2) - (x - 1) \ 2, this.y), " " + title$ + " "
-    COLOR 15, 4
-    _PRINTSTRING (this.x + this.w - 3, this.y), " x " 'close button
-    COLOR , bg
+        x = LEN(title$) + 2
+        COLOR fg, bg
+        _PRINTSTRING (this.x + (this.w \ 2) - (x - 1) \ 2, this.y), " " + title$ + " "
+        COLOR 15, 4
+        _PRINTSTRING (this.x + this.w - 3, this.y), " x " 'close button
+        COLOR , bg
+    ELSE
+        _ECHO "-------- " + title$
+    END IF
 
     y = 0
     i = 0
@@ -7644,9 +7657,9 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariabl
         tempArrayIndex& = CVL(MID$(temp$, 5, 4))
         temp$ = MID$(temp$, 9)
         i = i + 1
-        IF this.firstVisible > i THEN _CONTINUE
+        IF this.firstVisible > i AND WatchListToConsole <> 0 THEN _CONTINUE
         y = y + 1
-        IF y > this.h - 2 THEN EXIT DO
+        IF y > this.h - 2 AND WatchListToConsole <> 0 THEN EXIT DO
 
         thisName$ = usedVariableList(tempIndex&).name
         IF usedVariableList(tempIndex&).isarray THEN
@@ -7675,30 +7688,36 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariabl
             COLOR fg
         ELSE
             item$ = item$ + "<out of scope>"
-            COLOR 2
+            IF WatchListToConsole = 0 THEN COLOR 2
         END IF
         IF LEN(item$) > this.contentWidth THEN this.contentWidth = LEN(item$)
-        _PRINTSTRING (this.x + 2, this.y + y), MID$(item$, this.hPos, this.w - 4)
+        IF WatchListToConsole = 0 THEN
+            _PRINTSTRING (this.x + 2, this.y + y), MID$(item$, this.hPos, this.w - 4)
+        ELSE
+            _ECHO item$
+        END IF
     LOOP
 
-    IF totalVisibleVariables > this.h - 2 THEN
-        y = idevbar(this.x + this.w - 1, this.y + 1, this.h - 2, this.firstVisible, totalVisibleVariables - (this.h - 2) + 1)
-        IF this.draggingVBar = 0 THEN
-            this.vBarThumb = y
+    IF WatchListToConsole = 0 THEN
+        IF totalVisibleVariables > this.h - 2 THEN
+            y = idevbar(this.x + this.w - 1, this.y + 1, this.h - 2, this.firstVisible, totalVisibleVariables - (this.h - 2) + 1)
+            IF this.draggingVBar = 0 THEN
+                this.vBarThumb = y
+            END IF
+        ELSE
+            this.vBarThumb = 0
+            this.firstVisible = 1
         END IF
-    ELSE
-        this.vBarThumb = 0
-        this.firstVisible = 1
-    END IF
 
-    IF this.contentWidth > this.w - 4 THEN
-        x = idehbar(this.x, this.y + this.h - 1, this.w - 1, this.hPos, this.contentWidth - (this.w - 4) + 1)
-        IF this.draggingHBar = 0 THEN
-            this.hBarThumb = x
+        IF this.contentWidth > this.w - 4 THEN
+            x = idehbar(this.x, this.y + this.h - 1, this.w - 1, this.hPos, this.contentWidth - (this.w - 4) + 1)
+            IF this.draggingHBar = 0 THEN
+                this.hBarThumb = x
+            END IF
+        ELSE
+            this.hBarThumb = 0
+            this.hPos = 1
         END IF
-    ELSE
-        this.hBarThumb = 0
-        this.hPos = 1
     END IF
 END SUB
 
@@ -13490,7 +13509,7 @@ SUB ideSetTCPPortBox
 
     idebaseTcpPort = VAL(v$)
     IF idebaseTcpPort = 0 THEN idebaseTcpPort = 9000
-    WriteConfigSetting generalSettingsSection$, "BaseTCPPort", str2$(idebaseTcpPort)
+    WriteConfigSetting debugSettingsSection$, "BaseTCPPort", str2$(idebaseTcpPort)
 END SUB
 
 FUNCTION idegetlinenumberbox(title$, initialValue&)
