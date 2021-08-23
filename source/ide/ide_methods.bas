@@ -7388,16 +7388,26 @@ SUB DebugMode
                         tempIndex& = CVL(LEFT$(temp$, 4))
                         tempArrayIndex& = CVL(MID$(temp$, 5, 4))
                         temp$ = MID$(temp$, 9)
-                        cmd$ = ""
                         IF LEN(usedVariableList(tempIndex&).subfunc) = 0 THEN
                             cmd$ = "get global var:"
                         ELSE
                             cmd$ = "get local var:"
                         END IF
                         GOSUB GetVarSize
-                        IF LEN(cmd$) THEN
-                            cmd$ = cmd$ + MKL$(tempIndex&) + _MK$(_BYTE, usedVariableList(tempIndex&).isarray) + MKL$(usedVariableList(tempIndex&).localIndex) + MKL$(tempArrayIndex&) + _MK$(_OFFSET, usedVariableList(tempIndex&).elementOffset) + MKL$(varSize&) + MKI$(LEN(usedVariableList(tempIndex&).subfunc)) + usedVariableList(tempIndex&).subfunc + MKI$(LEN(varType$)) + varType$
+                        IF varSize& THEN
+                            cmd$ = cmd$ + MKL$(tempIndex&)
+                            cmd$ = cmd$ + _MK$(_BYTE, usedVariableList(tempIndex&).isarray)
+                            cmd$ = cmd$ + MKL$(usedVariableList(tempIndex&).localIndex)
+                            cmd$ = cmd$ + MKL$(tempArrayIndex&)
+                            cmd$ = cmd$ + MKL$(usedVariableList(tempIndex&).arrayElementSize)
+                            cmd$ = cmd$ + _MK$(_OFFSET, usedVariableList(tempIndex&).elementOffset)
+                            cmd$ = cmd$ + MKL$(varSize&)
+                            cmd$ = cmd$ + MKI$(LEN(usedVariableList(tempIndex&).subfunc))
+                            cmd$ = cmd$ + usedVariableList(tempIndex&).subfunc
+                            cmd$ = cmd$ + MKI$(LEN(varType$)) + varType$
                             GOSUB SendCommand
+                        ELSE
+                            cmd$ = ""
                         END IF
                     LOOP
                 END IF
@@ -8093,6 +8103,21 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                             usedVariableList(varDlgList(y).index).elements = v$
                             v$ = lineformat$(UCASE$(v$))
                             getid usedVariableList(varDlgList(y).index).id
+                            IF id.t = 0 THEN
+                                typ = id.arraytype AND 511
+                                IF id.arraytype AND ISINCONVENTIONALMEMORY THEN
+                                    typ = typ - ISINCONVENTIONALMEMORY
+                                END IF
+                            END IF
+                            IF usedVariableList(varDlgList(y).index).isarray THEN
+                                usedVariableList(varDlgList(y).index).arrayElementSize = udtxsize(typ)
+                                IF udtxbytealign(typ) THEN
+                                    IF usedVariableList(varDlgList(y).index).arrayElementSize MOD 8 THEN usedVariableList(varDlgList(y).index).arrayElementSize = usedVariableList(varDlgList(y).index).arrayElementSize + (8 - (usedVariableList(varDlgList(y).index).arrayElementSize MOD 8)) 'round up to nearest byte
+                                    usedVariableList(varDlgList(y).index).arrayElementSize = usedVariableList(varDlgList(y).index).arrayElementSize \ 8
+                                END IF
+                            ELSE
+                                usedVariableList(varDlgList(y).index).arrayElementSize = 0
+                            END IF
                             Error_Happened = 0
                             result$ = udtreference$("", v$, typ)
                             IF Error_Happened THEN
@@ -8149,7 +8174,6 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                                             GOTO unWatch
                                         END IF
                                 END SELECT
-                                'result = idemessagebox("Result", v$ + "\n" + result$ + "\n" + STR$(typ), "#OK")
                                 usedVariableList(varDlgList(y).index).elementOffset = VAL(MID$(result$, _INSTRREV(result$, sp3) + 1))
                             END IF
                         ELSE

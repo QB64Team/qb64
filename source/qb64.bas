@@ -110,6 +110,7 @@ DIM SHARED MonochromeLoggingMode AS _BYTE
 
 TYPE usedVarList
     AS LONG id, linenumber, includeLevel, includedLine, scope, localIndex
+    AS LONG arrayElementSize
     AS _BYTE used, watch, isarray
     AS STRING name, cname, varType, includedFile, subfunc, mostRecentValue
     AS STRING watchRange, indexes, elements, elementTypes 'for Arrays and UDTs
@@ -25984,6 +25985,7 @@ SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
                     usedVariableList(i).isarray = 0
                 END IF
                 usedVariableList(i).watchRange = ""
+                usedVariableList(i).arrayElementSize = 0
                 usedVariableList(i).indexes = ""
                 usedVariableList(i).elements = ""
                 usedVariableList(i).elementTypes = ""
