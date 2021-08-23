@@ -322,10 +322,10 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 vw_m2 = _MEM(_OFFSET(vw_buf$), vw_varSize)
                 _MEMCOPY vw_m, vw_m.OFFSET, vw_m.SIZE TO vw_m2, vw_m2.OFFSET
 
-                IF INSTR(vw_varType$, "STRING *") > 0 AND vw_isarray <> 0 THEN
+                IF INSTR(vw_varType$, "STRING *") > 0 AND (vw_isarray <> 0 OR vw_elementoffset > 0) THEN
                     'actual data already fetched; nothing else to do
                 ELSEIF INSTR(vw_varType$, "STRING") THEN
-                    IF vw_isarray THEN
+                    IF vw_isarray <> 0 OR vw_elementoffset > 0 THEN
                         'First pass
                         vw_varSize = LEN(vw_dummy%&)
                         vw_buf$ = SPACE$(vw_varSize)

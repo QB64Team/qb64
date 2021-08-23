@@ -7396,7 +7396,7 @@ SUB DebugMode
                         END IF
                         GOSUB GetVarSize
                         IF LEN(cmd$) THEN
-                            cmd$ = cmd$ + MKL$(tempIndex&) + _MK$(_BYTE, usedVariableList(tempIndex&).isarray) + MKL$(usedVariableList(tempIndex&).localIndex) + MKL$(tempArrayIndex&) + _MK$(_OFFSET, usedVariableList(tempIndex&).elementOffset) + MKL$(varSize&) + MKI$(LEN(usedVariableList(tempIndex&).subfunc)) + usedVariableList(tempIndex&).subfunc + MKI$(LEN(usedVariableList(tempIndex&).varType)) + usedVariableList(tempIndex&).varType
+                            cmd$ = cmd$ + MKL$(tempIndex&) + _MK$(_BYTE, usedVariableList(tempIndex&).isarray) + MKL$(usedVariableList(tempIndex&).localIndex) + MKL$(tempArrayIndex&) + _MK$(_OFFSET, usedVariableList(tempIndex&).elementOffset) + MKL$(varSize&) + MKI$(LEN(usedVariableList(tempIndex&).subfunc)) + usedVariableList(tempIndex&).subfunc + MKI$(LEN(varType$)) + varType$
                             GOSUB SendCommand
                         END IF
                     LOOP
@@ -7585,9 +7585,10 @@ SUB DebugMode
     GetVarSize:
     varSize& = 0
     varType$ = usedVariableList(tempIndex&).varType
-    IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
     checkVarType:
-    SELECT CASE varType$
+    tempVarType$ = varType$
+    IF INSTR(tempVarType$, "STRING *") THEN tempVarType$ = "STRING"
+    SELECT CASE tempVarType$
         CASE "_BYTE", "_UNSIGNED _BYTE", "BYTE", "UNSIGNED BYTE": varSize& = LEN(dummy%%)
         CASE "INTEGER", "_UNSIGNED INTEGER", "UNSIGNED INTEGER": varSize& = LEN(dummy%)
         CASE "LONG", "_UNSIGNED LONG", "UNSIGNED LONG": varSize& = LEN(dummy&)
@@ -8134,12 +8135,17 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                                         usedVariableList(varDlgList(y).index).elementTypes = "_UNSIGNED _OFFSET"
                                     CASE ELSE
                                         IF typ AND ISSTRING THEN
-                                            usedVariableList(varDlgList(y).index).elementTypes = "STRING"
+                                            IF (typ AND ISFIXEDLENGTH) = 0 THEN
+                                                usedVariableList(varDlgList(y).index).elementTypes = "STRING"
+                                            ELSE
+                                                'E contains the UDT element index at this point
+                                                usedVariableList(varDlgList(y).index).elementTypes = "STRING *" + STR$(udtetypesize(E))
+                                            END IF
                                         ELSE
                                             usedVariableList(varDlgList(y).index).watch = 0
                                             usedVariableList(varDlgList(y).index).elements = ""
                                             usedVariableList(varDlgList(y).index).elementOffset = 0
-                                            result = idemessagebox("Error", "Element must be of a native data type", "#OK")
+                                            result = idemessagebox("Error", "Cannot add full UDT to Watch List", "#OK")
                                             GOTO unWatch
                                         END IF
                                 END SELECT
