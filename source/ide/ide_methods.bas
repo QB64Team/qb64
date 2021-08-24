@@ -7952,7 +7952,11 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
 
         IF (focus = 3 AND info <> 0) THEN 'add all
             FOR y = 1 TO totalVisibleVariables
-                IF usedVariableList(varDlgList(y).index).isarray AND LEN(usedVariableList(varDlgList(y).index).watchRange) = 0 THEN _CONTINUE
+                varType$ = usedVariableList(y).varType
+                IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
+                IF INSTR(varType$, "_BIT *") THEN varType$ = "_BIT"
+                IF (usedVariableList(varDlgList(y).index).isarray AND LEN(usedVariableList(varDlgList(y).index).watchRange) = 0) OR _
+                   INSTR(nativeDataTypes$, varType$) = 0 THEN _CONTINUE
                 usedVariableList(varDlgList(y).index).watch = -1
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = variableNameColor
                 ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag2) = typeColumnColor
