@@ -7215,7 +7215,7 @@ SUB DebugMode
                 END IF
                 clearStatusWindow 1
                 IF EnteredInput THEN
-                    setStatusMessage 1, "Execution will be paused after INPUT/LINE INPUT finishes running...", 2
+                    setStatusMessage 1, "Execution will be paused after SLEEP/INPUT/LINE INPUT finishes running...", 2
                     set_foreground_window debuggeehwnd
                 ELSE
                     setStatusMessage 1, "Paused.", 2
@@ -7484,7 +7484,7 @@ SUB DebugMode
                 GOSUB UpdateDisplay
                 dummy = DarkenFGBG(1)
                 clearStatusWindow 1
-                setStatusMessage 1, "INPUT/LINE INPUT active in your program...", 10
+                setStatusMessage 1, "SLEEP/INPUT/LINE INPUT active in your program...", 10
                 set_foreground_window debuggeehwnd
             CASE "leave input"
                 EnteredInput = 0
@@ -7805,6 +7805,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
 
     'calculate longest module name, longest var name, longest type name
     FOR x = 1 TO totalVariablesCreated
+        IF usedVariableList(x).includedLine THEN _CONTINUE 'don't deal with variables in $INCLUDEs
         IF LEN(usedVariableList(x).subfunc) > maxModuleNameLen THEN
             maxModuleNameLen = LEN(usedVariableList(x).subfunc)
         END IF
@@ -7814,7 +7815,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
 
     searchTerm$ = filter$
     GOSUB buildList
-    dialogHeight = (totalVariablesCreated) + 7
+    dialogHeight = (totalMainVariablesCreated) + 7
     listBuilt:
     i = 0
     IF dialogHeight < lastUsedDialogHeight THEN dialogHeight = lastUsedDialogHeight
@@ -7824,7 +7825,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
     IF dialogHeight < 9 THEN dialogHeight = 9
 
     dialogWidth = 6 + maxModuleNameLen + maxVarLen + maxTypeLen
-    IF IdeDebugMode > 0 THEN dialogWidth = dialogWidth + 100 'make room for "= values"
+    IF IdeDebugMode > 0 THEN dialogWidth = dialogWidth + 40 'make room for "= values"
     IF dialogWidth < 60 THEN dialogWidth = 60
     IF dialogWidth > idewx - 8 THEN dialogWidth = idewx - 8
 
@@ -8012,6 +8013,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
             longestVarName = 0
             nextvWatchDataSlot = 0
             FOR y = 1 TO totalVariablesCreated
+                IF usedVariableList(x).includedLine THEN _CONTINUE 'don't deal with variables in $INCLUDEs
                 IF usedVariableList(y).watch THEN
                     thisLen = LEN(usedVariableList(y).name)
                     IF usedVariableList(y).isarray THEN
@@ -8382,6 +8384,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
     buildList:
     maxVarLen = LEN("Variable")
     FOR x = 1 TO totalVariablesCreated
+        IF usedVariableList(x).includedLine THEN _CONTINUE 'don't deal with variables in $INCLUDEs
         thisLen = LEN(usedVariableList(x).name)
         IF LEN(usedVariableList(x).watchRange) > 0 THEN
             thisLen = thisLen + LEN(usedVariableList(x).watchRange)
@@ -8473,11 +8476,13 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                         LOOP
                         IF LEN(usedVariableList(x).storage) THEN l$ = l$ + "}"
                     ELSEIF usedVariableList(x).isarray = 0 AND LEN(usedVariableList(x).elements) = 0 THEN
-                        storageSlot& = CVL(usedVariableList(x).storage)
-                        l$ = l$ + " = " + CHR$(16) + CHR$(variableNameColor)
-                        IF thisIsAString THEN l$ = l$ + CHR$(34)
-                        l$ = l$ + StrReplace$(vWatchReceivedData$(storageSlot&), CHR$(0), " ")
-                        IF thisIsAString THEN l$ = l$ + CHR$(34)
+                        IF LEN(usedVariableList(x).storage) = 4 THEN
+                            storageSlot& = CVL(usedVariableList(x).storage)
+                            l$ = l$ + " = " + CHR$(16) + CHR$(variableNameColor)
+                            IF thisIsAString THEN l$ = l$ + CHR$(34)
+                            l$ = l$ + StrReplace$(vWatchReceivedData$(storageSlot&), CHR$(0), " ")
+                            IF thisIsAString THEN l$ = l$ + CHR$(34)
+                        END IF
                     END IF
                 END IF
             ELSE

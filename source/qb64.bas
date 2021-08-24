@@ -120,7 +120,7 @@ TYPE usedVarList
     AS STRING elementOffset, storage
 END TYPE
 
-DIM SHARED totalVariablesCreated AS LONG
+DIM SHARED totalVariablesCreated AS LONG, totalMainVariablesCreated AS LONG
 DIM SHARED bypassNextVariable AS _BYTE
 DIM SHARED totalWarnings AS LONG, warningListItems AS LONG, lastWarningHeader AS STRING
 DIM SHARED duplicateConstWarning AS _BYTE, warningsissued AS _BYTE
@@ -1458,6 +1458,7 @@ SelectCaseCounter = 0
 ExecCounter = 0
 UserDefineCount = 7
 totalVariablesCreated = 0
+totalMainVariablesCreated = 0
 REDIM SHARED usedVariableList(1000) AS usedVarList
 totalWarnings = 0
 duplicateConstWarning = 0
@@ -11128,7 +11129,21 @@ DO
                     subcall$ = subcall$ + "," + str2$(passed&)
                 END IF
                 subcall$ = subcall$ + ");"
+
+                IF firstelement$ = "SLEEP" THEN
+                    IF vWatchOn = 1 THEN
+                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= -4; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);"
+                    END IF
+                END IF
+
                 PRINT #12, subcall$
+
+                IF firstelement$ = "SLEEP" THEN
+                    IF vWatchOn = 1 THEN
+                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= -5; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);"
+                    END IF
+                END IF
+
                 subcall$ = ""
                 IF stringprocessinghappened THEN PRINT #12, cleanupstringprocessingcall$ + "0);"
 
@@ -25968,6 +25983,7 @@ SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
                     thisincname$ = MID$(incname$(inclevel), LEN(thisincname$) + 1)
                     usedVariableList(i).includedFile = thisincname$
                 ELSE
+                    totalMainVariablesCreated = totalMainVariablesCreated + 1
                     usedVariableList(i).includedLine = 0
                     usedVariableList(i).includedFile = ""
                 END IF
