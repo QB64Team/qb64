@@ -33,6 +33,9 @@ vWatchVariableExclusions$ = "@__LONG_VWATCH_LINENUMBER@__LONG_VWATCH_SUBLEVEL@__
               "@__STRING_VWATCH_SUBNAME@__STRING_VWATCH_CALLSTACK@__ARRAY_BYTE_VWATCH_BREAKPOINTS" + _
               "@__ARRAY_BYTE_VWATCH_SKIPLINES@__STRING_VWATCH_INTERNALSUBNAME@__ARRAY_STRING_VWATCH_STACK@"
 
+DIM SHARED nativeDataTypes$
+nativeDataTypes$ = "@_BYTE@_UNSIGNED _BYTE@BYTE@UNSIGNED BYTE@INTEGER@_UNSIGNED INTEGER@UNSIGNED INTEGER@LONG@_UNSIGNED LONG@UNSIGNED LONG@_INTEGER64@INTEGER64@_UNSIGNED _INTEGER64@UNSIGNED INTEGER64@SINGLE@DOUBLE@_FLOAT@FLOAT@STRING@"
+
 DIM SHARED qb64prefix_set_recompileAttempts, qb64prefix_set_desiredState
 DIM SHARED opex_recompileAttempts, opex_desiredState
 DIM SHARED opexarray_recompileAttempts, opexarray_desiredState
@@ -112,9 +115,9 @@ TYPE usedVarList
     AS LONG id, linenumber, includeLevel, includedLine, scope, localIndex
     AS LONG arrayElementSize
     AS _BYTE used, watch, isarray
-    AS STRING name, cname, varType, includedFile, subfunc, mostRecentValue
+    AS STRING name, cname, varType, includedFile, subfunc
     AS STRING watchRange, indexes, elements, elementTypes 'for Arrays and UDTs
-    AS _OFFSET elementOffset
+    AS STRING elementOffset, storage
 END TYPE
 
 DIM SHARED totalVariablesCreated AS LONG
@@ -25956,7 +25959,7 @@ SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
                 usedVariableList(i).id = currentid
                 usedVariableList(i).used = 0
                 usedVariableList(i).watch = 0
-                usedVariableList(i).mostRecentValue = ""
+                usedVariableList(i).storage = ""
                 usedVariableList(i).linenumber = linenumber
                 usedVariableList(i).includeLevel = inclevel
                 IF inclevel > 0 THEN
@@ -25989,7 +25992,7 @@ SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
                 usedVariableList(i).indexes = ""
                 usedVariableList(i).elements = ""
                 usedVariableList(i).elementTypes = ""
-                usedVariableList(i).elementOffset = 0
+                usedVariableList(i).elementOffset = ""
                 totalVariablesCreated = totalVariablesCreated + 1
             END IF
         CASE ELSE 'find and mark as used

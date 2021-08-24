@@ -12,7 +12,7 @@ DIM SHARED IdeInfo AS STRING
 DIM SHARED IdeContextHelpSF AS _BYTE
 
 DIM SHARED host&, debugClient&, hostport$, variableWatchList$
-DIM SHARED vWatchArrayReceivedData$(1 TO 1000), nextvWatchArraySlot
+DIM SHARED vWatchReceivedData$(1 TO 1000), nextvWatchDataSlot
 DIM SHARED startPausedPending AS _BYTE
 
 DIM SHARED IdeSystem AS LONG

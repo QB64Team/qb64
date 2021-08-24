@@ -7,8 +7,8 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     STATIC AS _OFFSET vw_idehwnd
     STATIC vw_buffer$
     DIM AS LONG vw_i, vw_tempIndex, vw_localIndex, vw_varSize, vw_cmdsize
-    DIM AS LONG vw_arrayelementsize
-    DIM AS _OFFSET vw_address, vw_elementoffset, vw_lbound, vw_ubound
+    DIM AS LONG vw_arrayelementsize, vw_element, vw_elementoffset, vw_storage
+    DIM AS _OFFSET vw_address, vw_lbound, vw_ubound
     DIM AS _MEM vw_m, vw_m2
     DIM AS _BYTE vw_isarray
     DIM vw_start!, vw_temp$, vw_cmd$, vw_value$, vw_k&, vw_buf$, vw_scope$, vw_varType$
@@ -261,16 +261,18 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 vw_localIndex = CVL(MID$(vw_value$, 6, 4))
                 vw_arrayIndex = CVL(MID$(vw_value$, 10, 4))
                 vw_arrayelementsize = CVL(MID$(vw_value$, 14, 4))
-                vw_elementoffset = _CV(_OFFSET, MID$(vw_value$, 18, LEN(vw_elementoffset)))
-                vw_varSize = CVL(MID$(vw_value$, 18 + LEN(vw_elementoffset), 4))
+                vw_element = CVL(MID$(vw_value$, 18, 4))
+                vw_elementoffset = CVL(MID$(vw_value$, 22, 4))
+                vw_varSize = CVL(MID$(vw_value$, 26, 4))
                 IF vw_varSize = 0 THEN GOTO cmdProcessingDone
-                vw_i = CVI(MID$(vw_value$, 22 + LEN(vw_elementoffset), 2))
+                vw_storage = CVL(MID$(vw_value$, 30, 4))
+                vw_i = CVI(MID$(vw_value$, 34, 2))
                 IF vw_i THEN
-                    vw_scope$ = MID$(vw_value$, 24 + LEN(vw_elementoffset), vw_i)
-                    vw_i = CVI(MID$(vw_value$, 24 + LEN(vw_elementoffset) + vw_i, 2))
+                    vw_scope$ = MID$(vw_value$, 36, vw_i)
+                    vw_i = CVI(MID$(vw_value$, 36 + vw_i, 2))
                     vw_varType$ = RIGHT$(vw_value$, vw_i)
                 ELSE
-                    vw_i = CVI(MID$(vw_value$, 24 + LEN(vw_elementoffset), 2))
+                    vw_i = CVI(MID$(vw_value$, 36, 2))
                     vw_varType$ = RIGHT$(vw_value$, vw_i)
                 END IF
                 IF vw_cmd$ = "get global var" THEN
@@ -368,7 +370,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                     _MEMCOPY vw_m, vw_m.OFFSET, vw_m.SIZE TO vw_m2, vw_m2.OFFSET
                 END IF
 
-                vw_cmd$ = "address read:" + MKL$(vw_tempIndex) + MKL$(vw_arrayIndex) + vw_buf$
+                vw_cmd$ = "address read:" + MKL$(vw_tempIndex) + MKL$(vw_arrayIndex) + MKL$(vw_element) + MKL$(vw_storage) + vw_buf$
                 GOSUB SendCommand
             CASE "set global address", "set local address"
                 vw_localIndex = CVL(LEFT$(vw_value$, 4))
