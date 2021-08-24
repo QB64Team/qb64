@@ -14,10 +14,10 @@ DIM SHARED ShowLineNumbersSeparator AS _BYTE, ShowLineNumbersUseBG AS _BYTE
 DIM SHARED IgnoreWarnings AS _BYTE, qb64versionprinted AS _BYTE
 DIM SHARED DisableSyntaxHighlighter AS _BYTE, ExeToSourceFolderFirstTimeMsg AS _BYTE
 DIM SHARED WhiteListQB64FirstTimeMsg AS _BYTE, ideautolayoutkwcapitals AS _BYTE
-'DIM SHARED IdeAutoComplete AS _BYTE
+DIM SHARED WatchListToConsole AS _BYTE
 DIM SHARED windowSettingsSection$, colorSettingsSection$, customDictionarySection$
 DIM SHARED mouseSettingsSection$, generalSettingsSection$, displaySettingsSection$
-DIM SHARED colorSchemesSection$, iniFolderIndex$, DebugInfoIniWarning$, ConfigFile$
+DIM SHARED colorSchemesSection$, debugSettingsSection$, iniFolderIndex$, DebugInfoIniWarning$, ConfigFile$
 DIM SHARED idebaseTcpPort AS LONG
 
 windowSettingsSection$ = "IDE WINDOW"
@@ -27,6 +27,7 @@ customDictionarySection$ = "CUSTOM DICTIONARIES"
 mouseSettingsSection$ = "MOUSE SETTINGS"
 generalSettingsSection$ = "GENERAL SETTINGS"
 displaySettingsSection$ = "IDE DISPLAY SETTINGS"
+debugSettingsSection$ = "DEBUG SETTINGS"
 
 ConfigFile$ = "internal/config.ini"
 iniFolderIndex$ = STR$(tempfolderindex)
@@ -203,25 +204,9 @@ ELSE
     WriteConfigSetting generalSettingsSection$, "IgnoreWarnings", "False"
 END IF
 
-'IF ReadConfigSetting(generalSettingsSection$, "IdeAutoComplete", value$) THEN
-'    IF UCASE$(value$) = "TRUE" OR ABS(VAL(value$)) = 1 THEN
-'        IdeAutoComplete = -1
-'    ELSE
-'        IdeAutoComplete = 0
-'        WriteConfigSetting generalSettingsSection$, "IdeAutoComplete", "False"
-'    END IF
-'ELSE
-'    IdeAutoComplete = -1
-'    WriteConfigSetting generalSettingsSection$, "IdeAutoComplete", "True"
-'END IF
-
 result = ReadConfigSetting(generalSettingsSection$, "BackupSize", value$)
 idebackupsize = VAL(value$)
 IF idebackupsize < 10 OR idebackupsize > 2000 THEN idebackupsize = 100: WriteConfigSetting generalSettingsSection$, "BackupSize", "100 'in MB"
-
-result = ReadConfigSetting(generalSettingsSection$, "BaseTCPPort", value$)
-idebaseTcpPort = VAL(value$)
-IF idebaseTcpPort = 0 THEN idebaseTcpPort = 9000: WriteConfigSetting generalSettingsSection$, "BaseTCPPort", "9000"
 
 result = ReadConfigSetting(generalSettingsSection$, "DebugInfo", value$)
 idedebuginfo = VAL(value$)
@@ -240,6 +225,20 @@ IF UCASE$(value$) = "TRUE" OR VAL(value$) = -1 THEN
 ELSE
     MouseButtonSwapped = 0
     WriteConfigSetting mouseSettingsSection$, "SwapMouseButton", "False"
+END IF
+
+'Debug settings ---------------------------------------------------------------
+result = ReadConfigSetting(debugSettingsSection$, "BaseTCPPort", value$)
+idebaseTcpPort = VAL(value$)
+IF idebaseTcpPort = 0 THEN idebaseTcpPort = 9000: WriteConfigSetting debugSettingsSection$, "BaseTCPPort", "9000"
+
+result = ReadConfigSetting(debugSettingsSection$, "WatchListToConsole", value$)
+IF UCASE$(value$) = "TRUE" OR VAL(value$) = -1 THEN
+    WatchListToConsole = -1
+    WriteConfigSetting debugSettingsSection$, "WatchListToConsole", "True"
+ELSE
+    WatchListToConsole = 0
+    WriteConfigSetting debugSettingsSection$, "WatchListToConsole", "False"
 END IF
 
 'Display settings -------------------------------------------------------------
