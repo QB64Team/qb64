@@ -7411,7 +7411,7 @@ SUB DebugMode
                             cmd$ = cmd$ + MKL$(tempStorage&)
                             cmd$ = cmd$ + MKI$(LEN(usedVariableList(tempIndex&).subfunc))
                             cmd$ = cmd$ + usedVariableList(tempIndex&).subfunc
-                            cmd$ = cmd$ + MKI$(LEN(varType$)) + varType$
+                            cmd$ = cmd$ + MKI$(LEN(tempVarType$)) + tempVarType$
                             GOSUB SendCommand
                         ELSE
                             cmd$ = ""
@@ -7427,7 +7427,7 @@ SUB DebugMode
                 tempStorage& = CVL(MID$(value$, 13, 4))
                 recvData$ = MID$(value$, 17)
                 GOSUB GetVarSize
-                SELECT CASE varType$
+                SELECT CASE tempVarType$
                     CASE "_BYTE", "BYTE": recvData$ = STR$(_CV(_BYTE, recvData$))
                     CASE "_UNSIGNED _BYTE", "UNSIGNED BYTE": recvData$ = STR$(_CV(_UNSIGNED _BYTE, recvData$))
                     CASE "INTEGER": recvData$ = STR$(_CV(INTEGER, recvData$))
@@ -7599,6 +7599,18 @@ SUB DebugMode
     checkVarType:
     tempVarType$ = varType$
     IF INSTR(tempVarType$, "STRING *") THEN tempVarType$ = "STRING"
+    IF INSTR(tempVarType$, "BIT *") THEN
+        IF VAL(MID$(tempVarType$, _INSTRREV(tempVarType$, " ") + 1)) > 32 THEN
+            tempVarType$ = "_INTEGER64"
+            IF INSTR(tempVarType$, "UNSIGNED") THEN tempVarType$ = "_UNSIGNED _INTEGER64"
+        ELSE
+            tempVarType$ = "LONG"
+            IF INSTR(tempVarType$, "UNSIGNED") THEN tempVarType$ = "_UNSIGNED LONG"
+        END IF
+    ELSEIF INSTR("@_BIT@BIT@_UNSIGNED _BIT@UNSIGNED BIT@", "@" + tempVarType$ + "@") THEN
+        tempVarType$ = "LONG"
+        IF INSTR(tempVarType$, "UNSIGNED") THEN tempVarType$ = "_UNSIGNED LONG"
+    END IF
     SELECT CASE tempVarType$
         CASE "_BYTE", "_UNSIGNED _BYTE", "BYTE", "UNSIGNED BYTE": varSize& = LEN(dummy%%)
         CASE "INTEGER", "_UNSIGNED INTEGER", "UNSIGNED INTEGER": varSize& = LEN(dummy%)
@@ -8144,6 +8156,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
 
                     varType$ = usedVariableList(varDlgList(y).index).varType
                     IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
+                    IF INSTR(varType$, "_BIT *") THEN varType$ = "_BIT"
                     IF INSTR(nativeDataTypes$, varType$) = 0 THEN
                         'It's a UDT
                         elementIndexes$ = ""
@@ -8615,6 +8628,7 @@ FUNCTION ideelementwatchbox$(currentPath$, elementIndexes$, level, ok)
             FOR y = 1 TO totalElements
                 varType$ = varDlgList(y).varType
                 IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
+                IF INSTR(varType$, "BIT *") THEN varType$ = "_BIT"
                 IF INSTR(nativeDataTypes$, varType$) > 0 THEN
                     varDlgList(y).selected = -1
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = variableNameColor
@@ -8643,6 +8657,7 @@ FUNCTION ideelementwatchbox$(currentPath$, elementIndexes$, level, ok)
                 IF varDlgList(y).selected THEN
                     varType$ = varDlgList(y).varType
                     IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
+                    IF INSTR(varType$, "BIT *") THEN varType$ = "_BIT"
                     IF INSTR(nativeDataTypes$, varType$) > 0 THEN
                         'non-native data types will have already been added to the return list
                         thisName$ = RTRIM$(udtecname(varDlgList(y).index))
@@ -8684,6 +8699,7 @@ FUNCTION ideelementwatchbox$(currentPath$, elementIndexes$, level, ok)
                 IF varDlgList(y).selected THEN
                     varType$ = varDlgList(y).varType
                     IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
+                    IF INSTR(varType$, "BIT *") THEN varType$ = "_BIT"
                     IF INSTR(nativeDataTypes$, varType$) = 0 THEN
                         'It's a UDT
                         elementIndexes2$ = ""
