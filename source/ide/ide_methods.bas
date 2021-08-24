@@ -8168,6 +8168,8 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                         IF ok THEN
                             longestElementName = 0
                             usedVariableList(varDlgList(y).index).elements = ""
+                            usedVariableList(varDlgList(y).index).elementTypes = ""
+                            usedVariableList(varDlgList(y).index).elementOffset = ""
                             getid usedVariableList(varDlgList(y).index).id
                             IF id.t = 0 THEN
                                 typ = id.arraytype AND 511
@@ -8208,6 +8210,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                                     result = idemessagebox("Error", Error_Message, "#OK")
                                     usedVariableList(varDlgList(y).index).watch = 0
                                     usedVariableList(varDlgList(y).index).elements = ""
+                                    usedVariableList(varDlgList(y).index).elementTypes = ""
                                     usedVariableList(varDlgList(y).index).elementOffset = ""
                                     GOTO unWatch
                                 ELSE
@@ -8253,6 +8256,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                                                 'shouldn't ever happen
                                                 usedVariableList(varDlgList(y).index).watch = 0
                                                 usedVariableList(varDlgList(y).index).elements = ""
+                                                usedVariableList(varDlgList(y).index).elementTypes = ""
                                                 usedVariableList(varDlgList(y).index).elementOffset = ""
                                                 result = idemessagebox("Error", "Cannot add full UDT to Watch List", "#OK")
                                                 GOTO unWatch
@@ -8386,7 +8390,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
             thisScope$ = usedVariableList(x).subfunc
             IF thisScope$ = "" THEN thisScope$ = mainmodule$
             item$ = usedVariableList(x).name + usedVariableList(x).varType + thisScope$
-            IF usedVariableList(x).isarray = 0 AND LEN(usedVariableList(x).elements) = 0 AND LEN(usedVariableList(x).storage) = 4 THEN
+            IF IdeDebugMode > 0 AND usedVariableList(x).isarray = 0 AND LEN(usedVariableList(x).elements) = 0 AND LEN(usedVariableList(x).storage) = 4 THEN
                 'single var
                 item$ = item$ + vWatchReceivedData$(CVL(usedVariableList(x).storage))
             END IF
