@@ -7142,7 +7142,7 @@ SUB DebugMode
                                     END IF
                                     cmd$ = cmd$ + MKL$(usedVariableList(tempIndex&).localIndex) + MKL$(varSize&) + value$
                                     GOSUB SendCommand
-                                    'usedVariableList(tempIndex&).mostRecentValue = MID$(result$, 5)
+                                    vWatchReceivedData$(CVL(LEFT$(usedVariableList(tempIndex&).storage, 4))) = MID$(result$, 5)
                                     PCOPY 3, 0: SCREEN , , 3, 0
                                     WHILE _MOUSEINPUT: WEND
                                     GOSUB UpdateDisplay
@@ -7150,7 +7150,8 @@ SUB DebugMode
                             END SELECT
                             cmd$ = cmd$ + MKL$(usedVariableList(tempIndex&).localIndex) + MKL$(varSize&) + value$
                             GOSUB SendCommand
-                            'usedVariableList(tempIndex&).mostRecentValue = result$
+                            vWatchReceivedData$(CVL(LEFT$(usedVariableList(tempIndex&).storage, 4))) = result$
+
 
                             PCOPY 3, 0: SCREEN , , 3, 0
                             WHILE _MOUSEINPUT: WEND
@@ -7683,9 +7684,9 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariabl
         tempStorage& = CVL(MID$(temp$, 13, 4))
         temp$ = MID$(temp$, 17)
         i = i + 1
-        IF this.firstVisible > i AND WatchListToConsole <> 0 THEN _CONTINUE
+        IF this.firstVisible > i AND WatchListToConsole = 0 THEN _CONTINUE
         y = y + 1
-        IF y > this.h - 2 AND WatchListToConsole <> 0 THEN EXIT DO
+        IF y > this.h - 2 AND WatchListToConsole = 0 THEN EXIT DO
 
         thisName$ = usedVariableList(tempIndex&).name
         IF usedVariableList(tempIndex&).isarray THEN
@@ -7980,7 +7981,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                 i = o(varListBox).sel
                 IF usedVariableList(varDlgList(i).index).subfunc = currentScope$ OR usedVariableList(varDlgList(i).index).subfunc = "" THEN
                     'scope is valid
-                    'a2$ = usedVariableList(varDlgList(i).index).mostRecentValue
+                    a2$ = vWatchReceivedData$(CVL(LEFT$(usedVariableList(varDlgList(i).index).storage, 4)))
                     IF INSTR(usedVariableList(varDlgList(i).index).varType, "STRING") THEN
                         thisWidth = idewx - 20
                     ELSE
@@ -8392,12 +8393,6 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
     totalVisibleVariables = 0
     FOR x = 1 TO totalVariablesCreated
         IF usedVariableList(x).includedLine THEN _CONTINUE 'don't add variables in $INCLUDEs
-
-        IF usedVariableList(x).subfunc = currentScope$ OR usedVariableList(x).subfunc = "" THEN
-            'it's ok
-        ELSE
-            'usedVariableList(x).mostRecentValue = ""
-        END IF
 
         IF LEN(searchTerm$) THEN
             thisScope$ = usedVariableList(x).subfunc
