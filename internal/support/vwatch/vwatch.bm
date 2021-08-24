@@ -311,7 +311,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                     'find the required element for this array
                     IF INSTR(vw_varType$, "STRING *") THEN
                         vw_varSize = VAL(MID$(vw_varType$, _INSTRREV(vw_varType$, " ") + 1))
-                    ELSEIF INSTR(vw_varType$, "STRING") THEN
+                    ELSEIF vw_varType$ = "STRING" THEN
                         vw_varSize = LEN(vw_dummy%&)
                     END IF
 
