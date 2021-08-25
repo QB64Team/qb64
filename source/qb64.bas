@@ -784,7 +784,7 @@ DIM SHARED currentid AS LONG 'is the index of the last ID accessed
 DIM SHARED linenumber AS LONG, reallinenumber AS LONG, totallinenumber AS LONG, definingtypeerror AS LONG
 DIM SHARED wholeline AS STRING
 DIM SHARED firstLineNumberLabelvWatch AS LONG, lastLineNumberLabelvWatch AS LONG
-DIM SHARED vWatchUsedLabels AS STRING
+DIM SHARED vWatchUsedLabels AS STRING, vWatchUsedSkipLabels AS STRING
 DIM SHARED linefragment AS STRING
 'COMMON SHARED bitmask() AS _INTEGER64
 'COMMON SHARED bitmaskinv() AS _INTEGER64
@@ -1466,6 +1466,7 @@ emptySCWarning = 0
 warningListItems = 0
 lastWarningHeader = ""
 vWatchUsedLabels = SPACE$(1000)
+vWatchUsedSkipLabels = SPACE$(1000)
 firstLineNumberLabelvWatch = 0
 REDIM SHARED warning$(1000)
 REDIM SHARED warningLines(1000) AS LONG
@@ -5316,6 +5317,7 @@ DO
                         FOR i = firstLineNumberLabelvWatch TO lastLineNumberLabelvWatch
                             WHILE i > LEN(vWatchUsedLabels)
                                 vWatchUsedLabels = vWatchUsedLabels + SPACE$(1000)
+                                vWatchUsedSkipLabels = vWatchUsedSkipLabels + SPACE$(1000)
                             WEND
                             IF ASC(vWatchUsedLabels, i) = 1 THEN
                                 PRINT #12, "    case " + str2$(i) + ":"
@@ -5331,7 +5333,7 @@ DO
                         PRINT #12, "VWATCH_SKIPLINE:;"
                         PRINT #12, "switch (*__LONG_VWATCH_GOTO) {"
                         FOR i = firstLineNumberLabelvWatch TO lastLineNumberLabelvWatch
-                            IF ASC(vWatchUsedLabels, i) = 1 THEN
+                            IF ASC(vWatchUsedSkipLabels, i) = 1 THEN
                                 PRINT #12, "    case -" + str2$(i) + ":"
                                 PRINT #12, "        goto VWATCH_SKIPLABEL_" + str2$(i) + ";"
                                 PRINT #12, "        break;"
@@ -14307,12 +14309,14 @@ SUB vWatchAddLabel (this AS LONG, lastLine AS _BYTE)
     IF lastLine = 0 THEN
         WHILE this > LEN(vWatchUsedLabels)
             vWatchUsedLabels = vWatchUsedLabels + SPACE$(1000)
+            vWatchUsedSkipLabels = vWatchUsedSkipLabels + SPACE$(1000)
         WEND
 
         IF firstLineNumberLabelvWatch = 0 THEN
             firstLineNumberLabelvWatch = this
         ELSE
             IF prevSkip <> prevLabel THEN
+                ASC(vWatchUsedSkipLabels, prevLabel) = 1
                 PRINT #12, "VWATCH_SKIPLABEL_" + str2$(prevLabel) + ":;"
                 prevSkip = prevLabel
             END IF
@@ -14326,6 +14330,7 @@ SUB vWatchAddLabel (this AS LONG, lastLine AS _BYTE)
         END IF
     ELSE
         IF prevSkip <> prevLabel THEN
+            ASC(vWatchUsedSkipLabels, prevLabel) = 1
             PRINT #12, "VWATCH_SKIPLABEL_" + str2$(prevLabel) + ":;"
             prevSkip = prevLabel
         END IF
@@ -14355,7 +14360,7 @@ SUB closemain
         PRINT #12, "VWATCH_SKIPLINE:;"
         PRINT #12, "switch (*__LONG_VWATCH_GOTO) {"
         FOR i = firstLineNumberLabelvWatch TO lastLineNumberLabelvWatch
-            IF ASC(vWatchUsedLabels, i) = 1 THEN
+            IF ASC(vWatchUsedSkipLabels, i) = 1 THEN
                 PRINT #12, "    case -" + str2$(i) + ":"
                 PRINT #12, "        goto VWATCH_SKIPLABEL_" + str2$(i) + ";"
                 PRINT #12, "        break;"
