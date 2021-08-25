@@ -6407,6 +6407,7 @@ SUB DebugMode
             debugClient& = 0
             debuggeepid = 0
 
+            showvWatchPanel vWatchPanel, "", 0, 1
             IF LEN(variableWatchList$) = 0 THEN
                 totalVisibleVariables = 0
                 vWatchPanel.h = 5
@@ -7573,7 +7574,7 @@ SUB DebugMode
 
     IF PauseMode <> 0 AND LEN(variableWatchList$) > 0 THEN
         IF WatchListToConsole THEN _CONSOLE ON
-        showvWatchPanel vWatchPanel, currentSub$, totalVisibleVariables
+        showvWatchPanel vWatchPanel, currentSub$, totalVisibleVariables, 0
     END IF
 
     PCOPY 3, 0
@@ -7633,9 +7634,11 @@ Function map! (value!, minRange!, maxRange!, newMinRange!, newMaxRange!)
     map! = ((value! - minRange!) / (maxRange! - minRange!)) * (newMaxRange! - newMinRange!) + newMinRange!
 End Function
 
-SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariables)
+SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariables, action as _BYTE)
     STATIC previousVariableWatchList$
     STATIC longestVarName
+
+    IF action = 1 THEN previousVariableWatchList$ = "": EXIT SUB 'reset
 
     IF previousVariableWatchList$ <> variableWatchList$ THEN
         'new setup
