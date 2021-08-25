@@ -314,7 +314,6 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                     ELSEIF vw_varType$ = "STRING" THEN
                         vw_varSize = LEN(vw_dummy%&)
                     END IF
-
                     'this is where we calculate the actual element position in memory
                     IF vw_arrayelementsize = 0 THEN
                         vw_address = vw_address + ((vw_arrayIndex - vw_lbound) * vw_varSize)
@@ -332,7 +331,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
 
                 IF INSTR(vw_varType$, "STRING *") > 0 AND (vw_isarray <> 0 OR vw_elementoffset > 0) THEN
                     'actual data already fetched; nothing else to do
-                ELSEIF INSTR(vw_varType$, "STRING") THEN
+                ELSEIF vw_varType$ = "STRING" THEN
                     IF vw_isarray <> 0 OR vw_elementoffset > 0 THEN
                         'First pass
                         vw_varSize = LEN(vw_dummy%&)

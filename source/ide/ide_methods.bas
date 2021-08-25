@@ -7412,7 +7412,7 @@ SUB DebugMode
                             cmd$ = cmd$ + MKL$(tempStorage&)
                             cmd$ = cmd$ + MKI$(LEN(usedVariableList(tempIndex&).subfunc))
                             cmd$ = cmd$ + usedVariableList(tempIndex&).subfunc
-                            cmd$ = cmd$ + MKI$(LEN(tempVarType$)) + tempVarType$
+                            cmd$ = cmd$ + MKI$(LEN(varType$)) + varType$
                             GOSUB SendCommand
                         ELSE
                             cmd$ = ""
