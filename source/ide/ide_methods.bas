@@ -8021,7 +8021,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
             longestVarName = 0
             nextvWatchDataSlot = 0
             FOR y = 1 TO totalVariablesCreated
-                IF usedVariableList(x).includedLine THEN _CONTINUE 'don't deal with variables in $INCLUDEs
+                IF usedVariableList(y).includedLine THEN _CONTINUE 'don't deal with variables in $INCLUDEs
                 IF usedVariableList(y).watch THEN
                     thisLen = LEN(usedVariableList(y).name)
                     IF usedVariableList(y).isarray THEN
