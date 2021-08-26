@@ -2,7 +2,7 @@ $CHECKING:OFF
 
 SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     STATIC AS LONG vw_ideHost, vw_breakpointCount, vw_skipCount, vw_timeout, vw_startLevel, vw_lastLine
-    STATIC AS LONG vw_runToLine, vw_arrayIndex
+    STATIC AS LONG vw_runToLine, vw_arrayIndex, vw_originalVarLineNumber
     STATIC AS _BYTE vw_pauseMode, vw_stepOver, vw_bypass, vw_setNextLine, vw_hwndsent
     STATIC AS _OFFSET vw_idehwnd
     STATIC vw_buffer$
@@ -258,23 +258,22 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
             CASE "get global var", "get local var"
                 vw_tempIndex = CVL(LEFT$(vw_value$, 4))
                 vw_isarray = _CV(_BYTE, MID$(vw_value$, 5, 1))
-                vw_localIndex = CVL(MID$(vw_value$, 6, 4))
-                vw_arrayIndex = CVL(MID$(vw_value$, 10, 4))
-                vw_arrayelementsize = CVL(MID$(vw_value$, 14, 4))
-                vw_element = CVL(MID$(vw_value$, 18, 4))
-                vw_elementoffset = CVL(MID$(vw_value$, 22, 4))
-                vw_varSize = CVL(MID$(vw_value$, 26, 4))
+                vw_originalVarLineNumber = CVL(MID$(vw_value$, 6, 4))
+                vw_localIndex = CVL(MID$(vw_value$, 10, 4))
+                vw_arrayIndex = CVL(MID$(vw_value$, 14, 4))
+                vw_arrayelementsize = CVL(MID$(vw_value$, 18, 4))
+                vw_element = CVL(MID$(vw_value$, 22, 4))
+                vw_elementoffset = CVL(MID$(vw_value$, 26, 4))
+                vw_varSize = CVL(MID$(vw_value$, 30, 4))
                 IF vw_varSize = 0 THEN GOTO cmdProcessingDone
-                vw_storage = CVL(MID$(vw_value$, 30, 4))
-                vw_i = CVI(MID$(vw_value$, 34, 2))
+                vw_storage = CVL(MID$(vw_value$, 34, 4))
+                vw_i = CVI(MID$(vw_value$, 38, 2))
                 IF vw_i THEN
-                    vw_scope$ = MID$(vw_value$, 36, vw_i)
-                    vw_i = CVI(MID$(vw_value$, 36 + vw_i, 2))
-                    vw_varType$ = RIGHT$(vw_value$, vw_i)
-                ELSE
-                    vw_i = CVI(MID$(vw_value$, 36, 2))
-                    vw_varType$ = RIGHT$(vw_value$, vw_i)
+                    vw_scope$ = MID$(vw_value$, 40, vw_i)
                 END IF
+                vw_i = CVI(MID$(vw_value$, 40 + vw_i, 2))
+                vw_varType$ = RIGHT$(vw_value$, vw_i)
+
                 IF vw_cmd$ = "get global var" THEN
                     vw_address = _OFFSET(globalVariables) + LEN(vw_address) * vw_localIndex
                 ELSE
@@ -284,10 +283,15 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                         GOTO cmdProcessingDone
                     END IF
                 END IF
+
                 vw_address = _MEMGET(vw_m, vw_address, _OFFSET) 'first resolve pass
                 vw_address = _MEMGET(vw_m, vw_address, _OFFSET) 'second resolve pass
 
                 IF vw_isarray THEN
+                    IF vw_originalVarLineNumber > 0 THEN
+                        'prevent fetching array data before DIM line
+                        IF vwatch_linenumber <= vw_originalVarLineNumber THEN GOTO cmdProcessingDone
+                    END IF
                     vw_lbound = check_lbound%&(vw_address)
                     vw_ubound = check_ubound%&(vw_address)
 

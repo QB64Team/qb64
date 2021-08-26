@@ -7399,6 +7399,7 @@ SUB DebugMode
                         IF varSize& THEN
                             cmd$ = cmd$ + MKL$(tempIndex&)
                             cmd$ = cmd$ + _MK$(_BYTE, usedVariableList(tempIndex&).isarray)
+                            cmd$ = cmd$ + MKL$(usedVariableList(tempIndex&).linenumber)
                             cmd$ = cmd$ + MKL$(usedVariableList(tempIndex&).localIndex)
                             cmd$ = cmd$ + MKL$(tempArrayIndex&)
                             cmd$ = cmd$ + MKL$(usedVariableList(tempIndex&).arrayElementSize)
