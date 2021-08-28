@@ -7069,9 +7069,17 @@ SUB DebugMode
                         result$ = idevariablewatchbox$(currentSub$, filter$, selectVar, returnAction)
                         IF returnAction = 1 THEN
                             'set address
+                            tempHeader$ = LEFT$(result$, 24)
                             tempIndex& = CVL(LEFT$(result$, 4))
-                            usedVariableList(tempIndex&).watch = -1
-                            value$ = MID$(result$, 5)
+                            tempIsArray& = CVL(MID$(result$, 5, 4))
+                            tempArrayIndex& = CVL(MID$(result$, 9, 4))
+                            tempIsUDT& = CVL(MID$(result$, 13, 4))
+                            tempElementOffset& = CVL(MID$(result$, 17, 4))
+                            tempStorage& = CVL(MID$(result$, 25, 4))
+                            i = CVI(MID$(result$, 29, 2))
+                            varType$ = MID$(result$, 31, i)
+                            i = CVI(MID$(result$, 31 + i, 2))
+                            value$ = RIGHT$(result$, i)
 
                             IF LEN(usedVariableList(tempIndex&).subfunc) = 0 THEN
                                 cmd$ = "set global address:"
@@ -7079,13 +7087,17 @@ SUB DebugMode
                                 cmd$ = "set local address:"
                             END IF
 
-                            varType$ = usedVariableList(tempIndex&).varType
-                            IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
-                            SELECT CASE varType$
+                            tempVarType$ = varType$
+                            IF INSTR(varType$, "STRING *") THEN tempVarType$ = "STRING"
+                            IF INSTR(varType$, "BIT *") THEN tempVarType$ = "_BIT"
+                            IF tempVarType$ = "_BIT" AND INSTR(varType$, "UNSIGNED") > 0 THEN
+                                tempVarType$ = "_UNSIGNED _BIT"
+                            END IF
+                            SELECT CASE tempVarType$
                                 CASE "_BYTE", "_UNSIGNED _BYTE", "BYTE", "UNSIGNED BYTE"
                                     value$ = _MK$(_BYTE, VAL(value$))
                                     varSize& = LEN(dummy%%)
-                                    IF INSTR(varType$, "UNSIGNED") > 0 THEN
+                                    IF INSTR(tempVarType$, "UNSIGNED") > 0 THEN
                                         result$ = STR$(_CV(_UNSIGNED _BYTE, value$))
                                     ELSE
                                         result$ = STR$(_CV(_BYTE, value$))
@@ -7093,7 +7105,7 @@ SUB DebugMode
                                 CASE "INTEGER", "_UNSIGNED INTEGER", "UNSIGNED INTEGER"
                                     value$ = MKI$(VAL(value$))
                                     varSize& = LEN(dummy%)
-                                    IF INSTR(varType$, "UNSIGNED") > 0 THEN
+                                    IF INSTR(tempVarType$, "UNSIGNED") > 0 THEN
                                         result$ = STR$(_CV(_UNSIGNED INTEGER, value$))
                                     ELSE
                                         result$ = STR$(_CV(INTEGER, value$))
@@ -7101,7 +7113,7 @@ SUB DebugMode
                                 CASE "LONG", "_UNSIGNED LONG", "UNSIGNED LONG"
                                     value$ = MKL$(VAL(value$))
                                     varSize& = LEN(dummy&)
-                                    IF INSTR(varType$, "UNSIGNED") > 0 THEN
+                                    IF INSTR(tempVarType$, "UNSIGNED") > 0 THEN
                                         result$ = STR$(_CV(_UNSIGNED LONG, value$))
                                     ELSE
                                         result$ = STR$(_CV(LONG, value$))
@@ -7109,7 +7121,7 @@ SUB DebugMode
                                 CASE "_INTEGER64", "INTEGER64", "_UNSIGNED _INTEGER64", "UNSIGNED INTEGER64"
                                     value$ = _MK$(_INTEGER64, VAL(value$))
                                     varSize& = LEN(dummy&&)
-                                    IF INSTR(varType$, "UNSIGNED") > 0 THEN
+                                    IF INSTR(tempVarType$, "UNSIGNED") > 0 THEN
                                         result$ = STR$(_CV(_UNSIGNED _INTEGER64, value$))
                                     ELSE
                                         result$ = STR$(_CV(_INTEGER64, value$))
@@ -7129,30 +7141,25 @@ SUB DebugMode
                                 CASE "_OFFSET", "_UNSIGNED _OFFSET", "OFFSET", "UNSIGNED OFFSET"
                                     value$ = _MK$(_OFFSET, VAL(value$))
                                     varSize& = LEN(dummy%&)
-                                    IF INSTR(varType$, "UNSIGNED") > 0 THEN
+                                    IF INSTR(tempVarType$, "UNSIGNED") > 0 THEN
                                         result$ = STR$(_CV(_UNSIGNED _OFFSET, value$))
                                     ELSE
                                         result$ = STR$(_CV(_OFFSET, value$))
                                     END IF
                                 CASE "STRING"
                                     varSize& = LEN(value$)
-                                    IF LEN(usedVariableList(tempIndex&).subfunc) = 0 THEN
-                                        cmd$ = "set global string:"
-                                    ELSE
-                                        cmd$ = "set local string:"
-                                    END IF
-                                    cmd$ = cmd$ + MKL$(usedVariableList(tempIndex&).localIndex) + MKL$(varSize&) + value$
-                                    GOSUB SendCommand
-                                    vWatchReceivedData$(CVL(LEFT$(usedVariableList(tempIndex&).storage, 4))) = MID$(result$, 5)
-                                    PCOPY 3, 0: SCREEN , , 3, 0
-                                    WHILE _MOUSEINPUT: WEND
-                                    GOSUB UpdateDisplay
-                                    _CONTINUE
+                                    result$ = value$
                             END SELECT
-                            cmd$ = cmd$ + MKL$(usedVariableList(tempIndex&).localIndex) + MKL$(varSize&) + value$
-                            GOSUB SendCommand
-                            vWatchReceivedData$(CVL(LEFT$(usedVariableList(tempIndex&).storage, 4))) = result$
 
+                            cmd$ = cmd$ + tempHeader$
+                            cmd$ = cmd$ + MKL$(varSize&)
+                            cmd$ = cmd$ + MKI$(LEN(varType$)) + varType$
+                            cmd$ = cmd$ + MKI$(LEN(value$)) + value$
+                            GOSUB SendCommand
+
+                            IF tempStorage& > 0 THEN
+                                vWatchReceivedData$(tempStorage&) = result$
+                            END IF
 
                             PCOPY 3, 0: SCREEN , , 3, 0
                             WHILE _MOUSEINPUT: WEND
@@ -7383,13 +7390,14 @@ SUB DebugMode
                 'request variables addresses
                 IF LEN(variableWatchList$) THEN
                     requestVariableValues:
-                    temp$ = MID$(variableWatchList$, 5)
+                    temp$ = MID$(variableWatchList$, 9)
                     DO WHILE LEN(temp$)
                         tempIndex& = CVL(LEFT$(temp$, 4))
                         tempArrayIndex& = CVL(MID$(temp$, 5, 4))
                         tempElement& = CVL(MID$(temp$, 9, 4))
-                        tempStorage& = CVL(MID$(temp$, 13, 4))
-                        temp$ = MID$(temp$, 17)
+                        tempElementOffset& = CVL(MID$(temp$, 13, 4))
+                        tempStorage& = CVL(MID$(temp$, 17, 4))
+                        temp$ = MID$(temp$, 25)
                         IF LEN(usedVariableList(tempIndex&).subfunc) = 0 THEN
                             cmd$ = "get global var:"
                         ELSE
@@ -7645,7 +7653,7 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariabl
         'new setup
         previousVariableWatchList$ = variableWatchList$
         longestVarName = CVL(LEFT$(variableWatchList$, 4))
-        totalVisibleVariables = (LEN(variableWatchList$) - 4) \ 16
+        totalVisibleVariables = (LEN(variableWatchList$) - 4) \ 20
         this.h = totalVisibleVariables + 2
         IF this.h > idewy - 10 THEN this.h = idewy - 10
         IF this.h < 5 THEN this.h = 5
@@ -7680,13 +7688,14 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariabl
     i = 0
     this.contentWidth = 0
     IF this.hPos = 0 THEN this.hPos = 1
-    temp$ = MID$(variableWatchList$, 5)
+    temp$ = MID$(variableWatchList$, 9)
     DO WHILE LEN(temp$)
         tempIndex& = CVL(LEFT$(temp$, 4))
         tempArrayIndex& = CVL(MID$(temp$, 5, 4))
         tempElement& = CVL(MID$(temp$, 9, 4))
-        tempStorage& = CVL(MID$(temp$, 13, 4))
-        temp$ = MID$(temp$, 17)
+        tempElementOffset& = CVL(MID$(temp$, 13, 4))
+        tempStorage& = CVL(MID$(temp$, 17, 4))
+        temp$ = MID$(temp$, 25)
         i = i + 1
         IF this.firstVisible > i AND WatchListToConsole = 0 THEN _CONTINUE
         y = y + 1
@@ -7986,24 +7995,195 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
         IF (IdeDebugMode > 0 AND focus = 5 AND info <> 0) THEN
             'set address
             sendValue:
-            IF o(varListBox).sel > 0 THEN
-                i = o(varListBox).sel
-                IF usedVariableList(varDlgList(i).index).subfunc = currentScope$ OR usedVariableList(varDlgList(i).index).subfunc = "" THEN
+            _CONSOLE ON: _ECHO "At sendValue:"
+            y = ABS(o(varListBox).sel)
+            _CONSOLE ON: _ECHO "y =" + STR$(y)
+
+            IF y >= 1 AND y <= totalVisibleVariables THEN
+                tempIndex& = varDlgList(y).index
+                _CONSOLE ON: _ECHO "tempIndex& =" + STR$(tempIndex&)
+                IF usedVariableList(tempIndex&).subfunc = currentScope$ OR usedVariableList(tempIndex&).subfunc = "" THEN
                     'scope is valid
-                    a2$ = vWatchReceivedData$(CVL(LEFT$(usedVariableList(varDlgList(i).index).storage, 4)))
-                    IF INSTR(usedVariableList(varDlgList(i).index).varType, "STRING") THEN
+                    _CONSOLE ON: _ECHO "Scope is valid"
+                    tempArrayIndex& = 0
+                    tempStorage& = 0
+                    tempIsUDT& = 0
+                    tempElementOffset$ = MKL$(0)
+                    IF usedVariableList(tempIndex&).isarray THEN
+                        _CONSOLE ON: _ECHO "it's an array"
+                        v$ = ideinputbox$("Change Value", "#Index to change", temp$, "01234567890", 45, 0, ok)
+                        IF ok THEN
+                            IF LEN(v$) > 0 THEN
+                                tempArrayIndex& = VAL(v$)
+                            ELSE
+                                _CONTINUE
+                            END IF
+                        ELSE
+                            _CONTINUE
+                        END IF
+                    END IF
+
+                    varType$ = usedVariableList(tempIndex&).varType
+                    _CONSOLE ON: _ECHO "varType$ = " + varType$
+                    tempVarType$ = varType$
+                    IF INSTR(varType$, "STRING *") THEN tempVarType$ = "STRING"
+                    IF INSTR(varType$, "_BIT *") THEN tempVarType$ = "_BIT"
+                    IF INSTR(nativeDataTypes$, tempVarType$) = 0 THEN
+                        _CONSOLE ON: _ECHO "It's a UDT"
+                        'It's a UDT
+                        tempIsUDT& = -1
+                        elementIndexes$ = ""
+                        thisUDT = 0
+                        E = 0
+                        FOR i = 1 TO lasttype
+                            IF RTRIM$(udtxcname(i)) = varType$ THEN thisUDT = i: EXIT FOR
+                        NEXT
+
+                        i = 0
+                        DO
+                            IF E = 0 THEN E = udtxnext(thisUDT) ELSE E = udtenext(E)
+                            IF E = 0 THEN EXIT DO
+                            elementIndexes$ = elementIndexes$ + MKL$(E)
+                            i = i + 1
+                        LOOP
+                        _CONSOLE ON: _ECHO "Will choose UDT element"
+                        PCOPY 0, 4
+                        v$ = ideelementwatchbox$(usedVariableList(tempIndex&).name + ".", elementIndexes$, 0, -1, ok)
+                        PCOPY 2, 0
+                        PCOPY 2, 1
+                        SCREEN , , 1, 0
+                        IF ok = -2 THEN
+                            _CONSOLE ON: _ECHO "ok = -2"
+                            getid usedVariableList(tempIndex&).id
+                            IF id.t = 0 THEN
+                                typ = id.arraytype AND 511
+                                IF id.arraytype AND ISINCONVENTIONALMEMORY THEN
+                                    typ = typ - ISINCONVENTIONALMEMORY
+                                END IF
+
+                                usedVariableList(tempIndex&).arrayElementSize = udtxsize(typ)
+                                IF udtxbytealign(typ) THEN
+                                    IF usedVariableList(tempIndex&).arrayElementSize MOD 8 THEN usedVariableList(tempIndex&).arrayElementSize = usedVariableList(tempIndex&).arrayElementSize + (8 - (usedVariableList(tempIndex&).arrayElementSize MOD 8)) 'round up to nearest byte
+                                    usedVariableList(tempIndex&).arrayElementSize = usedVariableList(tempIndex&).arrayElementSize \ 8
+                                END IF
+                            ELSE
+                                usedVariableList(tempIndex&).arrayElementSize = 0
+                            END IF
+
+                            temp$ = v$
+                            _CONSOLE ON: _ECHO "numelements(temp$) =" + STR$(numelements(temp$))
+                            IF numelements(temp$) <> 1 THEN
+                                'shouldn't ever happen
+                                result = idemessagebox("Error", "Only one UDT element can be changed at a time", "#OK")
+                                _CONTINUE
+                            END IF
+
+                            v$ = getelement$(temp$, 1)
+
+                            '-------
+                            v$ = lineformat$(UCASE$(v$))
+                            Error_Happened = 0
+                            result$ = udtreference$("", v$, typ)
+                            IF Error_Happened THEN
+                                'shouldn't ever happen
+                                Error_Happened = 0
+                                result = idemessagebox("Error", Error_Message, "#OK")
+                                _CONTINUE
+                            ELSE
+                                typ = typ - ISUDT
+                                typ = typ - ISREFERENCE
+                                IF typ AND ISINCONVENTIONALMEMORY THEN typ = typ - ISINCONVENTIONALMEMORY
+                                SELECT CASE typ
+                                    CASE BYTETYPE
+                                        varType$ = "_BYTE"
+                                    CASE UBYTETYPE
+                                        varType$ = "_UNSIGNED _BYTE"
+                                    CASE INTEGERTYPE
+                                        varType$ = "INTEGER"
+                                    CASE UINTEGERTYPE
+                                        varType$ = "_UNSIGNED INTEGER"
+                                    CASE LONGTYPE
+                                        varType$ = "LONG"
+                                    CASE ULONGTYPE
+                                        varType$ = "_UNSIGNED LONG"
+                                    CASE INTEGER64TYPE
+                                        varType$ = "_INTEGER64"
+                                    CASE UINTEGER64TYPE
+                                        varType$ = "_UNSIGNED _INTEGER64"
+                                    CASE SINGLETYPE
+                                        varType$ = "SINGLE"
+                                    CASE DOUBLETYPE
+                                        varType$ = "DOUBLE"
+                                    CASE FLOATTYPE
+                                        varType$ = "_FLOAT"
+                                    CASE OFFSETTYPE
+                                        varType$ = "_OFFSET"
+                                    CASE UOFFSETTYPE
+                                        varType$ = "_UNSIGNED _OFFSET"
+                                    CASE ELSE
+                                        IF typ AND ISSTRING THEN
+                                            IF (typ AND ISFIXEDLENGTH) = 0 THEN
+                                                varType$ = "STRING"
+                                            ELSE
+                                                'E contains the UDT element index at this point
+                                                varType$ = "STRING *" + STR$(udtetypesize(E))
+                                            END IF
+                                        ELSE
+                                            'shouldn't ever happen
+                                            result = idemessagebox("Error", "Cannot send value to full UDT", "#OK")
+                                            GOTO dlgLoop
+                                        END IF
+                                END SELECT
+                                tempElementOffset$ = MKL$(VAL(MID$(result$, _INSTRREV(result$, sp3) + 1)))
+                            END IF
+                            _CONSOLE ON: _ECHO "varType$ = " + varType$
+                            '-------
+                        ELSE
+                            _CONTINUE
+                        END IF
+                    END IF
+                    storageSlot& = 0
+                    i = 5
+                    DO
+                        i = INSTR(i + 1, variableWatchList$, MKL$(-1) + MKL$(tempIndex&) + MKL$(tempArrayIndex&))
+                        IF i = 0 THEN EXIT DO
+                        IF MID$(variableWatchList$, i + 16, 4) = tempElementOffset$ THEN
+                            'we found where this element's value is being stored
+                            storageSlot& = CVL(MID$(variableWatchList$, i + 20, 4))
+                            EXIT DO
+                        END IF
+                    LOOP
+                    _CONSOLE ON: _ECHO "Will input data"
+                    a2$ = ""
+                    IF storageSlot& > 0 THEN
+                        _CONSOLE ON: _ECHO "Found storage slot"
+                        a2$ = vWatchReceivedData$(storageSlot&)
+                        _CONSOLE ON: _ECHO "Current data: " + a2$
+                    END IF
+                    IF INSTR(varType$, "STRING") THEN
                         thisWidth = idewx - 20
                     ELSE
                         thisWidth = 45
                     END IF
                     v$ = ideinputbox$("Change Value", "#New value", a2$, "", thisWidth, 0, ok)
                     IF ok THEN
-                        idevariablewatchbox$ = MKL$(varDlgList(i).index) + v$
+                        temp$ = ""
+                        temp$ = temp$ + MKL$(usedVariableList(tempIndex&).localindex)
+                        temp$ = temp$ + MKL$(usedVariableList(tempIndex&).isarray <> 0)
+                        temp$ = temp$ + MKL$(tempArrayIndex&)
+                        temp$ = temp$ + MKL$(tempIsUDT&)
+                        temp$ = temp$ + tempElementOffset$
+                        temp$ = temp$ + MKL$(usedVariableList(tempIndex&).arrayElementSize)
+                        temp$ = temp$ + MKL$(storageSlot&)
+                        temp$ = temp$ + MKI$(LEN(varType$)) + varType$
+                        temp$ = temp$ + MKI$(LEN(v$)) + v$
+                        idevariablewatchbox$ = temp$
                         returnAction = 1 'actually send value
                     ELSE
                         returnAction = 2 'redraw and carry on
                     END IF
-                    selectVar = i
+                    selectVar = y
+                    _CONSOLE ON: _ECHO "Exiting with returnAction =" + STR$(returnAction)
                     EXIT FUNCTION
                 ELSE
                     result = idemessagebox("Change Value", "Variable is out of scope.", "#OK")
@@ -8046,7 +8226,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                             WHILE nextvWatchDataSlot > UBOUND(vWatchReceivedData$)
                                 REDIM _PRESERVE vWatchReceivedData$(1 TO UBOUND(vWatchReceivedData$) + 999)
                             WEND
-                            variableWatchList$ = variableWatchList$ + MKL$(y) + LEFT$(temp$, 4) + MKL$(0) + MKL$(nextvWatchDataSlot)
+                            variableWatchList$ = variableWatchList$ + MKL$(-1) + MKL$(y) + LEFT$(temp$, 4) + MKL$(0) + MKL$(0) + MKL$(nextvWatchDataSlot)
                             usedVariableList(y).storage = usedVariableList(y).storage + MKL$(nextvWatchDataSlot)
                             vWatchReceivedData$(nextvWatchDataSlot) = ""
                             temp$ = MID$(temp$, 5)
@@ -8055,7 +8235,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                         'array of UDT
                         temp$ = usedVariableList(y).indexes
                         DO WHILE LEN(temp$)
-                            thisTempElement$ = MKL$(y) + LEFT$(temp$, 4)
+                            thisTempElement$ = MKL$(-1) + MKL$(y) + LEFT$(temp$, 4)
                             thisElementList$ = MID$(usedVariableList(y).elements, 5)
                             i = 0
                             DO
@@ -8067,7 +8247,8 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                                 WHILE nextvWatchDataSlot > UBOUND(vWatchReceivedData$)
                                     REDIM _PRESERVE vWatchReceivedData$(1 TO UBOUND(vWatchReceivedData$) + 999)
                                 WEND
-                                variableWatchList$ = variableWatchList$ + thisTempElement$ + MKL$(i) + MKL$(nextvWatchDataSlot)
+                                tempElementOffset& = CVL(MID$(usedVariableList(y).elementOffset, i * 4 - 3, 4))
+                                variableWatchList$ = variableWatchList$ + thisTempElement$ + MKL$(i) + MKL$(tempElementOffset&) + MKL$(nextvWatchDataSlot)
                                 usedVariableList(y).storage = usedVariableList(y).storage + MKL$(nextvWatchDataSlot)
                                 vWatchReceivedData$(nextvWatchDataSlot) = ""
                             LOOP
@@ -8075,7 +8256,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                         LOOP
                     ELSEIF usedVariableList(y).isarray = 0 AND LEN(usedVariableList(y).elements) > 0 THEN
                         'single variable of UDT
-                        thisTempElement$ = MKL$(y) + MKL$(0)
+                        thisTempElement$ = MKL$(-1) + MKL$(y) + MKL$(0)
                         thisElementList$ = MID$(usedVariableList(y).elements, 5)
                         i = 0
                         DO
@@ -8087,7 +8268,8 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                             WHILE nextvWatchDataSlot > UBOUND(vWatchReceivedData$)
                                 REDIM _PRESERVE vWatchReceivedData$(1 TO UBOUND(vWatchReceivedData$) + 999)
                             WEND
-                            variableWatchList$ = variableWatchList$ + thisTempElement$ + MKL$(i) + MKL$(nextvWatchDataSlot)
+                            tempElementOffset& = CVL(MID$(usedVariableList(y).elementOffset, i * 4 - 3, 4))
+                            variableWatchList$ = variableWatchList$ + thisTempElement$ + MKL$(i) + MKL$(tempElementOffset&) + MKL$(nextvWatchDataSlot)
                             usedVariableList(y).storage = usedVariableList(y).storage + MKL$(nextvWatchDataSlot)
                             vWatchReceivedData$(nextvWatchDataSlot) = ""
                         LOOP
@@ -8097,7 +8279,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                         WHILE nextvWatchDataSlot > UBOUND(vWatchReceivedData$)
                             REDIM _PRESERVE vWatchReceivedData$(1 TO UBOUND(vWatchReceivedData$) + 999)
                         WEND
-                        variableWatchList$ = variableWatchList$ + MKL$(y) + MKL$(0) + MKL$(0) + MKL$(nextvWatchDataSlot)
+                        variableWatchList$ = variableWatchList$ + MKL$(-1) + MKL$(y) + MKL$(0) + MKL$(0) + MKL$(0) + MKL$(nextvWatchDataSlot)
                         usedVariableList(y).storage = MKL$(nextvWatchDataSlot)
                     END IF
                 END IF
@@ -8113,9 +8295,14 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
 
         IF mCLICK AND focus = 2 THEN 'list click
             IF timeElapsedSince(lastClick!) < .3 AND clickedItem = o(varListBox).sel THEN
+                _CONSOLE ON: _ECHO "Double-click on list"
+                _ECHO "mX =" + STR$(mX)
+                _ECHO "p.x + doubleClickThreshold =" + STR$(p.x + doubleClickThreshold)
                 IF mX < p.x + doubleClickThreshold OR IdeDebugMode = 0 THEN
+                    _CONSOLE ON: _ECHO "Will toggle"
                     GOTO toggleWatch
                 ELSE
+                    _CONSOLE ON: _ECHO "Will send value"
                     GOTO sendValue
                 END IF
             END IF
@@ -8185,7 +8372,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                             i = i + 1
                         LOOP
                         PCOPY 0, 4
-                        v$ = ideelementwatchbox$(usedVariableList(varDlgList(y).index).name + ".", elementIndexes$, 0, ok)
+                        v$ = ideelementwatchbox$(usedVariableList(varDlgList(y).index).name + ".", elementIndexes$, 0, 0, ok)
                         PCOPY 2, 0
                         PCOPY 2, 1
                         SCREEN , , 1, 0
@@ -8340,6 +8527,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
             idetxt(p.nam) = "Add Watch - Variable List (" + LTRIM$(STR$(totalVisibleVariables)) + temp$ + ")"
         END IF
 
+        dlgLoop:
         'end of custom controls
         mousedown = 0
         mouseup = 0
@@ -8464,7 +8652,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
         END IF
 
         l$ = l$ + text$ + l3$
-        IF totalVisibleVariables = 1 THEN doubleClickThreshold = LEN(l$) - 3
+        IF x = 1 THEN doubleClickThreshold = LEN(l$) - 3
 
         IF IdeDebugMode > 0 THEN
             IF usedVariableList(x).subfunc = currentScope$ OR usedVariableList(x).subfunc = "" THEN
@@ -8503,7 +8691,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
     RETURN
 END FUNCTION
 
-FUNCTION ideelementwatchbox$(currentPath$, elementIndexes$, level, ok)
+FUNCTION ideelementwatchbox$(currentPath$, elementIndexes$, level, singleElementSelection, ok)
 
     '-------- generic dialog box header --------
     PCOPY 4, 0
@@ -8553,7 +8741,11 @@ FUNCTION ideelementwatchbox$(currentPath$, elementIndexes$, level, ok)
     o(buttonSet).typ = 3
     o(buttonSet).y = dialogHeight
     IF o(buttonSet).txt = 0 THEN
-        o(buttonSet).txt = idenewtxt("#Add All" + sep + "#Remove All" + sep + "#Close")
+        IF singleElementSelection THEN
+            o(buttonSet).txt = idenewtxt("#OK" + sep + "#Cancel" + sep + "#Up One Level")
+        ELSE
+            o(buttonSet).txt = idenewtxt("#Add All" + sep + "#Remove All" + sep + "#Close")
+        END IF
     END IF
 
     '-------- end of init --------
@@ -8632,52 +8824,83 @@ FUNCTION ideelementwatchbox$(currentPath$, elementIndexes$, level, ok)
             END IF
         NEXT
         '-------- end of generic input response --------
-        IF (focus = 2 AND info <> 0) THEN 'add all
-            FOR y = 1 TO totalElements
-                varType$ = varDlgList(y).varType
-                IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
-                IF INSTR(varType$, "BIT *") THEN varType$ = "_BIT"
-                IF INSTR(nativeDataTypes$, varType$) > 0 THEN
-                    varDlgList(y).selected = -1
-                    ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = variableNameColor
-                    ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag2) = typeColumnColor
-                    ASC(idetxt(o(varListBox).txt), varDlgList(y).bgColorFlag) = selectedBG
-                    ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 43 '+
+        IF (focus = 2 AND info <> 0) THEN
+            IF singleElementSelection THEN
+                'ok
+                y = ABS(o(varListBox).sel)
+
+                IF y >= 1 AND y <= totalElements THEN
+                    IF varDlgList(y).selected = 0 THEN toggleAndReturn = -1: GOSUB toggleWatch: toggleAndReturn = 0
                 END IF
-            NEXT
-            _CONTINUE
-        END IF
-
-        IF (focus = 3 AND info <> 0) THEN 'remove all
-            FOR y = 1 TO totalElements
-                varDlgList(y).selected = 0
-                ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = 16
-                ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag2) = 2
-                ASC(idetxt(o(varListBox).txt), varDlgList(y).bgColorFlag) = 17
-                ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 32 'space
-            NEXT
-            _CONTINUE
-        END IF
-
-        IF K$ = CHR$(27) OR (focus = 4 AND info <> 0) THEN
-            'build element list to return
-            FOR y = 1 TO totalElements
-                IF varDlgList(y).selected THEN
+                GOTO buildListToReturn
+            ELSE
+                'add all
+                FOR y = 1 TO totalElements
                     varType$ = varDlgList(y).varType
                     IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
                     IF INSTR(varType$, "BIT *") THEN varType$ = "_BIT"
                     IF INSTR(nativeDataTypes$, varType$) > 0 THEN
-                        'non-native data types will have already been added to the return list
-                        thisName$ = RTRIM$(udtecname(varDlgList(y).index))
-                        IF LEN(returnList$) THEN returnList$ = returnList$ + sp
-                        returnList$ = returnList$ + currentPath$ + thisName$
+                        varDlgList(y).selected = -1
+                        ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = variableNameColor
+                        ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag2) = typeColumnColor
+                        ASC(idetxt(o(varListBox).txt), varDlgList(y).bgColorFlag) = selectedBG
+                        ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 43 '+
                     END IF
-                END IF
-            NEXT
+                NEXT
+            END IF
+            _CONTINUE
+        END IF
 
-            ok = LEN(returnList$) > 0
-            IF level = 0 THEN returnList$ = StrReplace$(returnList$, currentPath$, ".")
-            ideelementwatchbox$ = returnList$
+        IF (focus = 3 AND info <> 0) THEN
+            IF singleElementSelection THEN
+                'cancel
+                ok = -3
+                EXIT FUNCTION
+            ELSE
+                'remove all
+                FOR y = 1 TO totalElements
+                    varDlgList(y).selected = 0
+                    ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = 16
+                    ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag2) = 2
+                    ASC(idetxt(o(varListBox).txt), varDlgList(y).bgColorFlag) = 17
+                    ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 32 'space
+                NEXT
+            END IF
+            _CONTINUE
+        END IF
+
+        IF K$ = CHR$(27) OR (focus = 4 AND info <> 0) THEN
+            IF singleElementSelection THEN
+                EXIT FUNCTION
+            ELSE
+                'build element list to return
+                buildListToReturn:
+                FOR y = 1 TO totalElements
+                    IF varDlgList(y).selected THEN
+                        varType$ = varDlgList(y).varType
+                        IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
+                        IF INSTR(varType$, "BIT *") THEN varType$ = "_BIT"
+                        IF INSTR(nativeDataTypes$, varType$) > 0 THEN
+                            'non-native data types will have already been added to the return list
+                            thisName$ = RTRIM$(udtecname(varDlgList(y).index))
+                            IF LEN(returnList$) THEN returnList$ = returnList$ + sp
+                            returnList$ = returnList$ + currentPath$ + thisName$
+                        END IF
+                    END IF
+                NEXT
+
+                IF singleElementSelection THEN
+                    IF LEN(returnList$) > 0 THEN
+                        ok = -2 'different return so selection can be done with
+                    ELSE
+                        ok = 0
+                    END IF
+                ELSE
+                    ok = LEN(returnList$) > 0
+                END IF
+                IF level = 0 THEN returnList$ = StrReplace$(returnList$, currentPath$, ".")
+                ideelementwatchbox$ = returnList$
+            END IF
 
             IF mousedown THEN
                 DO
@@ -8705,6 +8928,13 @@ FUNCTION ideelementwatchbox$(currentPath$, elementIndexes$, level, ok)
             IF y >= 1 AND y <= totalElements THEN
                 varDlgList(y).selected = NOT varDlgList(y).selected
                 IF varDlgList(y).selected THEN
+                    IF singleElementSelection THEN
+                        FOR i = 1 TO totalElements
+                            IF i = y THEN _CONTINUE
+                            varDlgList(y).selected = 0
+                        NEXT
+                    END IF
+
                     varType$ = varDlgList(y).varType
                     IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
                     IF INSTR(varType$, "BIT *") THEN varType$ = "_BIT"
@@ -8724,7 +8954,15 @@ FUNCTION ideelementwatchbox$(currentPath$, elementIndexes$, level, ok)
                             elementIndexes2$ = elementIndexes2$ + MKL$(E)
                             i = i + 1
                         LOOP
-                        v$ = ideelementwatchbox$(currentPath$ + RTRIM$(udtecname(varDlgList(y).index)) + ".", elementIndexes2$, level + 1, ok2)
+                        v$ = ideelementwatchbox$(currentPath$ + RTRIM$(udtecname(varDlgList(y).index)) + ".", elementIndexes2$, level + 1, singleElementSelection, ok2)
+                        IF ok2 = -2 THEN
+                            'single selection
+                            ideelementwatchbox$ = returnList$
+                            EXIT FUNCTION
+                        ELSEIF ok2 = -3 THEN
+                            'single selection canceled
+                            EXIT FUNCTION
+                        END IF
                     END IF
 
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).colorFlag) = variableNameColor
@@ -8738,6 +8976,7 @@ FUNCTION ideelementwatchbox$(currentPath$, elementIndexes$, level, ok)
                     ASC(idetxt(o(varListBox).txt), varDlgList(y).indicator) = 32 'space
                 END IF
             END IF
+            IF toggleAndReturn THEN RETURN
             _CONTINUE
         END IF
 

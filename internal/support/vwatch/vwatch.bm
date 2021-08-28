@@ -10,7 +10,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     DIM AS LONG vw_arrayelementsize, vw_element, vw_elementoffset, vw_storage
     DIM AS _OFFSET vw_address, vw_lbound, vw_ubound
     DIM AS _MEM vw_m, vw_m2
-    DIM AS _BYTE vw_isarray
+    DIM AS _BYTE vw_isarray, vw_isUDT
     DIM vw_start!, vw_temp$, vw_cmd$, vw_value$, vw_k&, vw_buf$, vw_scope$, vw_varType$
     DIM vw_dummy%&
 
@@ -333,10 +333,10 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 vw_m2 = _MEM(_OFFSET(vw_buf$), vw_varSize)
                 _MEMCOPY vw_m, vw_m.OFFSET, vw_m.SIZE TO vw_m2, vw_m2.OFFSET
 
-                IF INSTR(vw_varType$, "STRING *") > 0 AND (vw_isarray <> 0 OR vw_elementoffset > 0) THEN
+                IF INSTR(vw_varType$, "STRING *") > 0 AND (vw_isarray <> 0 OR vw_element > 0) THEN
                     'actual data already fetched; nothing else to do
-                ELSEIF vw_varType$ = "STRING" THEN
-                    IF vw_isarray <> 0 OR vw_elementoffset > 0 THEN
+                ELSEIF INSTR(vw_varType$, "STRING") > 0 THEN
+                    IF vw_isarray <> 0 OR vw_element > 0 THEN
                         'First pass
                         vw_varSize = LEN(vw_dummy%&)
                         vw_buf$ = SPACE$(vw_varSize)
@@ -377,8 +377,17 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 GOSUB SendCommand
             CASE "set global address", "set local address"
                 vw_localIndex = CVL(LEFT$(vw_value$, 4))
-                vw_varSize = CVL(MID$(vw_value$, 5, 4))
-                vw_value$ = RIGHT$(vw_value$, vw_varSize)
+                vw_isarray = (CVL(MID$(vw_value$, 5, 4)) <> 0)
+                vw_arrayIndex = CVL(MID$(vw_value$, 9, 4))
+                vw_isUDT = (CVL(MID$(vw_value$, 13, 4)) <> 0)
+                vw_elementoffset = CVL(MID$(vw_value$, 17, 4))
+                vw_arrayelementsize = CVL(MID$(vw_value$, 21, 4))
+                vw_varSize = CVL(MID$(vw_value$, 25, 4))
+                vw_i = CVI(MID$(vw_value$, 29, 2))
+                vw_varType$ = MID$(vw_value$, 31, vw_i)
+                vw_i = CVI(MID$(vw_value$, 31 + vw_i, 2))
+                vw_value$ = RIGHT$(vw_value$, vw_i)
+
                 IF vw_cmd$ = "set global address" THEN
                     vw_address = _OFFSET(globalVariables) + LEN(vw_address) * vw_localIndex
                 ELSE
@@ -387,35 +396,33 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 vw_address = _MEMGET(vw_m, vw_address, _OFFSET) 'first resolve pass
                 vw_address = _MEMGET(vw_m, vw_address, _OFFSET) 'second resolve pass
 
-                'vw_address now points to the actual data
-                vw_m = _MEM(vw_address, vw_varSize)
-                _MEMPUT vw_m, vw_m.OFFSET, vw_value$
-            CASE "set global string", "set local string"
-                vw_localIndex = CVL(LEFT$(vw_value$, 4))
-                vw_varSize = CVL(MID$(vw_value$, 5, 4))
-                vw_value$ = RIGHT$(vw_value$, vw_varSize)
-                IF vw_cmd$ = "set global string" THEN
-                    vw_address = _OFFSET(globalVariables) + LEN(vw_address) * vw_localIndex
+                IF vw_isarray = 0 AND vw_isUDT = 0 THEN
+                    IF INSTR(vw_varType$, "STRING") = 0 THEN
+                        'numeric variables need no further dereferencing
+                        GOTO setAddress
+                    ELSE
+                        'vw_address now points to the qbs struct
+                        set_qbs_size vw_address, vw_varSize
+
+                        vw_varSize = LEN(vw_address) + LEN(vw_varSize)
+                        vw_buf$ = SPACE$(vw_varSize)
+                        vw_m = _MEM(vw_address, vw_varSize)
+                        vw_m2 = _MEM(_OFFSET(vw_buf$), vw_varSize)
+                        _MEMCOPY vw_m, vw_m.OFFSET, vw_m.SIZE TO vw_m2, vw_m2.OFFSET
+
+                        vw_address = _CV(_OFFSET, LEFT$(vw_buf$, LEN(vw_address))) 'pointer to actual data
+                        vw_varSize = CVL(MID$(vw_buf$, LEN(vw_address) + 1))
+                        IF vw_varSize < LEN(vw_value$) THEN
+                            vw_value$ = LEFT$(vw_value$, vw_varSize)
+                        END IF
+                        GOTO setAddress
+                    END IF
                 ELSE
-                    vw_address = _OFFSET(localVariables) + LEN(vw_address) * vw_localIndex
+                    'extra dereferencing required for arrays and UDTs
                 END IF
-                vw_address = _MEMGET(vw_m, vw_address, _OFFSET) 'first resolve pass
-                vw_address = _MEMGET(vw_m, vw_address, _OFFSET) 'second resolve pass
 
-                'vw_address now points to the qbs struct
-                set_qbs_size vw_address, vw_varSize
-
-                vw_varSize = LEN(vw_address) + LEN(vw_varSize)
-                vw_buf$ = SPACE$(vw_varSize)
-                vw_m = _MEM(vw_address, vw_varSize)
-                vw_m2 = _MEM(_OFFSET(vw_buf$), vw_varSize)
-                _MEMCOPY vw_m, vw_m.OFFSET, vw_m.SIZE TO vw_m2, vw_m2.OFFSET
-
-                vw_address = _CV(_OFFSET, LEFT$(vw_buf$, LEN(vw_address))) 'pointer to actual data
-                vw_varSize = CVL(MID$(vw_buf$, LEN(vw_address) + 1))
-                IF vw_varSize < LEN(vw_value$) THEN
-                    vw_value$ = LEFT$(vw_value$, vw_varSize)
-                END IF
+                setAddress:
+                'vw_address now points to the actual data
                 vw_m = _MEM(vw_address, vw_varSize)
                 _MEMPUT vw_m, vw_m.OFFSET, vw_value$
             CASE "current sub"
