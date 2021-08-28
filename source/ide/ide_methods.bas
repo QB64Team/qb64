@@ -7088,7 +7088,11 @@ SUB DebugMode
                             END IF
 
                             tempVarType$ = varType$
-                            IF INSTR(varType$, "STRING *") THEN tempVarType$ = "STRING"
+                            fixedVarSize& = 0
+                            IF INSTR(varType$, "STRING *") THEN
+                                tempVarType$ = "STRING"
+                                fixedVarSize& = VAL(MID$(varType$, _INSTRREV(varType$, "* ") + 2))
+                            END IF
                             IF INSTR(varType$, "BIT *") THEN tempVarType$ = "_BIT"
                             IF tempVarType$ = "_BIT" AND INSTR(varType$, "UNSIGNED") > 0 THEN
                                 tempVarType$ = "_UNSIGNED _BIT"
@@ -7149,6 +7153,10 @@ SUB DebugMode
                                 CASE "STRING"
                                     varSize& = LEN(value$)
                                     result$ = value$
+                                    IF fixedVarSize& THEN
+                                        varSize& = fixedVarSize&
+                                        result$ = LEFT$(result$, fixedVarSize&)
+                                    END IF
                             END SELECT
 
                             cmd$ = cmd$ + tempHeader$
@@ -7995,22 +8003,17 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
         IF (IdeDebugMode > 0 AND focus = 5 AND info <> 0) THEN
             'set address
             sendValue:
-            _CONSOLE ON: _ECHO "At sendValue:"
             y = ABS(o(varListBox).sel)
-            _CONSOLE ON: _ECHO "y =" + STR$(y)
 
             IF y >= 1 AND y <= totalVisibleVariables THEN
                 tempIndex& = varDlgList(y).index
-                _CONSOLE ON: _ECHO "tempIndex& =" + STR$(tempIndex&)
                 IF usedVariableList(tempIndex&).subfunc = currentScope$ OR usedVariableList(tempIndex&).subfunc = "" THEN
                     'scope is valid
-                    _CONSOLE ON: _ECHO "Scope is valid"
                     tempArrayIndex& = 0
                     tempStorage& = 0
                     tempIsUDT& = 0
                     tempElementOffset$ = MKL$(0)
                     IF usedVariableList(tempIndex&).isarray THEN
-                        _CONSOLE ON: _ECHO "it's an array"
                         v$ = ideinputbox$("Change Value", "#Index to change", temp$, "01234567890", 45, 0, ok)
                         IF ok THEN
                             IF LEN(v$) > 0 THEN
@@ -8024,12 +8027,10 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                     END IF
 
                     varType$ = usedVariableList(tempIndex&).varType
-                    _CONSOLE ON: _ECHO "varType$ = " + varType$
                     tempVarType$ = varType$
                     IF INSTR(varType$, "STRING *") THEN tempVarType$ = "STRING"
                     IF INSTR(varType$, "_BIT *") THEN tempVarType$ = "_BIT"
                     IF INSTR(nativeDataTypes$, tempVarType$) = 0 THEN
-                        _CONSOLE ON: _ECHO "It's a UDT"
                         'It's a UDT
                         tempIsUDT& = -1
                         elementIndexes$ = ""
@@ -8046,14 +8047,12 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                             elementIndexes$ = elementIndexes$ + MKL$(E)
                             i = i + 1
                         LOOP
-                        _CONSOLE ON: _ECHO "Will choose UDT element"
                         PCOPY 0, 4
                         v$ = ideelementwatchbox$(usedVariableList(tempIndex&).name + ".", elementIndexes$, 0, -1, ok)
                         PCOPY 2, 0
                         PCOPY 2, 1
                         SCREEN , , 1, 0
                         IF ok = -2 THEN
-                            _CONSOLE ON: _ECHO "ok = -2"
                             getid usedVariableList(tempIndex&).id
                             IF id.t = 0 THEN
                                 typ = id.arraytype AND 511
@@ -8143,22 +8142,28 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                         END IF
                     END IF
                     storageSlot& = 0
-                    i = 5
-                    DO
-                        i = INSTR(i + 1, variableWatchList$, MKL$(-1) + MKL$(tempIndex&) + MKL$(tempArrayIndex&))
-                        IF i = 0 THEN EXIT DO
-                        IF MID$(variableWatchList$, i + 16, 4) = tempElementOffset$ THEN
-                            'we found where this element's value is being stored
-                            storageSlot& = CVL(MID$(variableWatchList$, i + 20, 4))
-                            EXIT DO
-                        END IF
-                    LOOP
+                    IF LEN(usedVariableList(tempIndex&).storage) = 4 THEN
+                        storageSlot& = CVL(usedVariableList(tempIndex&).storage)
+                    ELSE
+                        i = 5
+                        DO
+                            i = INSTR(i + 1, variableWatchList$, MKL$(-1) + MKL$(tempIndex&) + MKL$(tempArrayIndex&))
+                            IF i = 0 THEN EXIT DO
+                            IF MID$(variableWatchList$, i + 16, 4) = tempElementOffset$ THEN
+                                'we found where this element's value is being stored
+                                storageSlot& = CVL(MID$(variableWatchList$, i + 20, 4))
+                                EXIT DO
+                            END IF
+                        LOOP
+                    END IF
                     _CONSOLE ON: _ECHO "Will input data"
                     a2$ = ""
                     IF storageSlot& > 0 THEN
                         _CONSOLE ON: _ECHO "Found storage slot"
                         a2$ = vWatchReceivedData$(storageSlot&)
                         _CONSOLE ON: _ECHO "Current data: " + a2$
+                    ELSE
+                        _CONSOLE ON: _ECHO "Couldn't find storage slot"
                     END IF
                     IF INSTR(varType$, "STRING") THEN
                         thisWidth = idewx - 20
@@ -8295,14 +8300,9 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
 
         IF mCLICK AND focus = 2 THEN 'list click
             IF timeElapsedSince(lastClick!) < .3 AND clickedItem = o(varListBox).sel THEN
-                _CONSOLE ON: _ECHO "Double-click on list"
-                _ECHO "mX =" + STR$(mX)
-                _ECHO "p.x + doubleClickThreshold =" + STR$(p.x + doubleClickThreshold)
                 IF mX < p.x + doubleClickThreshold OR IdeDebugMode = 0 THEN
-                    _CONSOLE ON: _ECHO "Will toggle"
                     GOTO toggleWatch
                 ELSE
-                    _CONSOLE ON: _ECHO "Will send value"
                     GOTO sendValue
                 END IF
             END IF
