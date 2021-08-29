@@ -7069,8 +7069,9 @@ SUB DebugMode
                         result$ = idevariablewatchbox$(currentSub$, filter$, selectVar, returnAction)
                         IF returnAction = 1 THEN
                             'set address
-                            tempHeader$ = LEFT$(result$, 24)
                             tempIndex& = CVL(LEFT$(result$, 4))
+                            result$ = MID$(result$, 5)
+                            tempHeader$ = LEFT$(result$, 24)
                             tempIsArray& = CVL(MID$(result$, 5, 4))
                             tempArrayIndex& = CVL(MID$(result$, 9, 4))
                             tempIsUDT& = CVL(MID$(result$, 13, 4))
@@ -8173,6 +8174,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                     v$ = ideinputbox$("Change Value", "#New value", a2$, "", thisWidth, 0, ok)
                     IF ok THEN
                         temp$ = ""
+                        temp$ = temp$ + MKL$(tempIndex&)
                         temp$ = temp$ + MKL$(usedVariableList(tempIndex&).localindex)
                         temp$ = temp$ + MKL$(usedVariableList(tempIndex&).isarray <> 0)
                         temp$ = temp$ + MKL$(tempArrayIndex&)
