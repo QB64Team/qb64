@@ -8866,6 +8866,7 @@ FUNCTION ideelementwatchbox$(currentPath$, elementIndexes$, level, singleElement
 
         IF K$ = CHR$(27) OR (focus = 4 AND info <> 0) THEN
             IF singleElementSelection THEN
+                ok = -4
                 EXIT FUNCTION
             ELSE
                 'build element list to return
@@ -8974,6 +8975,14 @@ FUNCTION ideelementwatchbox$(currentPath$, elementIndexes$, level, singleElement
                         ELSEIF ok2 = -3 THEN
                             'single selection canceled
                             EXIT FUNCTION
+                        ELSEIF ok2 = -4 THEN
+                            i = y
+                            varDlgList(i).selected = 0
+                            ASC(idetxt(o(varListBox).txt), varDlgList(i).colorFlag) = 16
+                            ASC(idetxt(o(varListBox).txt), varDlgList(i).colorFlag2) = 2
+                            ASC(idetxt(o(varListBox).txt), varDlgList(i).bgColorFlag) = 17
+                            ASC(idetxt(o(varListBox).txt), varDlgList(i).indicator) = 32 'space
+                            _CONTINUE
                         END IF
                     END IF
 
