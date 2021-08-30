@@ -8898,12 +8898,10 @@ FUNCTION ideelementwatchbox$(currentPath$, elementIndexes$, level, singleElement
                 ideelementwatchbox$ = returnList$
             END IF
 
-            IF mousedown THEN
-                DO
-                    GetInput
-                    _LIMIT 100
-                LOOP UNTIL mRELEASE
-            END IF
+            DO UNTIL mCLICK = 0
+                GetInput
+                _LIMIT 100
+            LOOP
             EXIT FUNCTION
         END IF
 
