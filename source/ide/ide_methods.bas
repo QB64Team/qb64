@@ -8071,7 +8071,6 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                             END IF
 
                             temp$ = v$
-                            _CONSOLE ON: _ECHO "numelements(temp$) =" + STR$(numelements(temp$))
                             IF numelements(temp$) <> 1 THEN
                                 'shouldn't ever happen
                                 result = idemessagebox("Error", "Only one UDT element can be changed at a time", "#OK")
@@ -8136,7 +8135,6 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                                 END SELECT
                                 tempElementOffset$ = MKL$(VAL(MID$(result$, _INSTRREV(result$, sp3) + 1)))
                             END IF
-                            _CONSOLE ON: _ECHO "varType$ = " + varType$
                             '-------
                         ELSE
                             _CONTINUE
@@ -8157,14 +8155,9 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                             END IF
                         LOOP
                     END IF
-                    _CONSOLE ON: _ECHO "Will input data"
                     a2$ = ""
                     IF storageSlot& > 0 THEN
-                        _CONSOLE ON: _ECHO "Found storage slot"
                         a2$ = vWatchReceivedData$(storageSlot&)
-                        _CONSOLE ON: _ECHO "Current data: " + a2$
-                    ELSE
-                        _CONSOLE ON: _ECHO "Couldn't find storage slot"
                     END IF
                     IF INSTR(varType$, "STRING") THEN
                         thisWidth = idewx - 20
@@ -8190,7 +8183,6 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                         returnAction = 2 'redraw and carry on
                     END IF
                     selectVar = y
-                    _CONSOLE ON: _ECHO "Exiting with returnAction =" + STR$(returnAction)
                     EXIT FUNCTION
                 ELSE
                     result = idemessagebox("Change Value", "Variable is out of scope.", "#OK")
@@ -8731,7 +8723,9 @@ FUNCTION ideelementwatchbox$(currentPath$, elementIndexes$, level, singleElement
     IF dialogWidth < 40 THEN dialogWidth = 40
     IF dialogWidth > idewx - 8 THEN dialogWidth = idewx - 8
 
-    idepar p, dialogWidth, dialogHeight, "Add UDT Elements"
+    title$ = "Add UDT Elements"
+    IF singleElementSelection THEN title$ = "Change UDT Element"
+    idepar p, dialogWidth, dialogHeight, title$
 
     i = i + 1: varListBox = i
     o(varListBox).typ = 2
@@ -8830,11 +8824,10 @@ FUNCTION ideelementwatchbox$(currentPath$, elementIndexes$, level, singleElement
             IF singleElementSelection THEN
                 'ok
                 y = ABS(o(varListBox).sel)
-
                 IF y >= 1 AND y <= totalElements THEN
-                    IF varDlgList(y).selected = 0 THEN toggleAndReturn = -1: GOSUB toggleWatch: toggleAndReturn = 0
+                    toggleAndReturn = -1: GOSUB toggleWatch: toggleAndReturn = 0
+                    GOTO buildListToReturn
                 END IF
-                GOTO buildListToReturn
             ELSE
                 'add all
                 FOR y = 1 TO totalElements
@@ -8915,7 +8908,16 @@ FUNCTION ideelementwatchbox$(currentPath$, elementIndexes$, level, singleElement
 
         IF mCLICK AND focus = 1 THEN 'list click
             IF timeElapsedSince(lastClick!) < .3 AND clickedItem = o(varListBox).sel THEN
-                GOTO toggleWatch
+                IF singleElementSelection = 0 THEN
+                    GOTO toggleWatch
+                ELSE
+                    y = ABS(o(varListBox).sel)
+                    IF y >= 1 AND y <= totalElements THEN
+                        toggleAndReturn = -1: GOSUB toggleWatch: toggleAndReturn = 0
+                        y = ABS(o(varListBox).sel)
+                        GOTO buildListToReturn
+                    END IF
+                END IF
             END IF
             lastClick! = TIMER
             IF o(varListBox).sel > 0 THEN clickedItem = o(varListBox).sel
@@ -8928,12 +8930,20 @@ FUNCTION ideelementwatchbox$(currentPath$, elementIndexes$, level, singleElement
             y = ABS(o(varListBox).sel)
 
             IF y >= 1 AND y <= totalElements THEN
-                varDlgList(y).selected = NOT varDlgList(y).selected
+                IF singleElementSelection THEN
+                    varDlgList(y).selected = -1
+                ELSE
+                    varDlgList(y).selected = NOT varDlgList(y).selected
+                END IF
                 IF varDlgList(y).selected THEN
                     IF singleElementSelection THEN
                         FOR i = 1 TO totalElements
                             IF i = y THEN _CONTINUE
-                            varDlgList(y).selected = 0
+                            varDlgList(i).selected = 0
+                            ASC(idetxt(o(varListBox).txt), varDlgList(i).colorFlag) = 16
+                            ASC(idetxt(o(varListBox).txt), varDlgList(i).colorFlag2) = 2
+                            ASC(idetxt(o(varListBox).txt), varDlgList(i).bgColorFlag) = 17
+                            ASC(idetxt(o(varListBox).txt), varDlgList(i).indicator) = 32 'space
                         NEXT
                     END IF
 
@@ -8995,6 +9005,7 @@ FUNCTION ideelementwatchbox$(currentPath$, elementIndexes$, level, singleElement
         thisType = CVL(MID$(elementIndexes$, x * 4 - 3, 4))
         IF LEN(RTRIM$(udtecname(thisType))) > longestName THEN longestName = LEN(RTRIM$(udtecname(thisType)))
         varDlgList(x).index = thisType
+        varDlgList(x).selected = 0
         id.t = udtetype(thisType)
         id.tsize = udtesize(thisType)
 

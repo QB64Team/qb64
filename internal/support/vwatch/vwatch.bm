@@ -318,7 +318,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                     ELSEIF vw_varType$ = "STRING" THEN
                         vw_varSize = LEN(vw_dummy%&)
                     END IF
-                    'this is where we calculate the actual element position in memory
+                    'this is where we calculate the actual array index position in memory
                     IF vw_arrayelementsize = 0 THEN
                         vw_address = vw_address + ((vw_arrayIndex - vw_lbound) * vw_varSize)
                     ELSE
@@ -396,30 +396,86 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 vw_address = _MEMGET(vw_m, vw_address, _OFFSET) 'first resolve pass
                 vw_address = _MEMGET(vw_m, vw_address, _OFFSET) 'second resolve pass
 
-                IF vw_isarray = 0 AND vw_isUDT = 0 THEN
-                    IF INSTR(vw_varType$, "STRING") = 0 THEN
-                        'numeric variables need no further dereferencing
-                        GOTO setAddress
-                    ELSE
-                        'vw_address now points to the qbs struct
-                        set_qbs_size vw_address, vw_varSize
+                '--------
+                IF vw_isarray THEN
+                    vw_lbound = check_lbound%&(vw_address)
+                    vw_ubound = check_ubound%&(vw_address)
 
-                        vw_varSize = LEN(vw_address) + LEN(vw_varSize)
+                    IF vw_arrayIndex < vw_lbound OR vw_arrayIndex > vw_ubound THEN
+                        GOTO cmdProcessingDone
+                    END IF
+
+                    'get the address of where this array's data is stored
+                    vw_buf$ = SPACE$(LEN(vw_dummy%&))
+                    vw_m = _MEM(vw_address, LEN(vw_dummy%&))
+                    vw_m2 = _MEM(_OFFSET(vw_buf$), LEN(vw_dummy%&))
+                    _MEMCOPY vw_m, vw_m.OFFSET, vw_m.SIZE TO vw_m2, vw_m2.OFFSET
+
+                    IF LEN(vw_dummy%&) = 8 THEN
+                        vw_address = _CV(_INTEGER64, vw_buf$) 'Pointer to data
+                    ELSE
+                        vw_address = _CV(LONG, vw_buf$) 'Pointer to data
+                    END IF
+                    'vw_address now points to the actual data
+
+                    'find the required element for this array
+                    IF INSTR(vw_varType$, "STRING *") THEN
+                        vw_varSize = VAL(MID$(vw_varType$, _INSTRREV(vw_varType$, " ") + 1))
+                    ELSEIF vw_varType$ = "STRING" THEN
+                        vw_varSize = LEN(vw_dummy%&)
+                    END IF
+
+                    'this is where we calculate the actual array index position in memory
+                    IF vw_arrayelementsize = 0 THEN
+                        vw_address = vw_address + ((vw_arrayIndex - vw_lbound) * vw_varSize)
+                    ELSE
+                        vw_address = vw_address + ((vw_arrayIndex - vw_lbound) * vw_arrayelementsize)
+                    END IF
+                ELSE
+                    IF vw_isUDT = 0 THEN
+                        IF INSTR(vw_varType$, "STRING") = 0 THEN
+                            'numeric variables need no further dereferencing
+                            GOTO setAddress
+                        ELSE
+                            setString:
+                            'vw_address now points to the qbs struct
+                            set_qbs_size vw_address, LEN(vw_value$)
+
+                            vw_varSize = LEN(vw_address) + LEN(vw_varSize)
+                            vw_buf$ = SPACE$(vw_varSize)
+                            vw_m = _MEM(vw_address, vw_varSize)
+                            vw_m2 = _MEM(_OFFSET(vw_buf$), vw_varSize)
+                            _MEMCOPY vw_m, vw_m.OFFSET, vw_m.SIZE TO vw_m2, vw_m2.OFFSET
+
+                            vw_address = _CV(_OFFSET, LEFT$(vw_buf$, LEN(vw_address))) 'pointer to actual data
+                            vw_varSize = CVL(MID$(vw_buf$, LEN(vw_address) + 1))
+                            IF vw_varSize < LEN(vw_value$) THEN
+                                vw_value$ = LEFT$(vw_value$, vw_varSize)
+                            END IF
+                            GOTO setAddress
+                        END IF
+                    END IF
+                END IF
+
+                'if it's a UDT, move the pointer to this element's offset
+                vw_address = vw_address + vw_elementoffset
+
+                IF INSTR(vw_varType$, "STRING *") > 0 AND (vw_isarray <> 0 OR vw_isUDT <> 0) THEN
+                    vw_value$ = LEFT$(vw_value$ + SPACE$(vw_varSize), vw_varSize)
+                ELSEIF INSTR(vw_varType$, "STRING") > 0 THEN
+                    IF vw_isarray <> 0 OR vw_isUDT <> 0 THEN
+                        'First pass
+                        vw_varSize = LEN(vw_dummy%&)
                         vw_buf$ = SPACE$(vw_varSize)
                         vw_m = _MEM(vw_address, vw_varSize)
                         vw_m2 = _MEM(_OFFSET(vw_buf$), vw_varSize)
                         _MEMCOPY vw_m, vw_m.OFFSET, vw_m.SIZE TO vw_m2, vw_m2.OFFSET
 
-                        vw_address = _CV(_OFFSET, LEFT$(vw_buf$, LEN(vw_address))) 'pointer to actual data
-                        vw_varSize = CVL(MID$(vw_buf$, LEN(vw_address) + 1))
-                        IF vw_varSize < LEN(vw_value$) THEN
-                            vw_value$ = LEFT$(vw_value$, vw_varSize)
-                        END IF
-                        GOTO setAddress
+                        vw_address = _CV(_OFFSET, vw_buf$) 'Pointer to data
+                        GOTO setString
                     END IF
-                ELSE
-                    'extra dereferencing required for arrays and UDTs
                 END IF
+                '--------
 
                 setAddress:
                 'vw_address now points to the actual data
