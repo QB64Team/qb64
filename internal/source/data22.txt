@@ -1,14 +1,14 @@
 qbs *_FUNC_GETELEMENTSPECIAL_STRING_GETELEMENTSPECIAL=NULL;
 if (!_FUNC_GETELEMENTSPECIAL_STRING_GETELEMENTSPECIAL)_FUNC_GETELEMENTSPECIAL_STRING_GETELEMENTSPECIAL=qbs_new(0,0);
-qbs*oldstr2910=NULL;
+qbs*oldstr2912=NULL;
 if(_FUNC_GETELEMENTSPECIAL_STRING_SAVEA->tmp||_FUNC_GETELEMENTSPECIAL_STRING_SAVEA->fixed||_FUNC_GETELEMENTSPECIAL_STRING_SAVEA->readonly){
-oldstr2910=_FUNC_GETELEMENTSPECIAL_STRING_SAVEA;
-if (oldstr2910->cmem_descriptor){
-_FUNC_GETELEMENTSPECIAL_STRING_SAVEA=qbs_new_cmem(oldstr2910->len,0);
+oldstr2912=_FUNC_GETELEMENTSPECIAL_STRING_SAVEA;
+if (oldstr2912->cmem_descriptor){
+_FUNC_GETELEMENTSPECIAL_STRING_SAVEA=qbs_new_cmem(oldstr2912->len,0);
 }else{
-_FUNC_GETELEMENTSPECIAL_STRING_SAVEA=qbs_new(oldstr2910->len,0);
+_FUNC_GETELEMENTSPECIAL_STRING_SAVEA=qbs_new(oldstr2912->len,0);
 }
-memcpy(_FUNC_GETELEMENTSPECIAL_STRING_SAVEA->chr,oldstr2910->chr,oldstr2910->len);
+memcpy(_FUNC_GETELEMENTSPECIAL_STRING_SAVEA->chr,oldstr2912->chr,oldstr2912->len);
 }
 qbs *_FUNC_GETELEMENTSPECIAL_STRING_A=NULL;
 if (!_FUNC_GETELEMENTSPECIAL_STRING_A)_FUNC_GETELEMENTSPECIAL_STRING_A=qbs_new(0,0);
@@ -37,7 +37,7 @@ if(_FUNC_GETELEMENTSPECIAL_LONG_I3==NULL){
 _FUNC_GETELEMENTSPECIAL_LONG_I3=(int32*)mem_static_malloc(4);
 *_FUNC_GETELEMENTSPECIAL_LONG_I3=0;
 }
-byte_element_struct *byte_element_2911=NULL;
-if (!byte_element_2911){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2911=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2911=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_2913=NULL;
+if (!byte_element_2913){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_2913=(byte_element_struct*)(mem_static_pointer-12); else byte_element_2913=(byte_element_struct*)mem_static_malloc(12);
 }
