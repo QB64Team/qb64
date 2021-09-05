@@ -100,7 +100,6 @@
         #endif
     #endif
     
-    using namespace std;
     
     //QB64 string descriptor structure
     struct qbs_field{

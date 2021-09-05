@@ -68,4 +68,6 @@
     
     extern qbs *qbs_lcase(qbs *str);
     extern qbs *qbs_ucase(qbs *str);
+
+    using namespace std;
 #endif

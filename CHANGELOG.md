@@ -41,6 +41,7 @@
 ### Linux
 - `xmessage` added to dependency list (setup script).
 - Fixes `InKey$` acting too slow.
+- Fix compilation error with DATA statements on gcc 11.
 <!---
 - Patches condition that would leave zombie processes behind when using `Shell _DontWait`.
 --->
