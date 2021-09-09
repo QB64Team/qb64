@@ -2,18 +2,19 @@ $CHECKING:OFF
 
 SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     STATIC AS LONG vw_ideHost, vw_breakpointCount, vw_skipCount, vw_timeout, vw_startLevel, vw_lastLine
-    STATIC AS LONG vw_runToLine, vw_arrayIndex, vw_originalVarLineNumber
+    STATIC AS LONG vw_runToLine, vw_originalVarLineNumber
     STATIC AS _BYTE vw_pauseMode, vw_stepOver, vw_bypass, vw_setNextLine, vw_hwndSent
     STATIC AS _OFFSET vw_ideHwnd
     STATIC vw_buffer$
     DIM AS LONG vw_i, vw_tempIndex, vw_localIndex, vw_varSize, vw_cmdSize
-    DIM AS LONG vw_arrayElementSize, vw_element, vw_elementOffset, vw_storage
-    DIM AS LONG vw_arrayDimension, vw_arrayTotalDimensions
+    DIM AS LONG vw_arrayElementSize, vw_element, vw_elementOffset, vw_storage, vw_blockSize
+    DIM AS LONG vw_arrayDimension, vw_arrayTotalDimensions, vw_arrayIndex, vw_realArrayIndex
     DIM AS _OFFSET vw_address, vw_lBound, vw_uBound
     DIM AS _MEM vw_m, vw_m2
     DIM AS _BYTE vw_isArray, vw_isUDT
     DIM vw_start!, vw_temp$, vw_cmd$, vw_value$, vw_k&, vw_buf$, vw_scope$, vw_varType$
     DIM vw_prevValue$, vw_getBytes&, vw_getBytesPosition&, vw_valueBytes$, vw_dummy%&
+    DIM vw_arrayIndexes$
 
     DECLARE LIBRARY
         SUB vwatch_stoptimers ALIAS stop_timers
@@ -261,7 +262,9 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 vw_getBytes& = 1: GOSUB GetBytes: vw_isArray = _CV(_BYTE, vw_valueBytes$)
                 vw_getBytes& = 4: GOSUB GetBytes: vw_originalVarLineNumber = CVL(vw_valueBytes$)
                 vw_getBytes& = 4: GOSUB GetBytes: vw_localIndex = CVL(vw_valueBytes$)
-                vw_getBytes& = 4: GOSUB GetBytes: vw_arrayIndex = CVL(vw_valueBytes$)
+                vw_getBytes& = 4: GOSUB GetBytes: vw_arrayTotalDimensions = CVL(vw_valueBytes$)
+                vw_getBytes& = vw_arrayTotalDimensions: GOSUB GetBytes: vw_arrayIndexes$ = vw_valueBytes$
+                vw_arrayTotalDimensions = vw_arrayTotalDimensions \ 4
                 vw_getBytes& = 4: GOSUB GetBytes: vw_arrayElementSize = CVL(vw_valueBytes$)
                 vw_getBytes& = 4: GOSUB GetBytes: vw_element = CVL(vw_valueBytes$)
                 vw_getBytes& = 4: GOSUB GetBytes: vw_elementOffset = CVL(vw_valueBytes$)
@@ -293,12 +296,22 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                         'prevent fetching array data before DIM line
                         IF vwatch_linenumber <= vw_originalVarLineNumber THEN GOTO cmdProcessingDone
                     END IF
-                    vw_lBound = check_lbound%&(vw_address, vw_arrayDimension, vw_arrayTotalDimensions)
-                    vw_uBound = check_ubound%&(vw_address, vw_arrayDimension, vw_arrayTotalDimensions)
 
-                    IF vw_arrayIndex < vw_lBound OR vw_arrayIndex > vw_uBound THEN
-                        GOTO cmdProcessingDone
-                    END IF
+                    vw_realArrayIndex = 0
+                    vw_blockSize = 1
+
+                    FOR vw_arrayDimension = 1 TO vw_arrayTotalDimensions
+                        vw_lBound = check_lbound%&(vw_address, vw_arrayDimension, vw_arrayTotalDimensions)
+                        vw_uBound = check_ubound%&(vw_address, vw_arrayDimension, vw_arrayTotalDimensions)
+                        vw_arrayIndex = CVL(MID$(vw_arrayIndexes$, vw_arrayDimension * 4 - 3, 4))
+                        IF vw_arrayIndex < vw_lBound OR vw_arrayIndex > vw_uBound THEN
+                            GOTO cmdProcessingDone
+                        END IF
+
+                        vw_arrayIndex = (vw_arrayIndex - VAL(STR$(vw_lBound))) * vw_blockSize
+                        vw_realArrayIndex = vw_realArrayIndex + vw_arrayIndex
+                        vw_blockSize = vw_blockSize * VAL(STR$(vw_uBound - vw_lBound + 1))
+                    NEXT
 
                     'get the address of where this array's data is stored
                     vw_buf$ = SPACE$(LEN(vw_dummy%&))
@@ -321,9 +334,9 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                     END IF
                     'this is where we calculate the actual array index position in memory
                     IF vw_arrayElementSize = 0 THEN
-                        vw_address = vw_address + ((vw_arrayIndex - vw_lBound) * vw_varSize)
+                        vw_address = vw_address + (vw_realArrayIndex * vw_varSize)
                     ELSE
-                        vw_address = vw_address + ((vw_arrayIndex - vw_lBound) * vw_arrayElementSize)
+                        vw_address = vw_address + (vw_realArrayIndex * vw_arrayElementSize)
                     END IF
                 END IF
 
@@ -538,6 +551,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     ELSE
         vw_cmd$ = "": vw_value$ = ""
     END IF
+    vw_prevValue$ = ""
     RETURN
 
     SendCallStack:
@@ -566,6 +580,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
         vw_prevValue$ = vw_value$
         vw_getBytesPosition& = 1
     END IF
+    IF vw_getBytes& = 0 THEN vw_valueBytes$ = "": RETURN
     vw_valueBytes$ = MID$(vw_value$, vw_getBytesPosition&, vw_getBytes&)
     vw_getBytesPosition& = vw_getBytesPosition& + vw_getBytes&
     RETURN
