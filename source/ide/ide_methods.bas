@@ -6407,7 +6407,7 @@ SUB DebugMode
             debugClient& = 0
             debuggeepid = 0
 
-            showvWatchPanel vWatchPanel, "", 0, 1
+            showvWatchPanel vWatchPanel, "", 1
             IF LEN(variableWatchList$) = 0 THEN
                 totalVisibleVariables = 0
                 vWatchPanel.h = 5
@@ -7598,7 +7598,8 @@ SUB DebugMode
 
     IF PauseMode <> 0 AND LEN(variableWatchList$) > 0 THEN
         IF WatchListToConsole THEN _CONSOLE ON
-        showvWatchPanel vWatchPanel, currentSub$, totalVisibleVariables, 0
+        totalVisibleVariables = CVL(MID$(variableWatchList$, 5, 4))
+        showvWatchPanel vWatchPanel, currentSub$, 0
     END IF
 
     PCOPY 3, 0
@@ -7658,7 +7659,7 @@ Function map! (value!, minRange!, maxRange!, newMinRange!, newMaxRange!)
     map! = ((value! - minRange!) / (maxRange! - minRange!)) * (newMaxRange! - newMinRange!) + newMinRange!
 End Function
 
-SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, __totalVisibleVariables, action as _BYTE)
+SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, action as _BYTE)
     STATIC previousVariableWatchList$
     STATIC longestVarName, totalVisibleVariables
 
@@ -7673,7 +7674,6 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, __totalVisibleVaria
         IF this.h > idewy - 10 THEN this.h = idewy - 10
         IF this.h < 5 THEN this.h = 5
     END IF
-    __totalVisibleVariables = totalVisibleVariables 'pass back total visible variables
 
     fg = 0: bg = 7
 
