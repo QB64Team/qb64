@@ -215,13 +215,13 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
             CASE "run"
                 vw_pauseMode = 0
                 vw_stepOver = 0
-                vwatch_starttimers
+                _KEYCLEAR: vwatch_starttimers
                 EXIT SUB
             CASE "run to line"
                 vw_pauseMode = 0
                 vw_stepOver = 0
                 vw_runToLine = CVL(vw_value$)
-                vwatch_starttimers
+                _KEYCLEAR: vwatch_starttimers
                 EXIT SUB
             CASE "step"
                 vw_pauseMode = -1
@@ -231,19 +231,19 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 vw_pauseMode = -1
                 vw_stepOver = -1
                 vw_startLevel = vwatch_sublevel
-                vwatch_starttimers
+                _KEYCLEAR: vwatch_starttimers
                 EXIT SUB
             CASE "step out"
                 vw_pauseMode = -1
                 vw_stepOver = -1
                 vw_startLevel = vwatch_sublevel - 1
-                vwatch_starttimers
+                _KEYCLEAR: vwatch_starttimers
                 EXIT SUB
             CASE "free"
                 unlockvWatchHandle: CLOSE #vw_ideHost
                 vw_ideHost = 0
                 vw_bypass = -1
-                vwatch_starttimers
+                _KEYCLEAR: vwatch_starttimers
                 EXIT SUB
             CASE "set breakpoint"
                 vwatch_breakpoints(CVL(vw_value$)) = -1
@@ -516,6 +516,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
         _LIMIT 100
     LOOP
 
+    _KEYCLEAR
     vwatch_starttimers
     EXIT SUB
 
