@@ -7705,6 +7705,7 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariabl
     IF this.hPos = 0 THEN this.hPos = 1
     temp$ = GetBytes$("", 0) 'reset buffer
     temp$ = MID$(variableWatchList$, 9)
+    actualLongestVarName = 0
     DO
         temp2$ = GetBytes$(temp$, 4)
         IF temp2$ <> MKL$(-1) THEN EXIT DO 'no more variables in list
@@ -7734,6 +7735,7 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariabl
             tempElementList$ = MID$(usedVariableList(tempIndex&).elements, 5)
             thisName$ = thisName$ + getelement$(tempElementList$, tempElement&)
         END IF
+        IF LEN(thisName$) > actualLongestVarName THEN actualLongestVarName = LEN(thisName$)
         item$ = thisName$ + SPACE$(longestVarName - LEN(thisName$)) + " = "
         IF usedVariableList(tempIndex&).subfunc = currentScope$ OR usedVariableList(tempIndex&).subfunc = "" THEN
             IF tempElement& THEN
@@ -7760,6 +7762,7 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariabl
             _ECHO item$
         END IF
     LOOP
+    longestVarName = actualLongestVarName 'if these are different, next time it'll be fixed
 
     IF WatchListToConsole = 0 THEN
         IF totalVisibleVariables > this.h - 2 THEN
