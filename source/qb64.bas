@@ -25997,6 +25997,12 @@ SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
                 usedVariableList(i).varType = id2fulltypename$
                 usedVariableList(i).cname = cname$
                 usedVariableList(i).localIndex = localIndex
+
+                'remove eventual instances of fix046$ in name$
+                DO WHILE INSTR(name$, fix046$)
+                    x = INSTR(name$, fix046$): name$ = LEFT$(name$, x - 1) + "." + RIGHT$(name$, LEN(name$) - x + 1 - LEN(fix046$))
+                LOOP
+
                 IF LEN(RTRIM$(id.musthave)) > 0 THEN
                     usedVariableList(i).name = name$ + RTRIM$(id.musthave)
                 ELSE
