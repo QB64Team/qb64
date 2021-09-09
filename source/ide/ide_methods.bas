@@ -7063,24 +7063,28 @@ SUB DebugMode
                     estabilishingScope = -1
                 ELSE
                     requestVariableWatch:
+                    hidePanel = -1
+                    GOSUB UpdateDisplay
                     selectVar = 1
                     filter$ = ""
                     DO
                         result$ = idevariablewatchbox$(currentSub$, filter$, selectVar, returnAction)
                         IF returnAction = 1 THEN
+                            temp$ = GetBytes$("", 0) 'reset buffer
                             'set address
-                            tempIndex& = CVL(LEFT$(result$, 4))
-                            result$ = MID$(result$, 5)
-                            tempHeader$ = LEFT$(result$, 24)
-                            tempIsArray& = CVL(MID$(result$, 5, 4))
-                            tempArrayIndex& = CVL(MID$(result$, 9, 4))
-                            tempIsUDT& = CVL(MID$(result$, 13, 4))
-                            tempElementOffset& = CVL(MID$(result$, 17, 4))
-                            tempStorage& = CVL(MID$(result$, 25, 4))
-                            i = CVI(MID$(result$, 29, 2))
-                            varType$ = MID$(result$, 31, i)
-                            i = CVI(MID$(result$, 31 + i, 2))
-                            value$ = RIGHT$(result$, i)
+                            tempIndex& = CVL(GetBytes$(result$, 4))
+                            tempLocalIndex& = CVL(GetBytes$(result$, 4))
+                            tempIsArray& = CVL(GetBytes$(result$, 4))
+                            tempArrayIndex& = CVL(GetBytes$(result$, 4))
+                            tempArrayIndexes$ = MKL$(tempArrayIndex&) + GetBytes$(result$, tempArrayIndex&)
+                            tempIsUDT& = CVL(GetBytes$(result$, 4))
+                            tempElementOffset& = CVL(GetBytes$(result$, 4))
+                            tempArrayElementSize& = CVL(GetBytes$(result$, 4))
+                            tempStorage& = CVL(GetBytes$(result$, 4))
+                            i = CVI(GetBytes$(result$, 2))
+                            varType$ = GetBytes$(result$, i)
+                            i = CVI(GetBytes$(result$, 2))
+                            value$ = GetBytes$(result$, i)
 
                             IF LEN(usedVariableList(tempIndex&).subfunc) = 0 THEN
                                 cmd$ = "set global address:"
@@ -7160,7 +7164,12 @@ SUB DebugMode
                                     END IF
                             END SELECT
 
-                            cmd$ = cmd$ + tempHeader$
+                            cmd$ = cmd$ + MKL$(tempLocalIndex&)
+                            cmd$ = cmd$ + MKL$(tempIsArray&)
+                            cmd$ = cmd$ + tempArrayIndexes$
+                            cmd$ = cmd$ + MKL$(tempIsUDT&)
+                            cmd$ = cmd$ + MKL$(tempElementOffset&)
+                            cmd$ = cmd$ + MKL$(tempArrayElementSize&)
                             cmd$ = cmd$ + MKL$(varSize&)
                             cmd$ = cmd$ + MKI$(LEN(varType$)) + varType$
                             cmd$ = cmd$ + MKI$(LEN(value$)) + value$
@@ -7172,6 +7181,7 @@ SUB DebugMode
 
                             PCOPY 3, 0: SCREEN , , 3, 0
                             WHILE _MOUSEINPUT: WEND
+                            hidePanel = -1
                             GOSUB UpdateDisplay
                         ELSEIF returnAction = 2 THEN
                             PCOPY 3, 0: SCREEN , , 3, 0
@@ -7599,7 +7609,8 @@ SUB DebugMode
     IF PauseMode <> 0 AND LEN(variableWatchList$) > 0 THEN
         IF WatchListToConsole THEN _CONSOLE ON
         totalVisibleVariables = CVL(MID$(variableWatchList$, 5, 4))
-        showvWatchPanel vWatchPanel, currentSub$, 0
+        IF hidePanel = 0 THEN showvWatchPanel vWatchPanel, currentSub$, 0
+        hidePanel = 0
     END IF
 
     PCOPY 3, 0
@@ -8030,14 +8041,35 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                 IF usedVariableList(tempIndex&).subfunc = currentScope$ OR usedVariableList(tempIndex&).subfunc = "" THEN
                     'scope is valid
                     tempArrayIndex& = 0
+                    tempArrayIndexes$ = MKL$(0)
                     tempStorage& = 0
                     tempIsUDT& = 0
                     tempElementOffset$ = MKL$(0)
                     IF usedVariableList(tempIndex&).isarray THEN
-                        v$ = ideinputbox$("Change Value", "#Index to change", temp$, "01234567890", 45, 0, ok)
+                        setArrayRange3:
+                        v$ = ideinputbox$("Change Value", "#Index to change", temp$, "01234567890,", 45, 0, ok)
                         IF ok THEN
                             IF LEN(v$) > 0 THEN
-                                tempArrayIndex& = VAL(v$)
+                                WHILE RIGHT$(v$, 1) = ",": v$ = LEFT$(v$, LEN(v$) - 1): WEND
+                                temp$ = lineformat$(v$)
+                                i = countelements(temp$)
+                                IF i <> ABS(ids(usedVariableList(tempIndex&).id).arrayelements) THEN
+                                    result = idemessagebox("Error", "Array has" + STR$(ABS(ids(usedVariableList(tempIndex&).id).arrayelements)) + " dimension(s).", "#OK")
+                                    temp$ = v$
+                                    GOTO setArrayRange3
+                                END IF
+                                tempArrayIndexes$ = MKL$(i * 4)
+                                WHILE i
+                                    foundComma = INSTR(v$, ",")
+                                    IF foundComma THEN
+                                        temp$ = LEFT$(v$, foundComma - 1)
+                                        v$ = MID$(v$, foundComma + 1)
+                                    ELSE
+                                        temp$ = v$
+                                    END IF
+                                    tempArrayIndexes$ = tempArrayIndexes$ + MKL$(VAL(temp$))
+                                    i = i - 1
+                                WEND
                             ELSE
                                 _CONTINUE
                             END IF
@@ -8162,14 +8194,14 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                     storageSlot& = 0
                     IF LEN(usedVariableList(tempIndex&).storage) = 4 THEN
                         storageSlot& = CVL(usedVariableList(tempIndex&).storage)
-                    ELSE
-                        i = 5
+                    ELSEIF LEN(usedVariableList(tempIndex&).storage) > 4 THEN
+                        i = 4
                         DO
-                            i = INSTR(i + 1, variableWatchList$, MKL$(-1) + MKL$(tempIndex&) + MKL$(tempArrayIndex&))
+                            i = INSTR(i + 1, variableWatchList$, MKL$(-1) + MKL$(tempIndex&) + tempArrayIndexes$)
                             IF i = 0 THEN EXIT DO
-                            IF MID$(variableWatchList$, i + 16, 4) = tempElementOffset$ THEN
+                            IF MID$(variableWatchList$, i + 8 + LEN(tempArrayIndexes$), 4) = tempElementOffset$ THEN
                                 'we found where this element's value is being stored
-                                storageSlot& = CVL(MID$(variableWatchList$, i + 20, 4))
+                                storageSlot& = CVL(MID$(variableWatchList$, i + 16 + LEN(tempArrayIndexes$), 4))
                                 EXIT DO
                             END IF
                         LOOP
@@ -8189,7 +8221,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                         temp$ = temp$ + MKL$(tempIndex&)
                         temp$ = temp$ + MKL$(usedVariableList(tempIndex&).localindex)
                         temp$ = temp$ + MKL$(usedVariableList(tempIndex&).isarray <> 0)
-                        temp$ = temp$ + MKL$(tempArrayIndex&)
+                        temp$ = temp$ + tempArrayIndexes$
                         temp$ = temp$ + MKL$(tempIsUDT&)
                         temp$ = temp$ + tempElementOffset$
                         temp$ = temp$ + MKL$(usedVariableList(tempIndex&).arrayElementSize)
@@ -8239,7 +8271,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
 
                     IF usedVariableList(y).isarray <> 0 AND LEN(usedVariableList(y).elements) = 0 THEN
                         'array of native data type
-                        temp$ = GetBytes$("", 0)
+                        temp$ = GetBytes$("", 0) 'reset buffer
                         temp$ = expandArray$(usedVariableList(y).indexes, "")
                         DO
                             temp2$ = GetBytes$(temp$, 4)

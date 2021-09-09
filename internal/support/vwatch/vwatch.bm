@@ -390,17 +390,19 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 vw_cmd$ = "address read:" + MKL$(vw_tempIndex) + MKL$(vw_arrayIndex) + MKL$(vw_element) + MKL$(vw_storage) + vw_buf$
                 GOSUB SendCommand
             CASE "set global address", "set local address"
-                vw_localIndex = CVL(LEFT$(vw_value$, 4))
-                vw_isArray = (CVL(MID$(vw_value$, 5, 4)) <> 0)
-                vw_arrayIndex = CVL(MID$(vw_value$, 9, 4))
-                vw_isUDT = (CVL(MID$(vw_value$, 13, 4)) <> 0)
-                vw_elementOffset = CVL(MID$(vw_value$, 17, 4))
-                vw_arrayElementSize = CVL(MID$(vw_value$, 21, 4))
-                vw_varSize = CVL(MID$(vw_value$, 25, 4))
-                vw_i = CVI(MID$(vw_value$, 29, 2))
-                vw_varType$ = MID$(vw_value$, 31, vw_i)
-                vw_i = CVI(MID$(vw_value$, 31 + vw_i, 2))
-                vw_value$ = RIGHT$(vw_value$, vw_i)
+                vw_getBytes& = 4: GOSUB GetBytes: vw_localIndex = CVL(vw_valueBytes$)
+                vw_getBytes& = 4: GOSUB GetBytes: vw_isArray = (CVL(vw_valueBytes$) <> 0)
+                vw_getBytes& = 4: GOSUB GetBytes: vw_arrayTotalDimensions = CVL(vw_valueBytes$)
+                vw_getBytes& = vw_arrayTotalDimensions: GOSUB GetBytes: vw_arrayIndexes$ = vw_valueBytes$
+                vw_arrayTotalDimensions = vw_arrayTotalDimensions \ 4
+                vw_getBytes& = 4: GOSUB GetBytes: vw_isUDT = (CVL(vw_valueBytes$) <> 0)
+                vw_getBytes& = 4: GOSUB GetBytes: vw_elementOffset = CVL(vw_valueBytes$)
+                vw_getBytes& = 4: GOSUB GetBytes: vw_arrayElementSize = CVL(vw_valueBytes$)
+                vw_getBytes& = 4: GOSUB GetBytes: vw_varSize = CVL(vw_valueBytes$)
+                vw_getBytes& = 2: GOSUB GetBytes: vw_i = CVI(vw_valueBytes$)
+                vw_getBytes& = vw_i: GOSUB GetBytes: vw_varType$ = vw_valueBytes$
+                vw_getBytes& = 2: GOSUB GetBytes: vw_i = CVI(vw_valueBytes$)
+                vw_getBytes& = vw_i: GOSUB GetBytes: vw_value$ = vw_valueBytes$
 
                 IF vw_cmd$ = "set global address" THEN
                     vw_address = _OFFSET(globalVariables) + LEN(vw_address) * vw_localIndex
@@ -412,12 +414,24 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
 
                 '--------
                 IF vw_isArray THEN
-                    vw_lBound = check_lbound%&(vw_address, vw_arrayDimension, vw_arrayTotalDimensions)
-                    vw_uBound = check_ubound%&(vw_address, vw_arrayDimension, vw_arrayTotalDimensions)
 
-                    IF vw_arrayIndex < vw_lBound OR vw_arrayIndex > vw_uBound THEN
-                        GOTO cmdProcessingDone
-                    END IF
+                    vw_realArrayIndex = 0
+                    vw_blockSize = 1
+
+                    FOR vw_arrayDimension = 1 TO vw_arrayTotalDimensions
+                        vw_lBound = check_lbound%&(vw_address, vw_arrayDimension, vw_arrayTotalDimensions)
+                        vw_uBound = check_ubound%&(vw_address, vw_arrayDimension, vw_arrayTotalDimensions)
+
+                        vw_arrayIndex = CVL(MID$(vw_arrayIndexes$, vw_arrayDimension * 4 - 3, 4))
+
+                        IF vw_arrayIndex < vw_lBound OR vw_arrayIndex > vw_uBound THEN
+                            GOTO cmdProcessingDone
+                        END IF
+
+                        vw_arrayIndex = (vw_arrayIndex - VAL(STR$(vw_lBound))) * vw_blockSize
+                        vw_realArrayIndex = vw_realArrayIndex + vw_arrayIndex
+                        vw_blockSize = vw_blockSize * VAL(STR$(vw_uBound - vw_lBound + 1))
+                    NEXT
 
                     'get the address of where this array's data is stored
                     vw_buf$ = SPACE$(LEN(vw_dummy%&))
@@ -441,9 +455,9 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
 
                     'this is where we calculate the actual array index position in memory
                     IF vw_arrayElementSize = 0 THEN
-                        vw_address = vw_address + ((vw_arrayIndex - vw_lBound) * vw_varSize)
+                        vw_address = vw_address + (vw_realArrayIndex * vw_varSize)
                     ELSE
-                        vw_address = vw_address + ((vw_arrayIndex - vw_lBound) * vw_arrayElementSize)
+                        vw_address = vw_address + (vw_realArrayIndex * vw_arrayElementSize)
                     END IF
                 ELSE
                     IF vw_isUDT = 0 THEN
@@ -552,7 +566,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     ELSE
         vw_cmd$ = "": vw_value$ = ""
     END IF
-    vw_prevValue$ = ""
+    vw_getBytesPosition& = 1
     RETURN
 
     SendCallStack:
@@ -577,10 +591,6 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     RETURN
 
     GetBytes:
-    IF vw_value$ <> vw_prevValue$ THEN
-        vw_prevValue$ = vw_value$
-        vw_getBytesPosition& = 1
-    END IF
     IF vw_getBytes& = 0 THEN vw_valueBytes$ = "": RETURN
     vw_valueBytes$ = MID$(vw_value$, vw_getBytesPosition&, vw_getBytes&)
     vw_getBytesPosition& = vw_getBytesPosition& + vw_getBytes&
