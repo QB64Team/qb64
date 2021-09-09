@@ -7658,9 +7658,9 @@ Function map! (value!, minRange!, maxRange!, newMinRange!, newMaxRange!)
     map! = ((value! - minRange!) / (maxRange! - minRange!)) * (newMaxRange! - newMinRange!) + newMinRange!
 End Function
 
-SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariables, action as _BYTE)
+SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, __totalVisibleVariables, action as _BYTE)
     STATIC previousVariableWatchList$
-    STATIC longestVarName
+    STATIC longestVarName, totalVisibleVariables
 
     IF action = 1 THEN previousVariableWatchList$ = "": EXIT SUB 'reset
 
@@ -7673,6 +7673,7 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariabl
         IF this.h > idewy - 10 THEN this.h = idewy - 10
         IF this.h < 5 THEN this.h = 5
     END IF
+    __totalVisibleVariables = totalVisibleVariables 'pass back total visible variables
 
     fg = 0: bg = 7
 
