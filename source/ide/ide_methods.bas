@@ -6407,7 +6407,7 @@ SUB DebugMode
             debugClient& = 0
             debuggeepid = 0
 
-            showvWatchPanel vWatchPanel, "", 0, 1
+            showvWatchPanel vWatchPanel, "", 1
             IF LEN(variableWatchList$) = 0 THEN
                 totalVisibleVariables = 0
                 vWatchPanel.h = 5
@@ -7063,24 +7063,28 @@ SUB DebugMode
                     estabilishingScope = -1
                 ELSE
                     requestVariableWatch:
+                    hidePanel = -1
+                    GOSUB UpdateDisplay
                     selectVar = 1
                     filter$ = ""
                     DO
                         result$ = idevariablewatchbox$(currentSub$, filter$, selectVar, returnAction)
                         IF returnAction = 1 THEN
+                            temp$ = GetBytes$("", 0) 'reset buffer
                             'set address
-                            tempIndex& = CVL(LEFT$(result$, 4))
-                            result$ = MID$(result$, 5)
-                            tempHeader$ = LEFT$(result$, 24)
-                            tempIsArray& = CVL(MID$(result$, 5, 4))
-                            tempArrayIndex& = CVL(MID$(result$, 9, 4))
-                            tempIsUDT& = CVL(MID$(result$, 13, 4))
-                            tempElementOffset& = CVL(MID$(result$, 17, 4))
-                            tempStorage& = CVL(MID$(result$, 25, 4))
-                            i = CVI(MID$(result$, 29, 2))
-                            varType$ = MID$(result$, 31, i)
-                            i = CVI(MID$(result$, 31 + i, 2))
-                            value$ = RIGHT$(result$, i)
+                            tempIndex& = CVL(GetBytes$(result$, 4))
+                            tempLocalIndex& = CVL(GetBytes$(result$, 4))
+                            tempIsArray& = CVL(GetBytes$(result$, 4))
+                            tempArrayIndex& = CVL(GetBytes$(result$, 4))
+                            tempArrayIndexes$ = MKL$(tempArrayIndex&) + GetBytes$(result$, tempArrayIndex&)
+                            tempIsUDT& = CVL(GetBytes$(result$, 4))
+                            tempElementOffset& = CVL(GetBytes$(result$, 4))
+                            tempArrayElementSize& = CVL(GetBytes$(result$, 4))
+                            tempStorage& = CVL(GetBytes$(result$, 4))
+                            i = CVI(GetBytes$(result$, 2))
+                            varType$ = GetBytes$(result$, i)
+                            i = CVI(GetBytes$(result$, 2))
+                            value$ = GetBytes$(result$, i)
 
                             IF LEN(usedVariableList(tempIndex&).subfunc) = 0 THEN
                                 cmd$ = "set global address:"
@@ -7160,7 +7164,12 @@ SUB DebugMode
                                     END IF
                             END SELECT
 
-                            cmd$ = cmd$ + tempHeader$
+                            cmd$ = cmd$ + MKL$(tempLocalIndex&)
+                            cmd$ = cmd$ + MKL$(tempIsArray&)
+                            cmd$ = cmd$ + tempArrayIndexes$
+                            cmd$ = cmd$ + MKL$(tempIsUDT&)
+                            cmd$ = cmd$ + MKL$(tempElementOffset&)
+                            cmd$ = cmd$ + MKL$(tempArrayElementSize&)
                             cmd$ = cmd$ + MKL$(varSize&)
                             cmd$ = cmd$ + MKI$(LEN(varType$)) + varType$
                             cmd$ = cmd$ + MKI$(LEN(value$)) + value$
@@ -7172,10 +7181,12 @@ SUB DebugMode
 
                             PCOPY 3, 0: SCREEN , , 3, 0
                             WHILE _MOUSEINPUT: WEND
+                            hidePanel = -1
                             GOSUB UpdateDisplay
                         ELSEIF returnAction = 2 THEN
                             PCOPY 3, 0: SCREEN , , 3, 0
                             WHILE _MOUSEINPUT: WEND
+                            hidePanel = -1
                             GOSUB UpdateDisplay
                             _CONTINUE
                         ELSE
@@ -7399,14 +7410,20 @@ SUB DebugMode
                 'request variables addresses
                 IF LEN(variableWatchList$) THEN
                     requestVariableValues:
-                    temp$ = MID$(variableWatchList$, 9)
-                    DO WHILE LEN(temp$)
-                        tempIndex& = CVL(LEFT$(temp$, 4))
-                        tempArrayIndex& = CVL(MID$(temp$, 5, 4))
-                        tempElement& = CVL(MID$(temp$, 9, 4))
-                        tempElementOffset& = CVL(MID$(temp$, 13, 4))
-                        tempStorage& = CVL(MID$(temp$, 17, 4))
-                        temp$ = MID$(temp$, 25)
+                    temp$ = GetBytes$("", 0) 'reset buffer
+                    temp$ = MID$(variableWatchList$, 9) 'skip longest var name and total visible vars
+                    DO
+                        temp2$ = GetBytes$(temp$, 4)
+                        IF temp2$ <> MKL$(-1) THEN EXIT DO 'no more variables in list
+                        tempIndex& = CVL(GetBytes$(temp$, 4))
+                        tempArrayIndexes$ = GetBytes$(temp$, 4)
+                        i = CVL(tempArrayIndexes$)
+                        IF i > 0 THEN
+                            tempArrayIndexes$ = tempArrayIndexes$ + GetBytes$(temp$, i)
+                        END IF
+                        tempElement& = CVL(GetBytes$(temp$, 4))
+                        tempElementOffset& = CVL(GetBytes$(temp$, 4))
+                        tempStorage& = CVL(GetBytes$(temp$, 4))
                         IF LEN(usedVariableList(tempIndex&).subfunc) = 0 THEN
                             cmd$ = "get global var:"
                         ELSE
@@ -7418,7 +7435,7 @@ SUB DebugMode
                             cmd$ = cmd$ + _MK$(_BYTE, usedVariableList(tempIndex&).isarray)
                             cmd$ = cmd$ + MKL$(usedVariableList(tempIndex&).linenumber)
                             cmd$ = cmd$ + MKL$(usedVariableList(tempIndex&).localIndex)
-                            cmd$ = cmd$ + MKL$(tempArrayIndex&)
+                            cmd$ = cmd$ + tempArrayIndexes$
                             cmd$ = cmd$ + MKL$(usedVariableList(tempIndex&).arrayElementSize)
                             cmd$ = cmd$ + MKL$(tempElement&)
                             IF tempElement& THEN
@@ -7592,7 +7609,9 @@ SUB DebugMode
 
     IF PauseMode <> 0 AND LEN(variableWatchList$) > 0 THEN
         IF WatchListToConsole THEN _CONSOLE ON
-        showvWatchPanel vWatchPanel, currentSub$, totalVisibleVariables, 0
+        totalVisibleVariables = CVL(MID$(variableWatchList$, 5, 4))
+        IF hidePanel = 0 THEN showvWatchPanel vWatchPanel, currentSub$, 0
+        hidePanel = 0
     END IF
 
     PCOPY 3, 0
@@ -7652,9 +7671,9 @@ Function map! (value!, minRange!, maxRange!, newMinRange!, newMaxRange!)
     map! = ((value! - minRange!) / (maxRange! - minRange!)) * (newMaxRange! - newMinRange!) + newMinRange!
 End Function
 
-SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariables, action as _BYTE)
+SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, action as _BYTE)
     STATIC previousVariableWatchList$
-    STATIC longestVarName
+    STATIC longestVarName, totalVisibleVariables
 
     IF action = 1 THEN previousVariableWatchList$ = "": EXIT SUB 'reset
 
@@ -7662,7 +7681,7 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariabl
         'new setup
         previousVariableWatchList$ = variableWatchList$
         longestVarName = CVL(LEFT$(variableWatchList$, 4))
-        totalVisibleVariables = (LEN(variableWatchList$) - 4) \ 20
+        totalVisibleVariables = CVL(MID$(variableWatchList$, 5, 4))
         this.h = totalVisibleVariables + 2
         IF this.h > idewy - 10 THEN this.h = idewy - 10
         IF this.h < 5 THEN this.h = 5
@@ -7697,14 +7716,19 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariabl
     i = 0
     this.contentWidth = 0
     IF this.hPos = 0 THEN this.hPos = 1
+    temp$ = GetBytes$("", 0) 'reset buffer
     temp$ = MID$(variableWatchList$, 9)
-    DO WHILE LEN(temp$)
-        tempIndex& = CVL(LEFT$(temp$, 4))
-        tempArrayIndex& = CVL(MID$(temp$, 5, 4))
-        tempElement& = CVL(MID$(temp$, 9, 4))
-        tempElementOffset& = CVL(MID$(temp$, 13, 4))
-        tempStorage& = CVL(MID$(temp$, 17, 4))
-        temp$ = MID$(temp$, 25)
+    actualLongestVarName = 0
+    DO
+        temp2$ = GetBytes$(temp$, 4)
+        IF temp2$ <> MKL$(-1) THEN EXIT DO 'no more variables in list
+        tempIndex& = CVL(GetBytes$(temp$, 4))
+        tempTotalArrayIndexes& = CVL(GetBytes$(temp$, 4))
+        tempArrayIndexes$ = GetBytes$(temp$, tempTotalArrayIndexes&)
+        tempElement& = CVL(GetBytes$(temp$, 4))
+        tempElementOffset& = CVL(GetBytes$(temp$, 4))
+        tempStorage& = CVL(GetBytes$(temp$, 4))
+
         i = i + 1
         IF this.firstVisible > i AND WatchListToConsole = 0 THEN _CONTINUE
         y = y + 1
@@ -7712,13 +7736,19 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariabl
 
         thisName$ = usedVariableList(tempIndex&).name
         IF usedVariableList(tempIndex&).isarray THEN
-            thisName$ = LEFT$(thisName$, LEN(thisName$) - 1) + _
-                        LTRIM$(STR$(tempArrayIndex&)) + ")"
+            thisName$ = LEFT$(thisName$, LEN(thisName$) - 1)
+            tempTotalArrayIndexes& = tempTotalArrayIndexes& \ 4
+            FOR j = 1 TO tempTotalArrayIndexes&
+                thisName$ = thisName$ + LTRIM$(STR$(CVL(MID$(tempArrayIndexes$, j * 4 - 3, 4))))
+                IF j < tempTotalArrayIndexes& THEN thisName$ = thisName$ + ", "
+            NEXT
+            thisName$ = thisName$ + ")"
         END IF
         IF tempElement& THEN
             tempElementList$ = MID$(usedVariableList(tempIndex&).elements, 5)
             thisName$ = thisName$ + getelement$(tempElementList$, tempElement&)
         END IF
+        IF LEN(thisName$) > actualLongestVarName THEN actualLongestVarName = LEN(thisName$)
         item$ = thisName$ + SPACE$(longestVarName - LEN(thisName$)) + " = "
         IF usedVariableList(tempIndex&).subfunc = currentScope$ OR usedVariableList(tempIndex&).subfunc = "" THEN
             IF tempElement& THEN
@@ -7745,6 +7775,7 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, totalVisibleVariabl
             _ECHO item$
         END IF
     LOOP
+    longestVarName = actualLongestVarName 'if these are different, next time it'll be fixed
 
     IF WatchListToConsole = 0 THEN
         IF totalVisibleVariables > this.h - 2 THEN
@@ -8011,14 +8042,35 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                 IF usedVariableList(tempIndex&).subfunc = currentScope$ OR usedVariableList(tempIndex&).subfunc = "" THEN
                     'scope is valid
                     tempArrayIndex& = 0
+                    tempArrayIndexes$ = MKL$(0)
                     tempStorage& = 0
                     tempIsUDT& = 0
                     tempElementOffset$ = MKL$(0)
                     IF usedVariableList(tempIndex&).isarray THEN
-                        v$ = ideinputbox$("Change Value", "#Index to change", temp$, "01234567890", 45, 0, ok)
+                        setArrayRange3:
+                        v$ = ideinputbox$("Change Value", "#Index to change", temp$, "01234567890,", 45, 0, ok)
                         IF ok THEN
                             IF LEN(v$) > 0 THEN
-                                tempArrayIndex& = VAL(v$)
+                                WHILE RIGHT$(v$, 1) = ",": v$ = LEFT$(v$, LEN(v$) - 1): WEND
+                                temp$ = lineformat$(v$)
+                                i = countelements(temp$)
+                                IF i <> ABS(ids(usedVariableList(tempIndex&).id).arrayelements) THEN
+                                    result = idemessagebox("Error", "Array has" + STR$(ABS(ids(usedVariableList(tempIndex&).id).arrayelements)) + " dimension(s).", "#OK")
+                                    temp$ = _TRIM$(v$)
+                                    GOTO setArrayRange3
+                                END IF
+                                tempArrayIndexes$ = MKL$(i * 4)
+                                WHILE i
+                                    foundComma = INSTR(v$, ",")
+                                    IF foundComma THEN
+                                        temp$ = LEFT$(v$, foundComma - 1)
+                                        v$ = MID$(v$, foundComma + 1)
+                                    ELSE
+                                        temp$ = v$
+                                    END IF
+                                    tempArrayIndexes$ = tempArrayIndexes$ + MKL$(VAL(temp$))
+                                    i = i - 1
+                                WEND
                             ELSE
                                 _CONTINUE
                             END IF
@@ -8143,14 +8195,14 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                     storageSlot& = 0
                     IF LEN(usedVariableList(tempIndex&).storage) = 4 THEN
                         storageSlot& = CVL(usedVariableList(tempIndex&).storage)
-                    ELSE
-                        i = 5
+                    ELSEIF LEN(usedVariableList(tempIndex&).storage) > 4 THEN
+                        i = 4
                         DO
-                            i = INSTR(i + 1, variableWatchList$, MKL$(-1) + MKL$(tempIndex&) + MKL$(tempArrayIndex&))
+                            i = INSTR(i + 1, variableWatchList$, MKL$(-1) + MKL$(tempIndex&) + tempArrayIndexes$)
                             IF i = 0 THEN EXIT DO
-                            IF MID$(variableWatchList$, i + 16, 4) = tempElementOffset$ THEN
+                            IF MID$(variableWatchList$, i + 8 + LEN(tempArrayIndexes$), 4) = tempElementOffset$ THEN
                                 'we found where this element's value is being stored
-                                storageSlot& = CVL(MID$(variableWatchList$, i + 20, 4))
+                                storageSlot& = CVL(MID$(variableWatchList$, i + 16 + LEN(tempArrayIndexes$), 4))
                                 EXIT DO
                             END IF
                         LOOP
@@ -8170,7 +8222,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                         temp$ = temp$ + MKL$(tempIndex&)
                         temp$ = temp$ + MKL$(usedVariableList(tempIndex&).localindex)
                         temp$ = temp$ + MKL$(usedVariableList(tempIndex&).isarray <> 0)
-                        temp$ = temp$ + MKL$(tempArrayIndex&)
+                        temp$ = temp$ + tempArrayIndexes$
                         temp$ = temp$ + MKL$(tempIsUDT&)
                         temp$ = temp$ + tempElementOffset$
                         temp$ = temp$ + MKL$(usedVariableList(tempIndex&).arrayElementSize)
@@ -8199,12 +8251,13 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
             variableWatchList$ = ""
             longestVarName = 0
             nextvWatchDataSlot = 0
+            totalVisibleVariables = 0
             FOR y = 1 TO totalVariablesCreated
                 IF usedVariableList(y).includedLine THEN _CONTINUE 'don't deal with variables in $INCLUDEs
                 IF usedVariableList(y).watch THEN
                     thisLen = LEN(usedVariableList(y).name)
                     IF usedVariableList(y).isarray THEN
-                        thisLen = thisLen + LEN(STR$(CVL(RIGHT$(usedVariableList(y).indexes, 4)))) - 1
+                        thisLen = thisLen + LEN(usedVariableList(y).watchRange)
                     END IF
 
                     IF LEN(usedVariableList(y).elements) THEN
@@ -8213,28 +8266,39 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
 
                     IF thisLen > longestVarName THEN
                         longestVarName = thisLen
-                        IF variableWatchList$ = "" THEN variableWatchList$ = SPACE$(4)
+                        IF variableWatchList$ = "" THEN variableWatchList$ = SPACE$(8)
                         MID$(variableWatchList$, 1, 4) = MKL$(longestVarName)
                     END IF
 
                     IF usedVariableList(y).isarray <> 0 AND LEN(usedVariableList(y).elements) = 0 THEN
                         'array of native data type
-                        temp$ = usedVariableList(y).indexes
-                        DO WHILE LEN(temp$)
+                        temp$ = GetBytes$("", 0) 'reset buffer
+                        temp$ = expandArray$(usedVariableList(y).indexes, "")
+                        DO
+                            temp2$ = GetBytes$(temp$, 4)
+                            IF LEN(temp2$) <> 4 THEN EXIT DO 'no more items
+                            length = CVL(temp2$)
+                            temp2$ = MKL$(length) + GetBytes$(temp$, length)
                             nextvWatchDataSlot = nextvWatchDataSlot + 1
                             WHILE nextvWatchDataSlot > UBOUND(vWatchReceivedData$)
                                 REDIM _PRESERVE vWatchReceivedData$(1 TO UBOUND(vWatchReceivedData$) + 999)
                             WEND
-                            variableWatchList$ = variableWatchList$ + MKL$(-1) + MKL$(y) + LEFT$(temp$, 4) + MKL$(0) + MKL$(0) + MKL$(nextvWatchDataSlot)
+                            variableWatchList$ = variableWatchList$ + MKL$(-1) + MKL$(y) + temp2$ + MKL$(0) + MKL$(0) + MKL$(nextvWatchDataSlot)
+                            totalVisibleVariables = totalVisibleVariables + 1
                             usedVariableList(y).storage = usedVariableList(y).storage + MKL$(nextvWatchDataSlot)
                             vWatchReceivedData$(nextvWatchDataSlot) = ""
-                            temp$ = MID$(temp$, 5)
                         LOOP
                     ELSEIF usedVariableList(y).isarray <> 0 AND LEN(usedVariableList(y).elements) > 0 THEN
                         'array of UDT
-                        temp$ = usedVariableList(y).indexes
-                        DO WHILE LEN(temp$)
-                            thisTempElement$ = MKL$(-1) + MKL$(y) + LEFT$(temp$, 4)
+                        temp$ = GetBytes$("", 0)
+                        temp$ = expandArray$(usedVariableList(y).indexes, "")
+                        DO
+                            temp2$ = GetBytes$(temp$, 4)
+                            IF LEN(temp2$) <> 4 THEN EXIT DO 'no more items
+                            length = CVL(temp2$)
+                            temp2$ = MKL$(length) + GetBytes$(temp$, length)
+
+                            thisTempElement$ = MKL$(-1) + MKL$(y) + temp2$
                             thisElementList$ = MID$(usedVariableList(y).elements, 5)
                             i = 0
                             DO
@@ -8248,10 +8312,10 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                                 WEND
                                 tempElementOffset& = CVL(MID$(usedVariableList(y).elementOffset, i * 4 - 3, 4))
                                 variableWatchList$ = variableWatchList$ + thisTempElement$ + MKL$(i) + MKL$(tempElementOffset&) + MKL$(nextvWatchDataSlot)
+                                totalVisibleVariables = totalVisibleVariables + 1
                                 usedVariableList(y).storage = usedVariableList(y).storage + MKL$(nextvWatchDataSlot)
                                 vWatchReceivedData$(nextvWatchDataSlot) = ""
                             LOOP
-                            temp$ = MID$(temp$, 5)
                         LOOP
                     ELSEIF usedVariableList(y).isarray = 0 AND LEN(usedVariableList(y).elements) > 0 THEN
                         'single variable of UDT
@@ -8269,6 +8333,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                             WEND
                             tempElementOffset& = CVL(MID$(usedVariableList(y).elementOffset, i * 4 - 3, 4))
                             variableWatchList$ = variableWatchList$ + thisTempElement$ + MKL$(i) + MKL$(tempElementOffset&) + MKL$(nextvWatchDataSlot)
+                            totalVisibleVariables = totalVisibleVariables + 1
                             usedVariableList(y).storage = usedVariableList(y).storage + MKL$(nextvWatchDataSlot)
                             vWatchReceivedData$(nextvWatchDataSlot) = ""
                         LOOP
@@ -8279,10 +8344,12 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                             REDIM _PRESERVE vWatchReceivedData$(1 TO UBOUND(vWatchReceivedData$) + 999)
                         WEND
                         variableWatchList$ = variableWatchList$ + MKL$(-1) + MKL$(y) + MKL$(0) + MKL$(0) + MKL$(0) + MKL$(nextvWatchDataSlot)
+                        totalVisibleVariables = totalVisibleVariables + 1
                         usedVariableList(y).storage = MKL$(nextvWatchDataSlot)
                     END IF
                 END IF
             NEXT
+            IF LEN(variableWatchList$) THEN MID$(variableWatchList$, 5, 4) = MKL$(totalVisibleVariables)
             IF mousedown THEN
                 DO
                     GetInput
@@ -8322,17 +8389,38 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                         IF LEN(usedVariableList(varDlgList(y).index).indexes) THEN
                             temp$ = usedVariableList(varDlgList(y).index).watchRange
                         END IF
-
-                        v$ = ideinputbox$("Watch Array", "#Indexes to watch", temp$, "01234567890,-", 45, 0, ok)
+                        setArrayRange2:
+                        v$ = ideinputbox$("Watch Array", "#Indexes" + tempPrompt$, temp$, "01234567890,-; TOto", 45, 0, ok)
                         IF ok THEN
                             IF LEN(v$) > 0 THEN
-                                temp$ = parseRange$(v$)
-                                usedVariableList(varDlgList(y).index).indexes = temp$
-                                temp$ = formatRange$(temp$)
-                                usedVariableList(varDlgList(y).index).watchRange = temp$
-                            ELSE
+                                v$ = UCASE$(v$)
+                                v$ = StrReplace$(v$, " TO ", "-")
+                                WHILE RIGHT$(v$, 1) = ",": v$ = LEFT$(v$, LEN(v$) - 1): WEND
+                                temp$ = lineformat$(v$)
+                                i = countelements(temp$)
+                                IF i <> ABS(ids(usedVariableList(varDlgList(y).index).id).arrayelements) THEN
+                                    result = idemessagebox("Error", "Array has" + STR$(ABS(ids(usedVariableList(varDlgList(y).index).id).arrayelements)) + " dimension(s).", "#OK")
+                                    temp$ = _TRIM$(v$)
+                                    GOTO setArrayRange2
+                                END IF
                                 usedVariableList(varDlgList(y).index).indexes = ""
                                 usedVariableList(varDlgList(y).index).watchRange = ""
+                                WHILE i
+                                    foundComma = INSTR(v$, ",")
+                                    IF foundComma THEN
+                                        temp$ = LEFT$(v$, foundComma - 1)
+                                        v$ = MID$(v$, foundComma + 1)
+                                    ELSE
+                                        temp$ = v$
+                                    END IF
+                                    temp$ = parseRange$(temp$)
+                                    usedVariableList(varDlgList(y).index).indexes = usedVariableList(varDlgList(y).index).indexes + MKL$(LEN(temp$)) + temp$
+                                    temp$ = formatRange$(temp$)
+                                    usedVariableList(varDlgList(y).index).watchRange = usedVariableList(varDlgList(y).index).watchRange + temp$
+                                    i = i - 1
+                                    IF i THEN usedVariableList(varDlgList(y).index).watchRange = usedVariableList(varDlgList(y).index).watchRange + ","
+                                WEND
+                            ELSE
                                 usedVariableList(varDlgList(y).index).watch = 0
                                 GOSUB buildList
                                 idetxt(o(varListBox).txt) = l$
@@ -8344,6 +8432,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                             usedVariableList(varDlgList(y).index).watch = 0
                             GOTO unWatch
                         END IF
+
                     END IF
 
                     varType$ = usedVariableList(varDlgList(y).index).varType
@@ -8593,7 +8682,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
             item$ = usedVariableList(x).name + usedVariableList(x).varType + thisScope$
             IF IdeDebugMode > 0 AND usedVariableList(x).isarray = 0 AND LEN(usedVariableList(x).elements) = 0 AND LEN(usedVariableList(x).storage) = 4 THEN
                 'single var
-                item$ = item$ + vWatchReceivedData$(CVL(usedVariableList(x).storage))
+                item$ = item$ + StrReplace$(vWatchReceivedData$(CVL(usedVariableList(x).storage)), CHR$(0), " ")
             END IF
             IF multiSearch(item$, searchTerm$) = 0 THEN
                 _CONTINUE 'skip variable if no field matches the search
@@ -8666,6 +8755,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                         LOOP
                         IF LEN(usedVariableList(x).storage) THEN l$ = l$ + "}"
                     ELSEIF usedVariableList(x).isarray = 0 AND LEN(usedVariableList(x).elements) = 0 THEN
+                        'simple variable
                         IF LEN(usedVariableList(x).storage) = 4 THEN
                             storageSlot& = CVL(usedVariableList(x).storage)
                             l$ = l$ + " = " + CHR$(16) + CHR$(variableNameColor)
@@ -8673,6 +8763,9 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                             l$ = l$ + StrReplace$(vWatchReceivedData$(storageSlot&), CHR$(0), " ")
                             IF thisIsAString THEN l$ = l$ + CHR$(34)
                         END IF
+                    ELSE
+                        l$ = l$ + " = " + CHR$(16) + CHR$(variableNameColor)
+                        l$ = l$ + "<multiple values>"
                     END IF
                 END IF
             ELSE
@@ -9064,10 +9157,10 @@ FUNCTION formatRange$(__text$)
                 v2 = v
             ELSE
                 IF v2 = -1 THEN
-                    a2$ = a2$ + LTRIM$(STR$(v1)) + ","
+                    a2$ = a2$ + LTRIM$(STR$(v1)) + ";"
                     v1 = v
                 ELSE
-                    a2$ = a2$ + LTRIM$(STR$(v1)) + "-" + LTRIM$(STR$(v2)) + ","
+                    a2$ = a2$ + LTRIM$(STR$(v1)) + "-" + LTRIM$(STR$(v2)) + ";"
                     v1 = v
                     v2 = -1
                 END IF
@@ -9077,6 +9170,37 @@ FUNCTION formatRange$(__text$)
     IF v1 <> -1 AND v2 = -1 THEN a2$ = a2$ + LTRIM$(STR$(v1))
     IF v1 <> -1 AND v2 <> -1 THEN a2$ = a2$ + LTRIM$(STR$(v1)) + "-" + LTRIM$(STR$(v2))
     formatRange$ = a2$
+END FUNCTION
+
+FUNCTION expandArray$ (__indexes$, __path$)
+    STATIC thisLevel AS LONG, returnValue$
+
+    IF thisLevel = 0 THEN
+        returnValue$ = ""
+    END IF
+
+    thisLevel = thisLevel + 1
+
+    totalIndexes = CVL(LEFT$(__indexes$, 4))
+    indexes$ = MID$(__indexes$, 5, totalIndexes)
+    remainingIndexes$ = MID$(__indexes$, 5 + totalIndexes)
+    totalIndexes = totalIndexes \ 4
+
+    FOR i = 1 TO totalIndexes
+        temp$ = __path$ + MID$(indexes$, i * 4 - 3, 4)
+        IF LEN(remainingIndexes$) THEN
+            temp$ = expandArray$(remainingIndexes$, temp$)
+        END IF
+        IF LEN(temp$) THEN
+            returnValue$ = returnValue$ + MKL$(LEN(temp$)) + temp$
+        END IF
+    NEXT
+
+    thisLevel = thisLevel - 1
+
+    IF thisLevel = 0 THEN
+        expandArray$ = returnValue$
+    END IF
 END FUNCTION
 
 FUNCTION parseRange$(__text$)
@@ -9090,7 +9214,7 @@ FUNCTION parseRange$(__text$)
     DIM zeroIncluded AS _BYTE
 
     Filter$ = _TRIM$(__text$)
-    j = INSTR(Filter$, "-") + INSTR(Filter$, ",")
+    j = INSTR(Filter$, "-") + INSTR(Filter$, ";")
     temp$ = SPACE$(1000)
 
     IF j = 0 THEN 'Single number passed
@@ -9102,7 +9226,7 @@ FUNCTION parseRange$(__text$)
     FOR j = 1 TO LEN(Filter$)
         v = ASC(Filter$, j)
         SELECT CASE v
-            CASE 44 'comma
+            CASE 59 ';
                 Reading = 1
                 GOSUB parseIt
             CASE 45 'hyphen
@@ -18658,3 +18782,17 @@ SUB printWrapStatus (x AS INTEGER, y AS INTEGER, initialX AS INTEGER, __text$)
     RETURN
 END SUB
 
+FUNCTION GetBytes$(__value$, numberOfBytes&)
+    STATIC prevValue$, getBytesPosition&
+
+    value$ = __value$
+    IF value$ <> prevValue$ THEN
+        prevValue$ = value$
+        getBytesPosition& = 1
+    END IF
+
+    IF numberOfBytes& = 0 THEN EXIT FUNCTION
+
+    GetBytes$ = MID$(value$, getBytesPosition&, numberOfBytes&)
+    getBytesPosition& = getBytesPosition& + numberOfBytes&
+END FUNCTION
