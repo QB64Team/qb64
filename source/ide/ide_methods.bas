@@ -7186,6 +7186,7 @@ SUB DebugMode
                         ELSEIF returnAction = 2 THEN
                             PCOPY 3, 0: SCREEN , , 3, 0
                             WHILE _MOUSEINPUT: WEND
+                            hidePanel = -1
                             GOSUB UpdateDisplay
                             _CONTINUE
                         ELSE
@@ -8055,7 +8056,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                                 i = countelements(temp$)
                                 IF i <> ABS(ids(usedVariableList(tempIndex&).id).arrayelements) THEN
                                     result = idemessagebox("Error", "Array has" + STR$(ABS(ids(usedVariableList(tempIndex&).id).arrayelements)) + " dimension(s).", "#OK")
-                                    temp$ = v$
+                                    temp$ = _TRIM$(v$)
                                     GOTO setArrayRange3
                                 END IF
                                 tempArrayIndexes$ = MKL$(i * 4)
@@ -8399,7 +8400,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                                 i = countelements(temp$)
                                 IF i <> ABS(ids(usedVariableList(varDlgList(y).index).id).arrayelements) THEN
                                     result = idemessagebox("Error", "Array has" + STR$(ABS(ids(usedVariableList(varDlgList(y).index).id).arrayelements)) + " dimension(s).", "#OK")
-                                    temp$ = v$
+                                    temp$ = _TRIM$(v$)
                                     GOTO setArrayRange2
                                 END IF
                                 usedVariableList(varDlgList(y).index).indexes = ""
@@ -8681,7 +8682,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
             item$ = usedVariableList(x).name + usedVariableList(x).varType + thisScope$
             IF IdeDebugMode > 0 AND usedVariableList(x).isarray = 0 AND LEN(usedVariableList(x).elements) = 0 AND LEN(usedVariableList(x).storage) = 4 THEN
                 'single var
-                item$ = item$ + vWatchReceivedData$(CVL(usedVariableList(x).storage))
+                item$ = item$ + StrReplace$(vWatchReceivedData$(CVL(usedVariableList(x).storage)), CHR$(0), " ")
             END IF
             IF multiSearch(item$, searchTerm$) = 0 THEN
                 _CONTINUE 'skip variable if no field matches the search
@@ -8754,6 +8755,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                         LOOP
                         IF LEN(usedVariableList(x).storage) THEN l$ = l$ + "}"
                     ELSEIF usedVariableList(x).isarray = 0 AND LEN(usedVariableList(x).elements) = 0 THEN
+                        'simple variable
                         IF LEN(usedVariableList(x).storage) = 4 THEN
                             storageSlot& = CVL(usedVariableList(x).storage)
                             l$ = l$ + " = " + CHR$(16) + CHR$(variableNameColor)
@@ -8761,6 +8763,9 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                             l$ = l$ + StrReplace$(vWatchReceivedData$(storageSlot&), CHR$(0), " ")
                             IF thisIsAString THEN l$ = l$ + CHR$(34)
                         END IF
+                    ELSE
+                        l$ = l$ + " = " + CHR$(16) + CHR$(variableNameColor)
+                        l$ = l$ + "<multiple values>"
                     END IF
                 END IF
             ELSE
