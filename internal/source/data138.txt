@@ -1,14 +1,14 @@
 qbs *_FUNC_FORMATRANGE_STRING_FORMATRANGE=NULL;
 if (!_FUNC_FORMATRANGE_STRING_FORMATRANGE)_FUNC_FORMATRANGE_STRING_FORMATRANGE=qbs_new(0,0);
-qbs*oldstr4997=NULL;
+qbs*oldstr5039=NULL;
 if(_FUNC_FORMATRANGE_STRING___TEXT->tmp||_FUNC_FORMATRANGE_STRING___TEXT->fixed||_FUNC_FORMATRANGE_STRING___TEXT->readonly){
-oldstr4997=_FUNC_FORMATRANGE_STRING___TEXT;
-if (oldstr4997->cmem_descriptor){
-_FUNC_FORMATRANGE_STRING___TEXT=qbs_new_cmem(oldstr4997->len,0);
+oldstr5039=_FUNC_FORMATRANGE_STRING___TEXT;
+if (oldstr5039->cmem_descriptor){
+_FUNC_FORMATRANGE_STRING___TEXT=qbs_new_cmem(oldstr5039->len,0);
 }else{
-_FUNC_FORMATRANGE_STRING___TEXT=qbs_new(oldstr4997->len,0);
+_FUNC_FORMATRANGE_STRING___TEXT=qbs_new(oldstr5039->len,0);
 }
-memcpy(_FUNC_FORMATRANGE_STRING___TEXT->chr,oldstr4997->chr,oldstr4997->len);
+memcpy(_FUNC_FORMATRANGE_STRING___TEXT->chr,oldstr5039->chr,oldstr5039->len);
 }
 qbs *_FUNC_FORMATRANGE_STRING_TEMP=NULL;
 if (!_FUNC_FORMATRANGE_STRING_TEMP)_FUNC_FORMATRANGE_STRING_TEMP=qbs_new(0,0);
@@ -27,13 +27,13 @@ if(_FUNC_FORMATRANGE_LONG_I==NULL){
 _FUNC_FORMATRANGE_LONG_I=(int32*)mem_static_malloc(4);
 *_FUNC_FORMATRANGE_LONG_I=0;
 }
-int64 fornext_value4999;
-int64 fornext_finalvalue4999;
-int64 fornext_step4999;
-uint8 fornext_step_negative4999;
-byte_element_struct *byte_element_5000=NULL;
-if (!byte_element_5000){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5000=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5000=(byte_element_struct*)mem_static_malloc(12);
+int64 fornext_value5041;
+int64 fornext_finalvalue5041;
+int64 fornext_step5041;
+uint8 fornext_step_negative5041;
+byte_element_struct *byte_element_5042=NULL;
+if (!byte_element_5042){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5042=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5042=(byte_element_struct*)mem_static_malloc(12);
 }
 int32 *_FUNC_FORMATRANGE_LONG_V=NULL;
 if(_FUNC_FORMATRANGE_LONG_V==NULL){
