@@ -20,18 +20,18 @@ DIM SHARED mouseSettingsSection$, generalSettingsSection$, displaySettingsSectio
 DIM SHARED colorSchemesSection$, debugSettingsSection$, iniFolderIndex$, DebugInfoIniWarning$, ConfigFile$
 DIM SHARED idebaseTcpPort AS LONG
 
-windowSettingsSection$ = "IDE WINDOW"
-colorSettingsSection$ = "IDE COLOR SETTINGS"
+ConfigFile$ = "internal/config.ini"
+iniFolderIndex$ = STR$(tempfolderindex)
+DebugInfoIniWarning$ = " 'Do not change manually. Use 'qb64 -s', or Options->Advanced in the IDE"
+
+windowSettingsSection$ = "IDE WINDOW" + iniFolderIndex$
+colorSettingsSection$ = "IDE COLOR SETTINGS" + iniFolderIndex$
 colorSchemesSection$ = "IDE COLOR SCHEMES"
 customDictionarySection$ = "CUSTOM DICTIONARIES"
 mouseSettingsSection$ = "MOUSE SETTINGS"
 generalSettingsSection$ = "GENERAL SETTINGS"
 displaySettingsSection$ = "IDE DISPLAY SETTINGS"
 debugSettingsSection$ = "DEBUG SETTINGS"
-
-ConfigFile$ = "internal/config.ini"
-iniFolderIndex$ = STR$(tempfolderindex)
-DebugInfoIniWarning$ = " 'Do not change manually. Use 'qb64 -s', or Options->Advanced in the IDE"
 
 IniSetAddQuotes 0
 IniSetForceReload -1
@@ -382,13 +382,58 @@ result = ReadConfigSetting(displaySettingsSection$, "IDE_CodePage", value$)
 idecpindex = VAL(value$)
 IF idecpindex < 0 OR idecpindex > idecpnum THEN idecpindex = 0: WriteConfigSetting displaySettingsSection$, "IDE_CodePage", "0"
 
-'Color settings ---------------------------------------------------------------
-'Schemes:
+'Custom keywords --------------------------------------------------------------
+IF ReadConfigSetting(customDictionarySection$, "CustomKeywords$", value$) THEN
+    tempList$ = ""
+    listOfCustomKeywords$ = "@" + UCASE$(value$) + "@"
+    FOR I = 1 TO LEN(listOfCustomKeywords$)
+        checkChar = ASC(listOfCustomKeywords$, I)
+        IF checkChar = 64 THEN
+            IF RIGHT$(tempList$, 1) <> "@" THEN tempList$ = tempList$ + "@"
+        ELSE
+            tempList$ = tempList$ + CHR$(checkChar)
+        END IF
+    NEXT
+    listOfCustomKeywords$ = tempList$
+    customKeywordsLength = LEN(listOfCustomKeywords$)
+ELSE
+    IniSetAddQuotes -1
+    WriteConfigSetting customDictionarySection$, "Instructions1", "Add custom keywords separated by the 'at' sign."
+    WriteConfigSetting customDictionarySection$, "Instructions2", "Useful to colorize constants (eg @true@false@)."
+    IniSetAddQuotes 0
+    WriteConfigSetting customDictionarySection$, "CustomKeywords$", "@"
+END IF
+
+'Color schemes ---------------------------------------------------------------
 IniSetAddQuotes -1
 WriteConfigSetting colorSchemesSection$, "Instructions1", "Create custom color schemes in the IDE (Options->IDE Colors)."
 WriteConfigSetting colorSchemesSection$, "Instructions2", "Custom color schemes will be stored in this section."
 IniSetAddQuotes 0
 
+'Individual window settings (different for each running instance) -------------
+IF ReadConfigSetting(windowSettingsSection$, "IDE_TopPosition", value$) THEN
+    IDE_TopPosition = VAL(value$)
+ELSE
+    IDE_BypassAutoPosition = -1 'If there's no position saved in the file, then we certainly don't need to try and auto-position to our last setting.
+    IDE_TopPosition = 0
+END IF
+
+IF ReadConfigSetting(windowSettingsSection$, "IDE_LeftPosition", value$) THEN
+    IDE_LeftPosition = VAL(value$)
+ELSE
+    IDE_BypassAutoPosition = -1 'If there's no position saved in the file, then we certainly don't need to try and auto-position to our last setting.
+    IDE_LeftPosition = 0
+END IF
+
+result = ReadConfigSetting(windowSettingsSection$, "IDE_Width", value$)
+idewx = VAL(value$)
+IF idewx < 80 OR idewx > 1000 THEN idewx = 80: WriteConfigSetting windowSettingsSection$, "IDE_Width", "80"
+
+result = ReadConfigSetting(windowSettingsSection$, "IDE_Height", value$)
+idewy = VAL(value$)
+IF idewy < 25 OR idewy > 1000 THEN idewy = 25: WriteConfigSetting windowSettingsSection$, "IDE_Height", "25"
+
+'Color settings ---------------------------------------------------------------
 'Defaults: (= Super Dark Blue scheme, as of v1.5)
 IDETextColor = _RGB32(216, 216, 216)
 IDEKeywordColor = _RGB32(69, 118, 147)
@@ -449,51 +494,6 @@ IF ReadConfigSetting(colorSettingsSection$, "BackgroundColor2", value$) THEN
     IDEBackgroundColor2 = VRGBS(value$, IDEBackgroundColor2)
 ELSE WriteConfigSetting colorSettingsSection$, "BackgroundColor2", rgbs$(IDEBackgroundColor2)
 END IF
-
-'Custom keywords --------------------------------------------------------------
-IF ReadConfigSetting(customDictionarySection$, "CustomKeywords$", value$) THEN
-    tempList$ = ""
-    listOfCustomKeywords$ = "@" + UCASE$(value$) + "@"
-    FOR I = 1 TO LEN(listOfCustomKeywords$)
-        checkChar = ASC(listOfCustomKeywords$, I)
-        IF checkChar = 64 THEN
-            IF RIGHT$(tempList$, 1) <> "@" THEN tempList$ = tempList$ + "@"
-        ELSE
-            tempList$ = tempList$ + CHR$(checkChar)
-        END IF
-    NEXT
-    listOfCustomKeywords$ = tempList$
-    customKeywordsLength = LEN(listOfCustomKeywords$)
-ELSE
-    IniSetAddQuotes -1
-    WriteConfigSetting customDictionarySection$, "Instructions1", "Add custom keywords separated by the 'at' sign."
-    WriteConfigSetting customDictionarySection$, "Instructions2", "Useful to colorize constants (eg @true@false@)."
-    IniSetAddQuotes 0
-    WriteConfigSetting customDictionarySection$, "CustomKeywords$", "@"
-END IF
-
-'Individual window settings (different for each running instance) -------------
-IF ReadConfigSetting(windowSettingsSection$ + iniFolderIndex$, "IDE_TopPosition", value$) THEN
-    IDE_TopPosition = VAL(value$)
-ELSE
-    IDE_BypassAutoPosition = -1 'If there's no position saved in the file, then we certainly don't need to try and auto-position to our last setting.
-    IDE_TopPosition = 0
-END IF
-
-IF ReadConfigSetting(windowSettingsSection$ + iniFolderIndex$, "IDE_LeftPosition", value$) THEN
-    IDE_LeftPosition = VAL(value$)
-ELSE
-    IDE_BypassAutoPosition = -1 'If there's no position saved in the file, then we certainly don't need to try and auto-position to our last setting.
-    IDE_LeftPosition = 0
-END IF
-
-result = ReadConfigSetting(windowSettingsSection$ + iniFolderIndex$, "IDE_Width", value$)
-idewx = VAL(value$)
-IF idewx < 80 OR idewx > 1000 THEN idewx = 80: WriteConfigSetting windowSettingsSection$ + iniFolderIndex$, "IDE_Width", "80"
-
-result = ReadConfigSetting(windowSettingsSection$ + iniFolderIndex$, "IDE_Height", value$)
-idewy = VAL(value$)
-IF idewy < 25 OR idewy > 1000 THEN idewy = 25: WriteConfigSetting windowSettingsSection$ + iniFolderIndex$, "IDE_Height", "25"
 
 'End of initial settings ------------------------------------------------------
 

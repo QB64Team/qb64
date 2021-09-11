@@ -960,8 +960,8 @@ FUNCTION ide2 (ignore)
                 LOOP WHILE _RESIZE
 
                 IF retval = 1 THEN 'screen dimensions have changed and everything must be redrawn/reapplied
-                    WriteConfigSetting windowSettingsSection$ + iniFolderIndex$, "IDE_Width", STR$(idewx)
-                    WriteConfigSetting windowSettingsSection$ + iniFolderIndex$, "IDE_Height", STR$(idewy)
+                    WriteConfigSetting windowSettingsSection$, "IDE_Width", STR$(idewx)
+                    WriteConfigSetting windowSettingsSection$, "IDE_Height", STR$(idewy)
                 END IF
 
                 retval = 1
@@ -1333,8 +1333,8 @@ FUNCTION ide2 (ignore)
         IF IDE_AutoPosition THEN
             IF IDE_TopPosition <> _SCREENY OR IDE_LeftPosition <> _SCREENX THEN
                 IF _SCREENY >= -_HEIGHT * _FONTHEIGHT AND _SCREENX >= -_WIDTH * _FONTWIDTH THEN 'Don't record the position if it's off the screen, past the point where we can drag it back into a different position.
-                    WriteConfigSetting windowSettingsSection$ + iniFolderIndex$, "IDE_TopPosition", STR$(_SCREENY)
-                    WriteConfigSetting windowSettingsSection$ + iniFolderIndex$, "IDE_LeftPosition", STR$(_SCREENX)
+                    WriteConfigSetting windowSettingsSection$, "IDE_TopPosition", STR$(_SCREENY)
+                    WriteConfigSetting windowSettingsSection$, "IDE_LeftPosition", STR$(_SCREENX)
                     IDE_TopPosition = _SCREENY: IDE_LeftPosition = _SCREENX
                 END IF
             END IF
@@ -14981,8 +14981,8 @@ FUNCTION idedisplaybox
             idecustomfontheight = v%
 
 
-            WriteConfigSetting windowSettingsSection$ + iniFolderIndex$, "IDE_Width", STR$(idewx)
-            WriteConfigSetting windowSettingsSection$ + iniFolderIndex$, "IDE_Height", STR$(idewy)
+            WriteConfigSetting windowSettingsSection$, "IDE_Width", STR$(idewx)
+            WriteConfigSetting windowSettingsSection$, "IDE_Height", STR$(idewy)
             IF idecustomfont THEN
                 WriteConfigSetting displaySettingsSection$, "IDE_CustomFont", "True"
             ELSE
