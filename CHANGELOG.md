@@ -9,6 +9,7 @@
 - Functions `_MK$` and `_CV` can now deal with `_OFFSET` values.
 - New "View on Wiki" button on help panel (launches equivalent wiki page using the default browser).
 - New `_EnvironCount` function to show how many environment variables are found.
+- Color schemes can now be set/saved individually for each running instance of the IDE.
 
 ### Windows
 - Automatically embeds a manifest file when compiling an exe with `$VersionInfo`, so that Common Controls v6.0 gets linked at runtime.
