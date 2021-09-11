@@ -7941,7 +7941,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
         COLOR 0, 7
         LOCATE p.y + 4, p.x + 2
         PRINT "Double-click on an item to add it to the watch list:"
-        IF doubleClickThreshold < p.w AND IdeDebugMode > 0 THEN
+        IF doubleClickThreshold > 0 AND doubleClickThreshold < p.w AND IdeDebugMode > 0 THEN
             _PRINTSTRING (p.x + doubleClickThreshold, p.y + 5), CHR$(194)
             _PRINTSTRING (p.x + doubleClickThreshold, p.y + p.h - 1), CHR$(193)
         END IF
@@ -8361,10 +8361,10 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
 
         IF mCLICK AND focus = 2 THEN 'list click
             IF timeElapsedSince(lastClick!) < .3 AND clickedItem = o(varListBox).sel THEN
-                IF mX < p.x + doubleClickThreshold OR IdeDebugMode = 0 THEN
-                    GOTO toggleWatch
-                ELSE
+                IF doubleClickThreshold > 0 AND mX >= p.x + doubleClickThreshold AND IdeDebugMode > 0 THEN
                     GOTO sendValue
+                ELSE
+                    GOTO toggleWatch
                 END IF
             END IF
             lastClick! = TIMER
