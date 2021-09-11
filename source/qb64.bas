@@ -1683,8 +1683,6 @@ DO
     LOOP
     InValidLine(linenumber) = 0
 
-    ColorPass:
-
     IF LEN(wholeline$) THEN
 
         IF UCASE$(_TRIM$(wholeline$)) = "$NOPREFIX" THEN
@@ -3130,12 +3128,18 @@ DO
 
         IF a3u$ = "$DEBUG" THEN
             layout$ = SCase$("$Debug")
+            IF NoIDEMode THEN
+                addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "$Debug", "$Debug features only work from the IDE"
+            END IF
             GOTO finishednonexec
         END IF
 
         IF a3u$ = "$CHECKING:OFF" THEN
             layout$ = SCase$("$Checking:Off")
             NoChecks = 1
+            IF vWatchOn <> 0 AND NoIDEMode = 0 AND inclevel = 0 THEN
+                addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "$Debug", "$Debug features won't work in $Checking:Off blocks"
+            END IF
             GOTO finishednonexec
         END IF
 
@@ -8781,13 +8785,13 @@ DO
 
     IF firstelement$ = "CHAIN" THEN
         IF vWatchOn THEN
-            addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "Feature incompatible with $DEBUG MODE", "CHAIN"
+            addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "Feature incompatible with $Debug mode", "CHAIN"
         END IF
     END IF
 
     IF firstelement$ = "RUN" THEN 'RUN
         IF vWatchOn THEN
-            addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "Feature incompatible with $DEBUG MODE", "RUN"
+            addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "Feature incompatible with $Debug mode", "RUN"
         END IF
         l$ = SCase$("Run")
         IF n = 1 THEN

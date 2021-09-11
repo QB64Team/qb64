@@ -13038,7 +13038,7 @@ FUNCTION idewarningbox
     FOR x = 1 TO warningListItems
         IF warningLines(x) = 0 THEN
             l$ = l$ + warning$(x)
-            IF x > 1 THEN ASC(l$, treeConnection) = 192
+            IF x > 1 AND treeConnection > 0 THEN ASC(l$, treeConnection) = 192
         ELSE
             l3$ = CHR$(16) + CHR$(2) 'dark grey
             IF warningIncLines(x) > 0 THEN
@@ -13052,7 +13052,7 @@ FUNCTION idewarningbox
             END IF
             treeConnection = LEN(l$) + 1
             text$ = warning$(x)
-            IF LEN(text$) + 10 > dialogWidth THEN dialogWidth = LEN(text$) + 10
+            IF LEN(l3$ + text$) + 6 > dialogWidth THEN dialogWidth = LEN(l3$ + text$) + 6
             IF LEN(text$) THEN
                 l$ = l$ + CHR$(195) + CHR$(196) + l3$ + ": " + text$
             ELSE
