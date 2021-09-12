@@ -7103,6 +7103,10 @@ SUB DebugMode
                                 tempVarType$ = "_UNSIGNED _BIT"
                             END IF
                             SELECT CASE tempVarType$
+                                CASE "_BIT", "_UNSIGNED _BIT"
+                                    value$ = MKL$(VAL(value$))
+                                    varSize& = LEN(dummy&)
+                                    result$ = STR$(CVL(value$))
                                 CASE "_BYTE", "_UNSIGNED _BYTE", "BYTE", "UNSIGNED BYTE"
                                     value$ = _MK$(_BYTE, VAL(value$))
                                     varSize& = LEN(dummy%%)
@@ -7641,14 +7645,14 @@ SUB DebugMode
     IF INSTR(tempVarType$, "BIT *") THEN
         IF VAL(MID$(tempVarType$, _INSTRREV(tempVarType$, " ") + 1)) > 32 THEN
             tempVarType$ = "_INTEGER64"
-            IF INSTR(tempVarType$, "UNSIGNED") THEN tempVarType$ = "_UNSIGNED _INTEGER64"
+            IF INSTR(varType$, "UNSIGNED") THEN tempVarType$ = "_UNSIGNED _INTEGER64"
         ELSE
             tempVarType$ = "LONG"
-            IF INSTR(tempVarType$, "UNSIGNED") THEN tempVarType$ = "_UNSIGNED LONG"
+            IF INSTR(varType$, "UNSIGNED") THEN tempVarType$ = "_UNSIGNED LONG"
         END IF
     ELSEIF INSTR("@_BIT@BIT@_UNSIGNED _BIT@UNSIGNED BIT@", "@" + tempVarType$ + "@") THEN
         tempVarType$ = "LONG"
-        IF INSTR(tempVarType$, "UNSIGNED") THEN tempVarType$ = "_UNSIGNED LONG"
+        IF INSTR(varType$, "UNSIGNED") THEN tempVarType$ = "_UNSIGNED LONG"
     END IF
     SELECT CASE tempVarType$
         CASE "_BYTE", "_UNSIGNED _BYTE", "BYTE", "UNSIGNED BYTE": varSize& = LEN(dummy%%)
