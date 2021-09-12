@@ -825,8 +825,8 @@ DIM SHARED uniquenumbern AS LONG
 'CLEAR , , 16384
 
 
-DIM SHARED bitmask(1 TO 56) AS _INTEGER64
-DIM SHARED bitmaskinv(1 TO 56) AS _INTEGER64
+DIM SHARED bitmask(1 TO 64) AS _INTEGER64
+DIM SHARED bitmaskinv(1 TO 64) AS _INTEGER64
 
 DIM SHARED defineextaz(1 TO 27) AS STRING
 DIM SHARED defineaz(1 TO 27) AS STRING '27 is an underscore
@@ -903,7 +903,7 @@ DIM SHARED controlref(1000) AS LONG 'the line number the control was created on
 ON ERROR GOTO qberror
 
 i2&& = 1
-FOR i&& = 1 TO 56
+FOR i&& = 1 TO 64
     bitmask(i&&) = i2&&
     bitmaskinv(i&&) = NOT i2&&
     i2&& = i2&& + 2 ^ i&&
@@ -14818,10 +14818,10 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             IF LEFT$(typ$, 7) <> "_BIT * " AND LEFT$(typ$, 6) <> "BIT * " THEN Give_Error "Expected " + qb64prefix$ + "BIT * number": EXIT FUNCTION
             c$ = MID$(typ$, INSTR(typ$, " * ") + 3)
             IF isuinteger(c$) = 0 THEN Give_Error "Number expected after *": EXIT FUNCTION
-            IF LEN(c$) > 2 THEN Give_Error "Too many characters in number after *": EXIT FUNCTION
+            IF LEN(c$) > 2 THEN Give_Error "Cannot create a bit variable of size > 64 bits": EXIT FUNCTION
             bits = VAL(c$)
             IF bits = 0 THEN Give_Error "Cannot create a bit variable of size 0 bits": EXIT FUNCTION
-            IF bits > 57 THEN Give_Error "Cannot create a bit variable of size > 24 bits": EXIT FUNCTION
+            IF bits > 64 THEN Give_Error "Cannot create a bit variable of size > 64 bits": EXIT FUNCTION
         ELSE
             bits = 1
         END IF
@@ -21467,7 +21467,7 @@ FUNCTION symboltype (s$) 'returns type or 0(not a valid symbol)
         IF isuinteger(RIGHT$(s$, l - 1)) THEN
             IF l > 3 THEN EXIT FUNCTION
             n = VAL(RIGHT$(s$, l - 1))
-            IF n > 56 THEN EXIT FUNCTION
+            IF n > 64 THEN EXIT FUNCTION
             symboltype = n + ISOFFSETINBITS: EXIT FUNCTION
         END IF
         EXIT FUNCTION
@@ -21493,7 +21493,7 @@ FUNCTION symboltype (s$) 'returns type or 0(not a valid symbol)
             IF isuinteger(RIGHT$(s$, l - 2)) THEN
                 IF l > 4 THEN EXIT FUNCTION
                 n = VAL(RIGHT$(s$, l - 2))
-                IF n > 56 THEN EXIT FUNCTION
+                IF n > 64 THEN EXIT FUNCTION
                 symboltype = n + ISOFFSETINBITS + ISUNSIGNED: EXIT FUNCTION
             END IF
             EXIT FUNCTION
@@ -22467,7 +22467,7 @@ FUNCTION typ2ctyp$ (t AS LONG, tstr AS STRING)
         IF n$ <> "" THEN
             IF isuinteger(n$) = 0 THEN Give_Error "Invalid index after _BIT type": EXIT FUNCTION
             b = VAL(n$)
-            IF b > 57 THEN Give_Error "Invalid index after _BIT type": EXIT FUNCTION
+            IF b > 64 THEN Give_Error "Invalid index after _BIT type": EXIT FUNCTION
         END IF
         IF b <= 32 THEN ctyp$ = "int32" ELSE ctyp$ = "int64"
         IF unsgn THEN ctyp$ = "u" + ctyp$
@@ -22542,7 +22542,7 @@ FUNCTION type2symbol$ (typ$)
         IF isuinteger(t$) = 0 THEN Give_Error e$: EXIT FUNCTION
         v = VAL(t$)
         IF v = 0 THEN Give_Error e$: EXIT FUNCTION
-        IF s$ <> "$" AND v > 56 THEN Give_Error e$: EXIT FUNCTION
+        IF s$ <> "$" AND v > 64 THEN Give_Error e$: EXIT FUNCTION
         IF s$ = "$" THEN
             s$ = s$ + str2$(v)
         ELSE
@@ -22592,7 +22592,7 @@ FUNCTION typname2typ& (t2$)
         IF n$ <> "" THEN
             IF isuinteger(n$) = 0 THEN Give_Error "Invalid index after _BIT type": EXIT FUNCTION
             b = VAL(n$)
-            IF b > 56 THEN Give_Error "Invalid index after _BIT type": EXIT FUNCTION
+            IF b > 64 THEN Give_Error "Invalid index after _BIT type": EXIT FUNCTION
         END IF
         IF unsgn THEN typname2typ& = UBITTYPE + (b - 1) ELSE typname2typ& = BITTYPE + (b - 1)
         EXIT FUNCTION
@@ -22686,7 +22686,7 @@ FUNCTION typname2typ& (t2$)
         n$ = RIGHT$(t$, LEN(t$) - 7)
         IF isuinteger(n$) = 0 THEN Give_Error "Invalid size after " + qb64prefix$ + "BIT *": EXIT FUNCTION
         b = VAL(n$)
-        IF b = 0 OR b > 56 THEN Give_Error "Invalid size after " + qb64prefix$ + "BIT *": EXIT FUNCTION
+        IF b = 0 OR b > 64 THEN Give_Error "Invalid size after " + qb64prefix$ + "BIT *": EXIT FUNCTION
         t = BITTYPE - 1 + b: IF u THEN t = t + ISUNSIGNED
         typname2typ& = t
         EXIT FUNCTION
