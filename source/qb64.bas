@@ -18028,6 +18028,11 @@ FUNCTION evaluatetotyp$ (a2$, targettyp AS LONG)
                 IF (udtetype(E) AND ISSTRING) > 0 AND (udtetype(E) AND ISFIXEDLENGTH) = 0 AND (targettyp = -5) THEN
                     evaluatetotyp$ = "(*(qbs**)" + dst$ + ")->len"
                     EXIT FUNCTION
+                ELSEIF (udtetype(E) AND ISSTRING) > 0 AND (udtetype(E) AND ISFIXEDLENGTH) = 0 AND (targettyp = -4) THEN
+                    dst$ = "(*((qbs**)((char*)" + scope$ + n$ + "+(" + o$ + "))))->chr"
+                    bytes$ = "(*((qbs**)((char*)" + scope$ + n$ + "+(" + o$ + "))))->len"
+                    evaluatetotyp$ = "byte_element((uint64)" + dst$ + "," + bytes$ + "," + NewByteElement$ + ")"
+                    EXIT FUNCTION
                 END IF
                 bytes$ = str2(udtesize(E) \ 8)
             END IF
