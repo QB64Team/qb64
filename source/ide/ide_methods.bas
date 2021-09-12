@@ -7103,6 +7103,10 @@ SUB DebugMode
                                 tempVarType$ = "_UNSIGNED _BIT"
                             END IF
                             SELECT CASE tempVarType$
+                                CASE "_BIT", "_UNSIGNED _BIT"
+                                    value$ = MKL$(VAL(value$))
+                                    varSize& = LEN(dummy&)
+                                    result$ = STR$(CVL(value$))
                                 CASE "_BYTE", "_UNSIGNED _BYTE", "BYTE", "UNSIGNED BYTE"
                                     value$ = _MK$(_BYTE, VAL(value$))
                                     varSize& = LEN(dummy%%)
@@ -7641,14 +7645,14 @@ SUB DebugMode
     IF INSTR(tempVarType$, "BIT *") THEN
         IF VAL(MID$(tempVarType$, _INSTRREV(tempVarType$, " ") + 1)) > 32 THEN
             tempVarType$ = "_INTEGER64"
-            IF INSTR(tempVarType$, "UNSIGNED") THEN tempVarType$ = "_UNSIGNED _INTEGER64"
+            IF INSTR(varType$, "UNSIGNED") THEN tempVarType$ = "_UNSIGNED _INTEGER64"
         ELSE
             tempVarType$ = "LONG"
-            IF INSTR(tempVarType$, "UNSIGNED") THEN tempVarType$ = "_UNSIGNED LONG"
+            IF INSTR(varType$, "UNSIGNED") THEN tempVarType$ = "_UNSIGNED LONG"
         END IF
     ELSEIF INSTR("@_BIT@BIT@_UNSIGNED _BIT@UNSIGNED BIT@", "@" + tempVarType$ + "@") THEN
         tempVarType$ = "LONG"
-        IF INSTR(tempVarType$, "UNSIGNED") THEN tempVarType$ = "_UNSIGNED LONG"
+        IF INSTR(varType$, "UNSIGNED") THEN tempVarType$ = "_UNSIGNED LONG"
     END IF
     SELECT CASE tempVarType$
         CASE "_BYTE", "_UNSIGNED _BYTE", "BYTE", "UNSIGNED BYTE": varSize& = LEN(dummy%%)
@@ -7941,7 +7945,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
         COLOR 0, 7
         LOCATE p.y + 4, p.x + 2
         PRINT "Double-click on an item to add it to the watch list:"
-        IF doubleClickThreshold < p.w AND IdeDebugMode > 0 THEN
+        IF doubleClickThreshold > 0 AND doubleClickThreshold < p.w AND IdeDebugMode > 0 THEN
             _PRINTSTRING (p.x + doubleClickThreshold, p.y + 5), CHR$(194)
             _PRINTSTRING (p.x + doubleClickThreshold, p.y + p.h - 1), CHR$(193)
         END IF
@@ -8361,10 +8365,10 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
 
         IF mCLICK AND focus = 2 THEN 'list click
             IF timeElapsedSince(lastClick!) < .3 AND clickedItem = o(varListBox).sel THEN
-                IF mX < p.x + doubleClickThreshold OR IdeDebugMode = 0 THEN
-                    GOTO toggleWatch
-                ELSE
+                IF doubleClickThreshold > 0 AND mX >= p.x + doubleClickThreshold AND IdeDebugMode > 0 THEN
                     GOTO sendValue
+                ELSE
+                    GOTO toggleWatch
                 END IF
             END IF
             lastClick! = TIMER
@@ -12223,9 +12227,9 @@ SUB ideshowtext
 
     IF ShowLineNumbers THEN
         IF ShowLineNumbersUseBG THEN COLOR , 6
-        IF searchStringFoundOn > 0 AND searchStringFoundOn = l THEN
+        IF (searchStringFoundOn > 0 AND searchStringFoundOn = l) OR (l = debugnextline AND vWatchOn = 1) THEN
             COLOR 13, 5
-            searchStringFoundOn = 0
+            IF searchStringFoundOn > 0 AND searchStringFoundOn = l THEN searchStringFoundOn = 0
         END IF
         IF vWatchOn = 1 AND IdeBreakpoints(l) <> 0 THEN COLOR , 4
         IF vWatchOn = 1 AND IdeSkipLines(l) <> 0 THEN COLOR 14
@@ -13038,7 +13042,7 @@ FUNCTION idewarningbox
     FOR x = 1 TO warningListItems
         IF warningLines(x) = 0 THEN
             l$ = l$ + warning$(x)
-            IF x > 1 THEN ASC(l$, treeConnection) = 192
+            IF x > 1 AND treeConnection > 0 THEN ASC(l$, treeConnection) = 192
         ELSE
             l3$ = CHR$(16) + CHR$(2) 'dark grey
             IF warningIncLines(x) > 0 THEN
@@ -13052,7 +13056,7 @@ FUNCTION idewarningbox
             END IF
             treeConnection = LEN(l$) + 1
             text$ = warning$(x)
-            IF LEN(text$) + 10 > dialogWidth THEN dialogWidth = LEN(text$) + 10
+            IF LEN(l3$ + text$) + 6 > dialogWidth THEN dialogWidth = LEN(l3$ + text$) + 6
             IF LEN(text$) THEN
                 l$ = l$ + CHR$(195) + CHR$(196) + l3$ + ": " + text$
             ELSE
