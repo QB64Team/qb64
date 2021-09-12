@@ -12223,9 +12223,9 @@ SUB ideshowtext
 
     IF ShowLineNumbers THEN
         IF ShowLineNumbersUseBG THEN COLOR , 6
-        IF searchStringFoundOn > 0 AND searchStringFoundOn = l THEN
+        IF (searchStringFoundOn > 0 AND searchStringFoundOn = l) OR (l = debugnextline AND vWatchOn = 1) THEN
             COLOR 13, 5
-            searchStringFoundOn = 0
+            IF searchStringFoundOn > 0 AND searchStringFoundOn = l THEN searchStringFoundOn = 0
         END IF
         IF vWatchOn = 1 AND IdeBreakpoints(l) <> 0 THEN COLOR , 4
         IF vWatchOn = 1 AND IdeSkipLines(l) <> 0 THEN COLOR 14
