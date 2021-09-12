@@ -3,15 +3,15 @@ if(_FUNC_VRGBS_ULONG_VRGBS==NULL){
 _FUNC_VRGBS_ULONG_VRGBS=(uint32*)mem_static_malloc(4);
 *_FUNC_VRGBS_ULONG_VRGBS=0;
 }
-qbs*oldstr3711=NULL;
+qbs*oldstr3718=NULL;
 if(_FUNC_VRGBS_STRING_TEXT->tmp||_FUNC_VRGBS_STRING_TEXT->fixed||_FUNC_VRGBS_STRING_TEXT->readonly){
-oldstr3711=_FUNC_VRGBS_STRING_TEXT;
-if (oldstr3711->cmem_descriptor){
-_FUNC_VRGBS_STRING_TEXT=qbs_new_cmem(oldstr3711->len,0);
+oldstr3718=_FUNC_VRGBS_STRING_TEXT;
+if (oldstr3718->cmem_descriptor){
+_FUNC_VRGBS_STRING_TEXT=qbs_new_cmem(oldstr3718->len,0);
 }else{
-_FUNC_VRGBS_STRING_TEXT=qbs_new(oldstr3711->len,0);
+_FUNC_VRGBS_STRING_TEXT=qbs_new(oldstr3718->len,0);
 }
-memcpy(_FUNC_VRGBS_STRING_TEXT->chr,oldstr3711->chr,oldstr3711->len);
+memcpy(_FUNC_VRGBS_STRING_TEXT->chr,oldstr3718->chr,oldstr3718->len);
 }
 int32 *_FUNC_VRGBS_LONG_RPOS=NULL;
 if(_FUNC_VRGBS_LONG_RPOS==NULL){

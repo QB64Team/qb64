@@ -1,4 +1,14 @@
-int64 fornext_value5903;
-int64 fornext_finalvalue5903;
-int64 fornext_step5903;
-uint8 fornext_step_negative5903;
+qbs*oldstr6126=NULL;
+if(_SUB_UPDATEMENUHELPLINE_STRING_A->tmp||_SUB_UPDATEMENUHELPLINE_STRING_A->fixed||_SUB_UPDATEMENUHELPLINE_STRING_A->readonly){
+oldstr6126=_SUB_UPDATEMENUHELPLINE_STRING_A;
+if (oldstr6126->cmem_descriptor){
+_SUB_UPDATEMENUHELPLINE_STRING_A=qbs_new_cmem(oldstr6126->len,0);
+}else{
+_SUB_UPDATEMENUHELPLINE_STRING_A=qbs_new(oldstr6126->len,0);
+}
+memcpy(_SUB_UPDATEMENUHELPLINE_STRING_A->chr,oldstr6126->chr,oldstr6126->len);
+}
+byte_element_struct *byte_element_6127=NULL;
+if (!byte_element_6127){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6127=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6127=(byte_element_struct*)mem_static_malloc(12);
+}

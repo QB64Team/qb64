@@ -11,7 +11,9 @@ DIM SHARED IDEBuildModeChanged
 DIM SHARED IdeInfo AS STRING
 DIM SHARED IdeContextHelpSF AS _BYTE
 
-DIM SHARED host&, hostport$, variableWatchList$
+DIM SHARED host&, debugClient&, hostport$, variableWatchList$
+DIM SHARED vWatchReceivedData$(1 TO 1000), nextvWatchDataSlot
+DIM SHARED startPausedPending AS _BYTE
 
 DIM SHARED IdeSystem AS LONG
 '1=Entering text into the main IDE window
@@ -24,6 +26,7 @@ DIM SHARED callstacklist$
 
 DIM SHARED IdeRecentLink(1 TO 6, 1 TO 2) AS STRING
 DIM SHARED IdeOpenFile AS STRING 'makes IdeOpen directly open the file passed
+DIM SHARED fileDlgSearchTerm$
 
 TYPE IdeBmkType
     y AS LONG 'the vertical line
@@ -205,7 +208,6 @@ TYPE idedbotype
 END TYPE
 '--------------------------------------------------------------------------------
 DIM SHARED idefocusline 'simply stores the location of the line to highlight in red
-DIM SHARED idecompilererrormessage$
 DIM SHARED ideautorun, startPaused
 DIM SHARED menu$(1 TO 11, 0 TO 20)
 DIM SHARED menuDesc$(1 TO 11, 0 TO 20)
@@ -219,7 +221,7 @@ DIM SHARED ViewMenuID AS INTEGER, ViewMenuShowLineNumbersSubMenuID AS INTEGER
 DIM SHARED ViewMenuShowSeparatorID AS INTEGER, ViewMenuShowBGID AS INTEGER
 DIM SHARED ViewMenuCompilerWarnings AS INTEGER
 DIM SHARED RunMenuID AS INTEGER, RunMenuSaveExeWithSource AS INTEGER, brackethighlight AS INTEGER
-DIM SHARED DebugMenuID AS INTEGER, DebugMenuCallStack AS INTEGER
+DIM SHARED DebugMenuID AS INTEGER, DebugMenuCallStack AS INTEGER, DebugMenuWatchListToConsole AS INTEGER
 DIM SHARED multihighlight AS INTEGER, keywordHighlight AS INTEGER
 DIM SHARED PresetColorSchemes AS INTEGER, TotalColorSchemes AS INTEGER, ColorSchemes$(0)
 DIM SHARED LastValidColorScheme AS INTEGER

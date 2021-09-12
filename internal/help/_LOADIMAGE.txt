@@ -1,15 +1,12 @@
 {{DISPLAYTITLE:_LOADIMAGE}}
-
 The [[_LOADIMAGE]] function loads an image into memory and returns valid [[LONG]] image handle values that are less than -1. 
 
 
 {{PageSyntax}}
-
 :{{Parameter|handle&amp;}} = [[_LOADIMAGE]]({{Parameter|filename$}}[, {{Parameter|mode%}}])
 
 
 {{PageParameters}}
-
 *{{Parameter|filename$}} is literal or variable [[STRING]] file name value.
 *Optional {{Parameter|mode%}} [[INTEGER]] values can be:
 **32 = 32-bit
@@ -17,7 +14,6 @@ The [[_LOADIMAGE]] function loads an image into memory and returns valid [[LONG]
 
 
 {{PageDescription}}
-
 *Various common image file formats supported, like BMP, JPG, PNG, etc. A path can also be given.
 *The {{Parameter|mode%}} can designate 32-bit color or 33 ('''version 1.000 and up'''). Omit to use the current graphic screen settings.
 *Mode 33 images are '''hardware''' accelerated and are created using [[_LOADIMAGE]] or [[_COPYIMAGE]] ('''version 1.000 and up''').
@@ -29,7 +25,6 @@ The [[_LOADIMAGE]] function loads an image into memory and returns valid [[LONG]
 
 
 {{PageErrors}}
-
 *Some picture file images may not load when a {{Parameter|mode%}} value is designated. Try loading it without a {{Parameter|mode%}} designation.
 *'''It is important to free unused or discarded images with [[_FREEIMAGE]] to prevent CPU memory overflow errors.'''
 *'''In text-only [[SCREEN]] 0, {{Parameter|mode%}} 32 must be specified.''' When loading an [[_ICON]] image use 32 for the {{Parameter|mode%}} too.
@@ -80,7 +75,6 @@ DO
 
 
 {{PageSeeAlso}}
-
 *[[_FREEIMAGE]], [[_ICON]]
 *[[_PUTIMAGE]], [[_MAPTRIANGLE]]
 *[[_NEWIMAGE]], [[_COPYIMAGE]]

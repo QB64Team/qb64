@@ -1,5 +1,14 @@
-float *_FUNC_TIMEELAPSEDSINCE_SINGLE_TIMEELAPSEDSINCE=NULL;
-if(_FUNC_TIMEELAPSEDSINCE_SINGLE_TIMEELAPSEDSINCE==NULL){
-_FUNC_TIMEELAPSEDSINCE_SINGLE_TIMEELAPSEDSINCE=(float*)mem_static_malloc(4);
-*_FUNC_TIMEELAPSEDSINCE_SINGLE_TIMEELAPSEDSINCE=0;
+qbs*oldstr5331=NULL;
+if(_SUB_IDEPAR_STRING_TITLE->tmp||_SUB_IDEPAR_STRING_TITLE->fixed||_SUB_IDEPAR_STRING_TITLE->readonly){
+oldstr5331=_SUB_IDEPAR_STRING_TITLE;
+if (oldstr5331->cmem_descriptor){
+_SUB_IDEPAR_STRING_TITLE=qbs_new_cmem(oldstr5331->len,0);
+}else{
+_SUB_IDEPAR_STRING_TITLE=qbs_new(oldstr5331->len,0);
+}
+memcpy(_SUB_IDEPAR_STRING_TITLE->chr,oldstr5331->chr,oldstr5331->len);
+}
+byte_element_struct *byte_element_5332=NULL;
+if (!byte_element_5332){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5332=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5332=(byte_element_struct*)mem_static_malloc(12);
 }

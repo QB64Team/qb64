@@ -1,4 +1,5 @@
-qbs_free(_SUB_IDENOMATCH_STRING_MSG);
-qbs_free(_SUB_IDENOMATCH_STRING_C);
-qbs_free(_SUB_IDENOMATCH_STRING_FLAGS);
-qbs_free(_SUB_IDENOMATCH_STRING_PL);
+if(oldstr5252){
+if(oldstr5252->fixed)qbs_set(oldstr5252,_SUB_IDEHPRINT_STRING_A);
+qbs_free(_SUB_IDEHPRINT_STRING_A);
+}
+qbs_free(_SUB_IDEHPRINT_STRING_C);

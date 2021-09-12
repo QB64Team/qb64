@@ -33,6 +33,9 @@ vWatchVariableExclusions$ = "@__LONG_VWATCH_LINENUMBER@__LONG_VWATCH_SUBLEVEL@__
               "@__STRING_VWATCH_SUBNAME@__STRING_VWATCH_CALLSTACK@__ARRAY_BYTE_VWATCH_BREAKPOINTS" + _
               "@__ARRAY_BYTE_VWATCH_SKIPLINES@__STRING_VWATCH_INTERNALSUBNAME@__ARRAY_STRING_VWATCH_STACK@"
 
+DIM SHARED nativeDataTypes$
+nativeDataTypes$ = "@_OFFSET@OFFSET@_UNSIGNED _OFFSET@UNSIGNED OFFSET@_BIT@BIT@_UNSIGNED _BIT@UNSIGNED BIT@_BYTE@_UNSIGNED _BYTE@BYTE@UNSIGNED BYTE@INTEGER@_UNSIGNED INTEGER@UNSIGNED INTEGER@LONG@_UNSIGNED LONG@UNSIGNED LONG@_INTEGER64@INTEGER64@_UNSIGNED _INTEGER64@UNSIGNED INTEGER64@SINGLE@DOUBLE@_FLOAT@FLOAT@STRING@"
+
 DIM SHARED qb64prefix_set_recompileAttempts, qb64prefix_set_desiredState
 DIM SHARED opex_recompileAttempts, opex_desiredState
 DIM SHARED opexarray_recompileAttempts, opexarray_desiredState
@@ -109,22 +112,15 @@ DIM SHARED ShowWarnings AS _BYTE, QuietMode AS _BYTE, CMDLineFile AS STRING
 DIM SHARED MonochromeLoggingMode AS _BYTE
 
 TYPE usedVarList
-    used AS _BYTE
-    watch AS _BYTE
-    mostRecentValue AS STRING
-    linenumber AS LONG
-    includeLevel AS LONG
-    includedLine AS LONG
-    includedFile AS STRING
-    scope AS LONG
-    varType AS STRING
-    subfunc AS STRING
-    localIndex AS LONG
-    cname AS STRING
-    name AS STRING
+    AS LONG id, linenumber, includeLevel, includedLine, scope, localIndex
+    AS LONG arrayElementSize
+    AS _BYTE used, watch, isarray
+    AS STRING name, cname, varType, includedFile, subfunc
+    AS STRING watchRange, indexes, elements, elementTypes 'for Arrays and UDTs
+    AS STRING elementOffset, storage
 END TYPE
 
-DIM SHARED totalVariablesCreated AS LONG
+DIM SHARED totalVariablesCreated AS LONG, totalMainVariablesCreated AS LONG
 DIM SHARED bypassNextVariable AS _BYTE
 DIM SHARED totalWarnings AS LONG, warningListItems AS LONG, lastWarningHeader AS STRING
 DIM SHARED duplicateConstWarning AS _BYTE, warningsissued AS _BYTE
@@ -788,7 +784,7 @@ DIM SHARED currentid AS LONG 'is the index of the last ID accessed
 DIM SHARED linenumber AS LONG, reallinenumber AS LONG, totallinenumber AS LONG, definingtypeerror AS LONG
 DIM SHARED wholeline AS STRING
 DIM SHARED firstLineNumberLabelvWatch AS LONG, lastLineNumberLabelvWatch AS LONG
-DIM SHARED vWatchUsedLabels AS STRING
+DIM SHARED vWatchUsedLabels AS STRING, vWatchUsedSkipLabels AS STRING
 DIM SHARED linefragment AS STRING
 'COMMON SHARED bitmask() AS _INTEGER64
 'COMMON SHARED bitmaskinv() AS _INTEGER64
@@ -829,8 +825,8 @@ DIM SHARED uniquenumbern AS LONG
 'CLEAR , , 16384
 
 
-DIM SHARED bitmask(1 TO 56) AS _INTEGER64
-DIM SHARED bitmaskinv(1 TO 56) AS _INTEGER64
+DIM SHARED bitmask(1 TO 64) AS _INTEGER64
+DIM SHARED bitmaskinv(1 TO 64) AS _INTEGER64
 
 DIM SHARED defineextaz(1 TO 27) AS STRING
 DIM SHARED defineaz(1 TO 27) AS STRING '27 is an underscore
@@ -907,7 +903,7 @@ DIM SHARED controlref(1000) AS LONG 'the line number the control was created on
 ON ERROR GOTO qberror
 
 i2&& = 1
-FOR i&& = 1 TO 56
+FOR i&& = 1 TO 64
     bitmask(i&&) = i2&&
     bitmaskinv(i&&) = NOT i2&&
     i2&& = i2&& + 2 ^ i&&
@@ -1191,7 +1187,7 @@ file$ = f$
 fullrecompile:
 
 BU_DEPENDENCY_CONSOLE_ONLY = DEPENDENCY(DEPENDENCY_CONSOLE_ONLY)
-FOR i = 1 TO UBOUND(Dependency): DEPENDENCY(i) = 0: NEXT
+FOR i = 1 TO UBOUND(DEPENDENCY): DEPENDENCY(i) = 0: NEXT
 DEPENDENCY(DEPENDENCY_CONSOLE_ONLY) = BU_DEPENDENCY_CONSOLE_ONLY AND 2 'Restore -g switch if used
 
 Error_Happened = 0
@@ -1462,6 +1458,7 @@ SelectCaseCounter = 0
 ExecCounter = 0
 UserDefineCount = 7
 totalVariablesCreated = 0
+totalMainVariablesCreated = 0
 REDIM SHARED usedVariableList(1000) AS usedVarList
 totalWarnings = 0
 duplicateConstWarning = 0
@@ -1469,6 +1466,7 @@ emptySCWarning = 0
 warningListItems = 0
 lastWarningHeader = ""
 vWatchUsedLabels = SPACE$(1000)
+vWatchUsedSkipLabels = SPACE$(1000)
 firstLineNumberLabelvWatch = 0
 REDIM SHARED warning$(1000)
 REDIM SHARED warningLines(1000) AS LONG
@@ -1684,8 +1682,6 @@ DO
         REDIM _PRESERVE InValidLine(UBOUND(InValidLine) + 1000) AS _BYTE
     LOOP
     InValidLine(linenumber) = 0
-
-    ColorPass:
 
     IF LEN(wholeline$) THEN
 
@@ -1961,6 +1957,7 @@ DO
                                 IF ii >= n OR getelement$(a$, ii) <> "AS" THEN a$ = "Expected element-name AS type, AS type element-list, or END TYPE": GOTO errmes
                                 t$ = getelements$(a$, ii + 1, n)
 
+                                IF t$ = RTRIM$(udtxname(definingtype)) THEN a$ = "Invalid self-reference": GOTO errmes
                                 typ = typname2typ(t$)
                                 IF Error_Happened THEN GOTO errmes
                                 IF typ = 0 THEN a$ = "Undefined type": GOTO errmes
@@ -1981,10 +1978,10 @@ DO
                                 hashres = HashFind(hashname$, hashchkflags, hashresflags, hashresref)
                                 DO WHILE hashres
                                     IF hashresflags AND HASHFLAG_UDTELEMENT THEN
-                                        IF hashresref = i THEN a$ = "Name already in use": GOTO errmes
+                                        IF hashresref = i THEN a$ = "Name already in use (" + hashname$ + ")": GOTO errmes
                                     END IF
                                     IF hashresflags AND HASHFLAG_RESERVED THEN
-                                        IF hashresflags AND (HASHFLAG_TYPE + HASHFLAG_CUSTOMSYNTAX + HASHFLAG_OPERATOR + HASHFLAG_XELEMENTNAME) THEN a$ = "Name already in use": GOTO errmes
+                                        IF hashresflags AND (HASHFLAG_TYPE + HASHFLAG_CUSTOMSYNTAX + HASHFLAG_OPERATOR + HASHFLAG_XELEMENTNAME) THEN a$ = "Name already in use (" + hashname$ + ")": GOTO errmes
                                     END IF
                                     IF hashres <> 1 THEN hashres = HashFindCont(hashresflags, hashresref) ELSE hashres = 0
                                 LOOP
@@ -2051,6 +2048,7 @@ DO
                                 END IF
 
                                 t$ = RTRIM$(t$)
+                                IF t$ = RTRIM$(udtxname(definingtype)) THEN a$ = "Invalid self-reference": GOTO errmes
                                 typ = typname2typ(t$)
                                 IF Error_Happened THEN GOTO errmes
                                 IF typ = 0 THEN a$ = "Undefined type": GOTO errmes
@@ -2111,7 +2109,7 @@ DO
                                     IF hashresflags AND HASHFLAG_RESERVED THEN
                                         IF (hashresflags AND (HASHFLAG_TYPE + HASHFLAG_OPERATOR + HASHFLAG_CUSTOMSYNTAX + HASHFLAG_XTYPENAME)) = 0 THEN allow = 1
                                     END IF
-                                    IF allow = 0 THEN a$ = "Name already in use": GOTO errmes
+                                    IF allow = 0 THEN a$ = "Name already in use (" + hashname$ + ")": GOTO errmes
                                     IF hashres <> 1 THEN hashres = HashFindCont(hashresflags, hashresref) ELSE hashres = 0
                                 LOOP
 
@@ -2310,16 +2308,16 @@ DO
                                             END IF
                                             GOTO constAddDone
                                         ELSE
-                                            a$ = "Name already in use": GOTO errmes
+                                            a$ = "Name already in use (" + hashname$ + ")": GOTO errmes
                                         END IF
                                     END IF
                                 END IF
                                 IF hashresflags AND HASHFLAG_RESERVED THEN
-                                    a$ = "Name already in use": GOTO errmes
+                                    a$ = "Name already in use (" + hashname$ + ")": GOTO errmes
                                 END IF
                                 IF hashresflags AND (HASHFLAG_SUB + HASHFLAG_FUNCTION) THEN
-                                    IF ids(hashresref).internal_subfunc = 0 OR RTRIM$(ids(hashresref).musthave) <> "$" THEN a$ = "Name already in use": GOTO errmes
-                                    IF t AND ISSTRING THEN a$ = "Name already in use": GOTO errmes
+                                    IF ids(hashresref).internal_subfunc = 0 OR RTRIM$(ids(hashresref).musthave) <> "$" THEN a$ = "Name already in use (" + hashname$ + ")": GOTO errmes
+                                    IF t AND ISSTRING THEN a$ = "Name already in use (" + hashname$ + ")": GOTO errmes
                                 END IF
                                 IF hashres <> 1 THEN hashres = HashFindCont(hashresflags, hashresref) ELSE hashres = 0
                             LOOP
@@ -3130,12 +3128,18 @@ DO
 
         IF a3u$ = "$DEBUG" THEN
             layout$ = SCase$("$Debug")
+            IF NoIDEMode THEN
+                addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "$Debug", "$Debug features only work from the IDE"
+            END IF
             GOTO finishednonexec
         END IF
 
         IF a3u$ = "$CHECKING:OFF" THEN
             layout$ = SCase$("$Checking:Off")
             NoChecks = 1
+            IF vWatchOn <> 0 AND NoIDEMode = 0 AND inclevel = 0 THEN
+                addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "$Debug", "$Debug features won't work in $Checking:Off blocks"
+            END IF
             GOTO finishednonexec
         END IF
 
@@ -4992,8 +4996,9 @@ DO
                             IF typ AND ISUDT THEN
                                 IF RTRIM$(udtxcname(typ AND 511)) = "_MEM" AND UCASE$(t3$) = "MEM" AND qb64prefix_set = 1 THEN
                                     t3$ = MID$(RTRIM$(udtxcname(typ AND 511)), 2)
+                                ELSE
+                                    t3$ = RTRIM$(udtxcname(typ AND 511))
                                 END IF
-                                t3$ = RTRIM$(udtxcname(typ AND 511))
                                 l$ = l$ + sp + t3$
                             ELSE
                                 FOR t3i = 1 TO LEN(t3$)
@@ -5316,6 +5321,7 @@ DO
                         FOR i = firstLineNumberLabelvWatch TO lastLineNumberLabelvWatch
                             WHILE i > LEN(vWatchUsedLabels)
                                 vWatchUsedLabels = vWatchUsedLabels + SPACE$(1000)
+                                vWatchUsedSkipLabels = vWatchUsedSkipLabels + SPACE$(1000)
                             WEND
                             IF ASC(vWatchUsedLabels, i) = 1 THEN
                                 PRINT #12, "    case " + str2$(i) + ":"
@@ -5331,7 +5337,7 @@ DO
                         PRINT #12, "VWATCH_SKIPLINE:;"
                         PRINT #12, "switch (*__LONG_VWATCH_GOTO) {"
                         FOR i = firstLineNumberLabelvWatch TO lastLineNumberLabelvWatch
-                            IF ASC(vWatchUsedLabels, i) = 1 THEN
+                            IF ASC(vWatchUsedSkipLabels, i) = 1 THEN
                                 PRINT #12, "    case -" + str2$(i) + ":"
                                 PRINT #12, "        goto VWATCH_SKIPLABEL_" + str2$(i) + ";"
                                 PRINT #12, "        break;"
@@ -8140,17 +8146,17 @@ DO
                                 'if types match then fail
                                 IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                     IF ts = id.tsize THEN
-                                        a$ = "Name already in use": GOTO errmes
+                                        a$ = "Name already in use (" + varname$ + ")": GOTO errmes
                                     END IF
                                 END IF
                             ELSE
                                 IF dimmethod = 0 THEN
-                                    a$ = "Name already in use": GOTO errmes 'explicit over explicit
+                                    a$ = "Name already in use (" + varname$ + ")": GOTO errmes 'explicit over explicit
                                 ELSE
                                     'if types match then fail
                                     IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                         IF ts = id.tsize THEN
-                                            a$ = "Name already in use": GOTO errmes
+                                            a$ = "Name already in use (" + varname$ + ")": GOTO errmes
                                         END IF
                                     END IF
                                 END IF
@@ -8167,17 +8173,17 @@ DO
                                     'if types match then fail
                                     IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                         IF ts = id.tsize THEN
-                                            a$ = "Name already in use": GOTO errmes
+                                            a$ = "Name already in use (" + varname$ + s2$ + ")": GOTO errmes
                                         END IF
                                     END IF
                                 ELSE
                                     IF dimmethod = 0 THEN
-                                        a$ = "Name already in use": GOTO errmes 'explicit over explicit
+                                        a$ = "Name already in use (" + varname$ + s2$ + ")": GOTO errmes 'explicit over explicit
                                     ELSE
                                         'if types match then fail
                                         IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                             IF ts = id.tsize THEN
-                                                a$ = "Name already in use": GOTO errmes
+                                                a$ = "Name already in use (" + varname$ + s2$ + ")": GOTO errmes
                                             END IF
                                         END IF
                                     END IF
@@ -8201,13 +8207,13 @@ DO
                         IF UCASE$(varname$) = UCASE$(varname2$) THEN
                             IF dimmethod2 = 1 THEN
                                 'old using symbol
-                                IF symbol2fulltypename$(typ$) = typ2$ THEN a$ = "Name already in use": GOTO errmes
+                                IF symbol2fulltypename$(typ$) = typ2$ THEN a$ = "Name already in use (" + varname$ + ")": GOTO errmes
                             ELSE
                                 'old using AS
                                 IF dimmethod = 0 THEN
-                                    a$ = "Name already in use": GOTO errmes
+                                    a$ = "Name already in use (" + varname$ + ")": GOTO errmes
                                 ELSE
-                                    IF symbol2fulltypename$(typ$) = typ2$ THEN a$ = "Name already in use": GOTO errmes
+                                    IF symbol2fulltypename$(typ$) = typ2$ THEN a$ = "Name already in use (" + varname$ + ")": GOTO errmes
                                 END IF
                             END IF
                         END IF
@@ -8223,17 +8229,17 @@ DO
                                 'if types match then fail
                                 IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                     IF ts = id.tsize THEN
-                                        a$ = "Name already in use": GOTO errmes
+                                        a$ = "Name already in use (" + varname$ + ")": GOTO errmes
                                     END IF
                                 END IF
                             ELSE
                                 IF dimmethod = 0 THEN
-                                    a$ = "Name already in use": GOTO errmes 'explicit over explicit
+                                    a$ = "Name already in use (" + varname$ + ")": GOTO errmes 'explicit over explicit
                                 ELSE
                                     'if types match then fail
                                     IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                         IF ts = id.tsize THEN
-                                            a$ = "Name already in use": GOTO errmes
+                                            a$ = "Name already in use (" + varname$ + ")": GOTO errmes
                                         END IF
                                     END IF
                                 END IF
@@ -8250,17 +8256,17 @@ DO
                                     'if types match then fail
                                     IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                         IF ts = id.tsize THEN
-                                            a$ = "Name already in use": GOTO errmes
+                                            a$ = "Name already in use (" + varname$ + s2$ + ")": GOTO errmes
                                         END IF
                                     END IF
                                 ELSE
                                     IF dimmethod = 0 THEN
-                                        a$ = "Name already in use": GOTO errmes 'explicit over explicit
+                                        a$ = "Name already in use (" + varname$ + s2$ + ")": GOTO errmes 'explicit over explicit
                                     ELSE
                                         'if types match then fail
                                         IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                             IF ts = id.tsize THEN
-                                                a$ = "Name already in use": GOTO errmes
+                                                a$ = "Name already in use (" + varname$ + s2$ + ")": GOTO errmes
                                             END IF
                                         END IF
                                     END IF
@@ -8779,13 +8785,13 @@ DO
 
     IF firstelement$ = "CHAIN" THEN
         IF vWatchOn THEN
-            addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "Feature incompatible with $DEBUG MODE", "CHAIN"
+            addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "Feature incompatible with $Debug mode", "CHAIN"
         END IF
     END IF
 
     IF firstelement$ = "RUN" THEN 'RUN
         IF vWatchOn THEN
-            addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "Feature incompatible with $DEBUG MODE", "RUN"
+            addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "Feature incompatible with $Debug mode", "RUN"
         END IF
         l$ = SCase$("Run")
         IF n = 1 THEN
@@ -10127,8 +10133,14 @@ DO
                     NEXT
                     IF numvar = 0 THEN a$ = "Syntax error - Reference: INPUT [;] " + CHR$(34) + "[Question or statement text]" + CHR$(34) + "{,|;} variable[, ...] or INPUT ; variable[, ...]": GOTO errmes
                     IF lineinput = 1 AND numvar > 1 THEN a$ = "Too many variables": GOTO errmes
+                    IF vWatchOn = 1 THEN
+                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= -4; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);"
+                    END IF
                     PRINT #12, "qbs_input(" + str2(numvar) + "," + str2$(newline) + ");"
                     PRINT #12, "if (stop_program) end();"
+                    IF vWatchOn = 1 THEN
+                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= -5; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);"
+                    END IF
                     PRINT #12, cleanupstringprocessingcall$ + "0);"
                     layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
                     GOTO finishedline
@@ -11123,7 +11135,21 @@ DO
                     subcall$ = subcall$ + "," + str2$(passed&)
                 END IF
                 subcall$ = subcall$ + ");"
+
+                IF firstelement$ = "SLEEP" THEN
+                    IF vWatchOn = 1 THEN
+                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= -4; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);"
+                    END IF
+                END IF
+
                 PRINT #12, subcall$
+
+                IF firstelement$ = "SLEEP" THEN
+                    IF vWatchOn = 1 THEN
+                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= -5; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);"
+                    END IF
+                END IF
+
                 subcall$ = ""
                 IF stringprocessinghappened THEN PRINT #12, cleanupstringprocessingcall$ + "0);"
 
@@ -12229,7 +12255,7 @@ IF NOT IgnoreWarnings THEN
         header$ = "unused variable" 's (" + LTRIM$(STR$(totalUnusedVariables)) + ")"
         FOR i = 1 TO totalVariablesCreated
             IF usedVariableList(i).used = 0 THEN
-                addWarning usedVariableList(i).linenumber, usedVariableList(i).includeLevel, usedVariableList(i).includedLine, usedVariableList(i).includedFile, header$, usedVariableList(i).name + SPACE$((maxVarNameLen + 1) - LEN(usedVariableList(i).name)) + " (" + usedVariableList(i).varType + ")"
+                addWarning usedVariableList(i).linenumber, usedVariableList(i).includeLevel, usedVariableList(i).includedLine, usedVariableList(i).includedFile, header$, usedVariableList(i).name + SPACE$((maxVarNameLen + 1) - LEN(usedVariableList(i).name)) + "  " + usedVariableList(i).varType
             END IF
         NEXT
     END IF
@@ -13195,7 +13221,7 @@ END IF
 
 IF compfailed THEN
     IF idemode THEN
-        idemessage$ = "C++ Compilation failed (Check " + CHR$(0) + compilelog$ + CHR$(0) + ")"
+        idemessage$ = "C++ Compilation failed " + CHR$(0) + "(Check " + _TRIM$(compilelog$) + ")"
         GOTO ideerror
     END IF
     IF compfailed THEN
@@ -14287,12 +14313,14 @@ SUB vWatchAddLabel (this AS LONG, lastLine AS _BYTE)
     IF lastLine = 0 THEN
         WHILE this > LEN(vWatchUsedLabels)
             vWatchUsedLabels = vWatchUsedLabels + SPACE$(1000)
+            vWatchUsedSkipLabels = vWatchUsedSkipLabels + SPACE$(1000)
         WEND
 
         IF firstLineNumberLabelvWatch = 0 THEN
             firstLineNumberLabelvWatch = this
         ELSE
             IF prevSkip <> prevLabel THEN
+                ASC(vWatchUsedSkipLabels, prevLabel) = 1
                 PRINT #12, "VWATCH_SKIPLABEL_" + str2$(prevLabel) + ":;"
                 prevSkip = prevLabel
             END IF
@@ -14306,6 +14334,7 @@ SUB vWatchAddLabel (this AS LONG, lastLine AS _BYTE)
         END IF
     ELSE
         IF prevSkip <> prevLabel THEN
+            ASC(vWatchUsedSkipLabels, prevLabel) = 1
             PRINT #12, "VWATCH_SKIPLABEL_" + str2$(prevLabel) + ":;"
             prevSkip = prevLabel
         END IF
@@ -14335,7 +14364,7 @@ SUB closemain
         PRINT #12, "VWATCH_SKIPLINE:;"
         PRINT #12, "switch (*__LONG_VWATCH_GOTO) {"
         FOR i = firstLineNumberLabelvWatch TO lastLineNumberLabelvWatch
-            IF ASC(vWatchUsedLabels, i) = 1 THEN
+            IF ASC(vWatchUsedSkipLabels, i) = 1 THEN
                 PRINT #12, "    case -" + str2$(i) + ":"
                 PRINT #12, "        goto VWATCH_SKIPLABEL_" + str2$(i) + ";"
                 PRINT #12, "        break;"
@@ -14651,6 +14680,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 END IF
                 regid
                 IF Error_Happened THEN EXIT FUNCTION
+                vWatchVariable n$, 0
                 GOTO dim2exitfunc
             END IF
 
@@ -14752,6 +14782,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             END IF
             regid
             IF Error_Happened THEN EXIT FUNCTION
+            vWatchVariable n$, 0
             GOTO dim2exitfunc
         END IF
 
@@ -14787,10 +14818,10 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             IF LEFT$(typ$, 7) <> "_BIT * " AND LEFT$(typ$, 6) <> "BIT * " THEN Give_Error "Expected " + qb64prefix$ + "BIT * number": EXIT FUNCTION
             c$ = MID$(typ$, INSTR(typ$, " * ") + 3)
             IF isuinteger(c$) = 0 THEN Give_Error "Number expected after *": EXIT FUNCTION
-            IF LEN(c$) > 2 THEN Give_Error "Too many characters in number after *": EXIT FUNCTION
+            IF LEN(c$) > 2 THEN Give_Error "Cannot create a bit variable of size > 64 bits": EXIT FUNCTION
             bits = VAL(c$)
             IF bits = 0 THEN Give_Error "Cannot create a bit variable of size 0 bits": EXIT FUNCTION
-            IF bits > 57 THEN Give_Error "Cannot create a bit variable of size > 24 bits": EXIT FUNCTION
+            IF bits > 64 THEN Give_Error "Cannot create a bit variable of size > 64 bits": EXIT FUNCTION
         ELSE
             bits = 1
         END IF
@@ -14860,6 +14891,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             END IF
             regid
             IF Error_Happened THEN EXIT FUNCTION
+            vWatchVariable n$, 0
             GOTO dim2exitfunc
         END IF
         'standard bit-length variable
@@ -16575,7 +16607,14 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
         NEXT
         omitargs = omitarg_last - omitarg_first + 1
 
-        IF args <> id2.args - omitargs AND args <> id2.args THEN Give_Error "Incorrect number of arguments passed to function": EXIT FUNCTION
+        IF args <> id2.args - omitargs AND args <> id2.args THEN
+            IF LEN(id2.hr_syntax) > 0 THEN
+                Give_Error "Incorrect number of arguments - Reference: " + id2.hr_syntax
+            ELSE
+                Give_Error "Incorrect number of arguments passed to function"
+            END IF
+            EXIT FUNCTION
+        END IF
 
         passomit = 1 'pass omit flags param to function
 
@@ -16586,7 +16625,14 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
         IF n$ = "ASC" AND args = 2 THEN GOTO skipargnumchk
         IF id2.overloaded = -1 AND (args >= id2.minargs AND args <= id2.args) THEN GOTO skipargnumchk
 
-        IF id2.args <> args THEN Give_Error "Incorrect number of arguments passed to function": EXIT FUNCTION
+        IF id2.args <> args THEN
+            IF LEN(id2.hr_syntax) > 0 THEN
+                Give_Error "Incorrect number of arguments - Reference: " + id2.hr_syntax
+            ELSE
+                Give_Error "Incorrect number of arguments passed to function"
+            END IF
+            EXIT FUNCTION
+        END IF
 
     END IF
 
@@ -17986,6 +18032,11 @@ FUNCTION evaluatetotyp$ (a2$, targettyp AS LONG)
                 IF (udtetype(E) AND ISSTRING) > 0 AND (udtetype(E) AND ISFIXEDLENGTH) = 0 AND (targettyp = -5) THEN
                     evaluatetotyp$ = "(*(qbs**)" + dst$ + ")->len"
                     EXIT FUNCTION
+                ELSEIF (udtetype(E) AND ISSTRING) > 0 AND (udtetype(E) AND ISFIXEDLENGTH) = 0 AND (targettyp = -4) THEN
+                    dst$ = "(*((qbs**)((char*)" + scope$ + n$ + "+(" + o$ + "))))->chr"
+                    bytes$ = "(*((qbs**)((char*)" + scope$ + n$ + "+(" + o$ + "))))->len"
+                    evaluatetotyp$ = "byte_element((uint64)" + dst$ + "," + bytes$ + "," + NewByteElement$ + ")"
+                    EXIT FUNCTION
                 END IF
                 bytes$ = str2(udtesize(E) \ 8)
             END IF
@@ -18718,6 +18769,8 @@ END FUNCTION
 
 
 FUNCTION fixoperationorder$ (savea$)
+    STATIC uboundlbound AS _BYTE
+
     a$ = savea$
     IF Debug THEN PRINT #9, "fixoperationorder:in:" + a$
 
@@ -18726,6 +18779,7 @@ FUNCTION fixoperationorder$ (savea$)
     n = numelements(a$) 'n is maintained throughout function
 
     IF fooindwel = 1 THEN 'actions to take on initial call only
+        uboundlbound = 0
 
         'Quick check for duplicate binary operations
         uppercasea$ = UCASE$(a$) 'capitalize it once to reduce calls to ucase over and over
@@ -19350,7 +19404,7 @@ FUNCTION fixoperationorder$ (savea$)
 
                             IF Debug THEN PRINT #9, "found id matching " + f2$
 
-                            IF nextc = 40 THEN '(
+                            IF nextc = 40 OR uboundlbound <> 0 THEN '(
 
                                 'function or array?
                                 IF id.arraytype <> 0 OR id.subfunc = 1 THEN
@@ -19362,6 +19416,7 @@ FUNCTION fixoperationorder$ (savea$)
                                     IF Error_Happened THEN EXIT FUNCTION
                                     IF id.internal_subfunc THEN
                                         f2$ = SCase$(RTRIM$(id.cn)) + s$
+                                        uboundlbound = (UCASE$(f2$) = "UBOUND" OR UCASE$(f2$) = "LBOUND")
                                     ELSE
                                         f2$ = RTRIM$(id.cn) + s$
                                     END IF
@@ -21146,7 +21201,7 @@ SUB regid
                             IF INSTR(ids(currentid).mayhave, "$") = 0 THEN allow = 1
                         END IF
                     END IF
-                    IF allow = 0 THEN Give_Error "Name already in use": EXIT SUB
+                    IF allow = 0 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                 END IF 'hashres
                 IF hashres <> 1 THEN hashres = HashFindCont(hashresflags, hashresref) ELSE hashres = 0
             LOOP
@@ -21177,35 +21232,35 @@ SUB regid
                         'All reserved words can be used as variables in QBASIC if "$" is appended to the variable name!
                         '(allow)
                     ELSE
-                        Give_Error "Name already in use": EXIT SUB 'Conflicts with reserved word
+                        Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'Conflicts with reserved word
                     END IF
                 END IF 'HASHFLAG_RESERVED
 
                 'conflict with sub/function?
                 IF hashresflags AND (HASHFLAG_FUNCTION + HASHFLAG_SUB) THEN
-                    IF ids(hashresref).internal_subfunc = 0 THEN Give_Error "Name already in use": EXIT SUB 'QBASIC doesn't allow a variable of the same name as a user-defined sub/func
+                    IF ids(hashresref).internal_subfunc = 0 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'QBASIC doesn't allow a variable of the same name as a user-defined sub/func
                     IF RTRIM$(id.n) = "WIDTH" AND ids(hashresref).subfunc = 2 THEN GOTO varname_exception
                     musthave$ = RTRIM$(id.musthave)
                     IF LEN(musthave$) = 0 THEN
                         IF RTRIM$(ids(hashresref).musthave) = "$" THEN
                             'a sub/func requiring "$" can co-exist with implicit numeric variables
-                            IF INSTR(id.mayhave, "$") THEN Give_Error "Name already in use": EXIT SUB
+                            IF INSTR(id.mayhave, "$") THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                         ELSE
-                            Give_Error "Name already in use": EXIT SUB 'Implicitly defined variables cannot conflict with sub/func names
+                            Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'Implicitly defined variables cannot conflict with sub/func names
                         END IF
                     END IF 'len(musthave$)=0
                     IF INSTR(musthave$, "$") THEN
-                        IF RTRIM$(ids(hashresref).musthave) = "$" THEN Give_Error "Name already in use": EXIT SUB 'A sub/function name already exists as a string
+                        IF RTRIM$(ids(hashresref).musthave) = "$" THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'A sub/function name already exists as a string
                         '(allow)
                     ELSE
-                        IF RTRIM$(ids(hashresref).musthave) <> "$" THEN Give_Error "Name already in use": EXIT SUB 'A non-"$" sub/func name already exists with this name
+                        IF RTRIM$(ids(hashresref).musthave) <> "$" THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'A non-"$" sub/func name already exists with this name
                     END IF
                 END IF 'HASHFLAG_FUNCTION + HASHFLAG_SUB
 
                 'conflict with constant?
                 IF hashresflags AND HASHFLAG_CONSTANT THEN
                     scope1 = constsubfunc(hashresref)
-                    IF (scope1 = 0 AND AllowLocalName = 0) OR scope1 = scope2 THEN Give_Error "Name already in use": EXIT SUB
+                    IF (scope1 = 0 AND AllowLocalName = 0) OR scope1 = scope2 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                 END IF
 
                 'conflict with variable?
@@ -21213,12 +21268,12 @@ SUB regid
                     astype1 = 0: IF ASC(ids(hashresref).musthave) = 32 THEN astype1 = 1
                     scope1 = ids(hashresref).insubfuncn
                     IF astype1 = 1 AND astype2 = 1 THEN
-                        IF scope1 = scope2 THEN Give_Error "Name already in use": EXIT SUB
+                        IF scope1 = scope2 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                     END IF
                     'same type?
                     IF id.t = ids(hashresref).t THEN
                         IF id.tsize = ids(hashresref).tsize THEN
-                            IF scope1 = scope2 THEN Give_Error "Name already in use": EXIT SUB
+                            IF scope1 = scope2 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                         END IF
                     END IF
                     'will astype'd fixed STRING-variable mask a non-fixed string?
@@ -21226,7 +21281,7 @@ SUB regid
                         IF astype2 = 1 THEN
                             IF ids(hashresref).t AND ISSTRING THEN
                                 IF (ids(hashresref).t AND ISFIXEDLENGTH) = 0 THEN
-                                    IF scope1 = scope2 THEN Give_Error "Name already in use": EXIT SUB
+                                    IF scope1 = scope2 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                                 END IF
                             END IF
                         END IF
@@ -21257,29 +21312,29 @@ SUB regid
                     'All reserved words can be used as variables in QBASIC if "$" is appended to the variable name!
                     '(allow)
                 ELSE
-                    Give_Error "Name already in use": EXIT SUB 'Conflicts with reserved word
+                    Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'Conflicts with reserved word
                 END IF
             END IF 'HASHFLAG_RESERVED
 
             'conflict with sub/function?
             IF hashresflags AND (HASHFLAG_FUNCTION + HASHFLAG_SUB) THEN
-                IF ids(hashresref).internal_subfunc = 0 THEN Give_Error "Name already in use": EXIT SUB 'QBASIC doesn't allow a variable of the same name as a user-defined sub/func
+                IF ids(hashresref).internal_subfunc = 0 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'QBASIC doesn't allow a variable of the same name as a user-defined sub/func
                 IF RTRIM$(id.n) = "WIDTH" AND ids(hashresref).subfunc = 2 THEN GOTO arrayname_exception
                 musthave$ = RTRIM$(id.musthave)
 
                 IF LEN(musthave$) = 0 THEN
                     IF RTRIM$(ids(hashresref).musthave) = "$" THEN
                         'a sub/func requiring "$" can co-exist with implicit numeric variables
-                        IF INSTR(id.mayhave, "$") THEN Give_Error "Name already in use": EXIT SUB
+                        IF INSTR(id.mayhave, "$") THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                     ELSE
-                        Give_Error "Name already in use": EXIT SUB 'Implicitly defined variables cannot conflict with sub/func names
+                        Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'Implicitly defined variables cannot conflict with sub/func names
                     END IF
                 END IF 'len(musthave$)=0
                 IF INSTR(musthave$, "$") THEN
-                    IF RTRIM$(ids(hashresref).musthave) = "$" THEN Give_Error "Name already in use": EXIT SUB 'A sub/function name already exists as a string
+                    IF RTRIM$(ids(hashresref).musthave) = "$" THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'A sub/function name already exists as a string
                     '(allow)
                 ELSE
-                    IF RTRIM$(ids(hashresref).musthave) <> "$" THEN Give_Error "Name already in use": EXIT SUB 'A non-"$" sub/func name already exists with this name
+                    IF RTRIM$(ids(hashresref).musthave) <> "$" THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'A non-"$" sub/func name already exists with this name
                 END IF
             END IF 'HASHFLAG_FUNCTION + HASHFLAG_SUB
 
@@ -21288,12 +21343,12 @@ SUB regid
                 astype1 = 0: IF ASC(ids(hashresref).musthave) = 32 THEN astype1 = 1
                 scope1 = ids(hashresref).insubfuncn
                 IF astype1 = 1 AND astype2 = 1 THEN
-                    IF scope1 = scope2 THEN Give_Error "Name already in use": EXIT SUB
+                    IF scope1 = scope2 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                 END IF
                 'same type?
                 IF id.arraytype = ids(hashresref).arraytype THEN
                     IF id.tsize = ids(hashresref).tsize THEN
-                        IF scope1 = scope2 THEN Give_Error "Name already in use": EXIT SUB
+                        IF scope1 = scope2 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                     END IF
                 END IF
                 'will astype'd fixed STRING-variable mask a non-fixed string?
@@ -21301,7 +21356,7 @@ SUB regid
                     IF astype2 = 1 THEN
                         IF ids(hashresref).arraytype AND ISSTRING THEN
                             IF (ids(hashresref).arraytype AND ISFIXEDLENGTH) = 0 THEN
-                                IF scope1 = scope2 THEN Give_Error "Name already in use": EXIT SUB
+                                IF scope1 = scope2 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                             END IF
                         END IF
                     END IF
@@ -21417,7 +21472,7 @@ FUNCTION symboltype (s$) 'returns type or 0(not a valid symbol)
         IF isuinteger(RIGHT$(s$, l - 1)) THEN
             IF l > 3 THEN EXIT FUNCTION
             n = VAL(RIGHT$(s$, l - 1))
-            IF n > 56 THEN EXIT FUNCTION
+            IF n > 64 THEN EXIT FUNCTION
             symboltype = n + ISOFFSETINBITS: EXIT FUNCTION
         END IF
         EXIT FUNCTION
@@ -21443,7 +21498,7 @@ FUNCTION symboltype (s$) 'returns type or 0(not a valid symbol)
             IF isuinteger(RIGHT$(s$, l - 2)) THEN
                 IF l > 4 THEN EXIT FUNCTION
                 n = VAL(RIGHT$(s$, l - 2))
-                IF n > 56 THEN EXIT FUNCTION
+                IF n > 64 THEN EXIT FUNCTION
                 symboltype = n + ISOFFSETINBITS + ISUNSIGNED: EXIT FUNCTION
             END IF
             EXIT FUNCTION
@@ -22417,7 +22472,7 @@ FUNCTION typ2ctyp$ (t AS LONG, tstr AS STRING)
         IF n$ <> "" THEN
             IF isuinteger(n$) = 0 THEN Give_Error "Invalid index after _BIT type": EXIT FUNCTION
             b = VAL(n$)
-            IF b > 57 THEN Give_Error "Invalid index after _BIT type": EXIT FUNCTION
+            IF b > 64 THEN Give_Error "Invalid index after _BIT type": EXIT FUNCTION
         END IF
         IF b <= 32 THEN ctyp$ = "int32" ELSE ctyp$ = "int64"
         IF unsgn THEN ctyp$ = "u" + ctyp$
@@ -22492,7 +22547,7 @@ FUNCTION type2symbol$ (typ$)
         IF isuinteger(t$) = 0 THEN Give_Error e$: EXIT FUNCTION
         v = VAL(t$)
         IF v = 0 THEN Give_Error e$: EXIT FUNCTION
-        IF s$ <> "$" AND v > 56 THEN Give_Error e$: EXIT FUNCTION
+        IF s$ <> "$" AND v > 64 THEN Give_Error e$: EXIT FUNCTION
         IF s$ = "$" THEN
             s$ = s$ + str2$(v)
         ELSE
@@ -22542,7 +22597,7 @@ FUNCTION typname2typ& (t2$)
         IF n$ <> "" THEN
             IF isuinteger(n$) = 0 THEN Give_Error "Invalid index after _BIT type": EXIT FUNCTION
             b = VAL(n$)
-            IF b > 56 THEN Give_Error "Invalid index after _BIT type": EXIT FUNCTION
+            IF b > 64 THEN Give_Error "Invalid index after _BIT type": EXIT FUNCTION
         END IF
         IF unsgn THEN typname2typ& = UBITTYPE + (b - 1) ELSE typname2typ& = BITTYPE + (b - 1)
         EXIT FUNCTION
@@ -22636,7 +22691,7 @@ FUNCTION typname2typ& (t2$)
         n$ = RIGHT$(t$, LEN(t$) - 7)
         IF isuinteger(n$) = 0 THEN Give_Error "Invalid size after " + qb64prefix$ + "BIT *": EXIT FUNCTION
         b = VAL(n$)
-        IF b = 0 OR b > 56 THEN Give_Error "Invalid size after " + qb64prefix$ + "BIT *": EXIT FUNCTION
+        IF b = 0 OR b > 64 THEN Give_Error "Invalid size after " + qb64prefix$ + "BIT *": EXIT FUNCTION
         t = BITTYPE - 1 + b: IF u THEN t = t + ISUNSIGNED
         typname2typ& = t
         EXIT FUNCTION
@@ -25930,9 +25985,10 @@ SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
                 IF i > UBOUND(usedVariableList) THEN
                     REDIM _PRESERVE usedVariableList(UBOUND(usedVariableList) + 999) AS usedVarList
                 END IF
+                usedVariableList(i).id = currentid
                 usedVariableList(i).used = 0
                 usedVariableList(i).watch = 0
-                usedVariableList(i).mostRecentValue = ""
+                usedVariableList(i).storage = ""
                 usedVariableList(i).linenumber = linenumber
                 usedVariableList(i).includeLevel = inclevel
                 IF inclevel > 0 THEN
@@ -25941,6 +25997,7 @@ SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
                     thisincname$ = MID$(incname$(inclevel), LEN(thisincname$) + 1)
                     usedVariableList(i).includedFile = thisincname$
                 ELSE
+                    totalMainVariablesCreated = totalMainVariablesCreated + 1
                     usedVariableList(i).includedLine = 0
                     usedVariableList(i).includedFile = ""
                 END IF
@@ -25949,11 +26006,29 @@ SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
                 usedVariableList(i).varType = id2fulltypename$
                 usedVariableList(i).cname = cname$
                 usedVariableList(i).localIndex = localIndex
+
+                'remove eventual instances of fix046$ in name$
+                DO WHILE INSTR(name$, fix046$)
+                    x = INSTR(name$, fix046$): name$ = LEFT$(name$, x - 1) + "." + RIGHT$(name$, LEN(name$) - x + 1 - LEN(fix046$))
+                LOOP
+
                 IF LEN(RTRIM$(id.musthave)) > 0 THEN
                     usedVariableList(i).name = name$ + RTRIM$(id.musthave)
                 ELSE
                     usedVariableList(i).name = name$
                 END IF
+                IF (id.arrayelements > 0) THEN
+                    usedVariableList(i).isarray = -1
+                    usedVariableList(i).name = usedVariableList(i).name + "()"
+                ELSE
+                    usedVariableList(i).isarray = 0
+                END IF
+                usedVariableList(i).watchRange = ""
+                usedVariableList(i).arrayElementSize = 0
+                usedVariableList(i).indexes = ""
+                usedVariableList(i).elements = ""
+                usedVariableList(i).elementTypes = ""
+                usedVariableList(i).elementOffset = ""
                 totalVariablesCreated = totalVariablesCreated + 1
             END IF
         CASE ELSE 'find and mark as used
@@ -26069,3 +26144,4 @@ DEFLNG A-Z
 
 '-------- Optional IDE Component (2/2) --------
 '$INCLUDE:'ide\ide_methods.bas'
+
