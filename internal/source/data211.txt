@@ -1,12 +1,12 @@
-qbs*oldstr6016=NULL;
+qbs*oldstr6015=NULL;
 if(_SUB_IDEADDRECENT_STRING_F2->tmp||_SUB_IDEADDRECENT_STRING_F2->fixed||_SUB_IDEADDRECENT_STRING_F2->readonly){
-oldstr6016=_SUB_IDEADDRECENT_STRING_F2;
-if (oldstr6016->cmem_descriptor){
-_SUB_IDEADDRECENT_STRING_F2=qbs_new_cmem(oldstr6016->len,0);
+oldstr6015=_SUB_IDEADDRECENT_STRING_F2;
+if (oldstr6015->cmem_descriptor){
+_SUB_IDEADDRECENT_STRING_F2=qbs_new_cmem(oldstr6015->len,0);
 }else{
-_SUB_IDEADDRECENT_STRING_F2=qbs_new(oldstr6016->len,0);
+_SUB_IDEADDRECENT_STRING_F2=qbs_new(oldstr6015->len,0);
 }
-memcpy(_SUB_IDEADDRECENT_STRING_F2->chr,oldstr6016->chr,oldstr6016->len);
+memcpy(_SUB_IDEADDRECENT_STRING_F2->chr,oldstr6015->chr,oldstr6015->len);
 }
 qbs *_SUB_IDEADDRECENT_STRING_F=NULL;
 if (!_SUB_IDEADDRECENT_STRING_F)_SUB_IDEADDRECENT_STRING_F=qbs_new(0,0);
@@ -22,6 +22,10 @@ if(_SUB_IDEADDRECENT_LONG_X==NULL){
 _SUB_IDEADDRECENT_LONG_X=(int32*)mem_static_malloc(4);
 *_SUB_IDEADDRECENT_LONG_X=0;
 }
+byte_element_struct *byte_element_6016=NULL;
+if (!byte_element_6016){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6016=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6016=(byte_element_struct*)mem_static_malloc(12);
+}
 byte_element_struct *byte_element_6017=NULL;
 if (!byte_element_6017){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6017=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6017=(byte_element_struct*)mem_static_malloc(12);
@@ -29,8 +33,4 @@ if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6017=(byte_element_s
 byte_element_struct *byte_element_6018=NULL;
 if (!byte_element_6018){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6018=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6018=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_6019=NULL;
-if (!byte_element_6019){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6019=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6019=(byte_element_struct*)mem_static_malloc(12);
 }

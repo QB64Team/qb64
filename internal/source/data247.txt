@@ -1,12 +1,12 @@
-qbs*oldstr6353=NULL;
+qbs*oldstr6352=NULL;
 if(_SUB_PRINTWRAPSTATUS_STRING___TEXT->tmp||_SUB_PRINTWRAPSTATUS_STRING___TEXT->fixed||_SUB_PRINTWRAPSTATUS_STRING___TEXT->readonly){
-oldstr6353=_SUB_PRINTWRAPSTATUS_STRING___TEXT;
-if (oldstr6353->cmem_descriptor){
-_SUB_PRINTWRAPSTATUS_STRING___TEXT=qbs_new_cmem(oldstr6353->len,0);
+oldstr6352=_SUB_PRINTWRAPSTATUS_STRING___TEXT;
+if (oldstr6352->cmem_descriptor){
+_SUB_PRINTWRAPSTATUS_STRING___TEXT=qbs_new_cmem(oldstr6352->len,0);
 }else{
-_SUB_PRINTWRAPSTATUS_STRING___TEXT=qbs_new(oldstr6353->len,0);
+_SUB_PRINTWRAPSTATUS_STRING___TEXT=qbs_new(oldstr6352->len,0);
 }
-memcpy(_SUB_PRINTWRAPSTATUS_STRING___TEXT->chr,oldstr6353->chr,oldstr6353->len);
+memcpy(_SUB_PRINTWRAPSTATUS_STRING___TEXT->chr,oldstr6352->chr,oldstr6352->len);
 }
 qbs *_SUB_PRINTWRAPSTATUS_STRING_TEXT=NULL;
 if (!_SUB_PRINTWRAPSTATUS_STRING_TEXT)_SUB_PRINTWRAPSTATUS_STRING_TEXT=qbs_new(0,0);
@@ -37,21 +37,21 @@ if(_SUB_PRINTWRAPSTATUS_INTEGER_CHANGECOLORAFTER==NULL){
 _SUB_PRINTWRAPSTATUS_INTEGER_CHANGECOLORAFTER=(int16*)mem_static_malloc(2);
 *_SUB_PRINTWRAPSTATUS_INTEGER_CHANGECOLORAFTER=0;
 }
+byte_element_struct *byte_element_6354=NULL;
+if (!byte_element_6354){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6354=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6354=(byte_element_struct*)mem_static_malloc(12);
+}
 byte_element_struct *byte_element_6355=NULL;
 if (!byte_element_6355){
 if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6355=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6355=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_6356=NULL;
-if (!byte_element_6356){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6356=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6356=(byte_element_struct*)mem_static_malloc(12);
 }
 int32 *_SUB_PRINTWRAPSTATUS_LONG_SKIPSPACE=NULL;
 if(_SUB_PRINTWRAPSTATUS_LONG_SKIPSPACE==NULL){
 _SUB_PRINTWRAPSTATUS_LONG_SKIPSPACE=(int32*)mem_static_malloc(4);
 *_SUB_PRINTWRAPSTATUS_LONG_SKIPSPACE=0;
 }
-int32 fornext_value6358;
-int32 fornext_finalvalue6358;
-int32 fornext_step6358;
-uint8 fornext_step_negative6358;
-int32 sc_6360_var;
+int32 fornext_value6357;
+int32 fornext_finalvalue6357;
+int32 fornext_step6357;
+uint8 fornext_step_negative6357;
+int32 sc_6359_var;
