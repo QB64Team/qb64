@@ -357,6 +357,12 @@ FUNCTION ide2 (ignore)
         menu$(DebugMenuID, DebugMenuCallStack) = "Call #Stack...  F12": i = i + 1
         menuDesc$(m, i - 1) = "Displays the call stack of the current program's last execution"
         menu$(m, i) = "-": i = i + 1
+        DebugMenuAutoAddCommand = i
+        menu$(m, i) = "Auto-add $#Debug metacommand": i = i + 1
+        menuDesc$(m, i - 1) = "Toggles whether the IDE will auto-add the $Debug metacommand as required"
+        IF AutoAddDebugCommand THEN
+            menu$(DebugMenuID, DebugMenuAutoAddCommand) = CHR$(7) + menu$(DebugMenuID, DebugMenuAutoAddCommand)
+        END IF
         DebugMenuWatchListToConsole = i
         menu$(m, i) = "#Output Watch List to Console": i = i + 1
         menuDesc$(m, i - 1) = "Toggles directing the output of the watch list to the console window"
@@ -4988,6 +4994,19 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
+            IF RIGHT$(menu$(m, s), 28) = "Auto-add $#Debug metacommand" THEN
+                PCOPY 2, 0
+                AutoAddDebugCommand = NOT AutoAddDebugCommand
+                IF AutoAddDebugCommand THEN
+                    WriteConfigSetting debugSettingsSection$, "AutoAddDebugCommand", "True"
+                    menu$(DebugMenuID, DebugMenuAutoAddCommand) = CHR$(7) + "Auto-add $#Debug metacommand"
+                ELSE
+                    WriteConfigSetting debugSettingsSection$, "AutoAddDebugCommand", "False"
+                    menu$(DebugMenuID, DebugMenuAutoAddCommand) = "Auto-add $#Debug metacommand"
+                END IF
+                PCOPY 3, 0: SCREEN , , 3, 0
+                GOTO ideloop
+            END IF
 
             IF MID$(menu$(m, s), 1, 17) = "#Quick Navigation" OR MID$(menu$(m, s), 2, 17) = "#Quick Navigation" THEN
                 PCOPY 2, 0
@@ -5703,6 +5722,16 @@ FUNCTION ide2 (ignore)
                 PCOPY 3, 0: SCREEN , , 3, 0
                 startPausedMenuHandler:
                 IF vWatchOn = 0 THEN
+                    IF AutoAddDebugCommand = 0 THEN
+                        SCREEN , , 3, 0
+                        clearStatusWindow 2
+                        COLOR 14, 1
+                        x = 2
+                        y = idewy - 2
+                        printWrapStatus x, y, x, "$DEBUG metacommand is required to start paused."
+                        PCOPY 3, 0
+                        GOTO ideloop
+                    END IF
                     result = idemessagebox("Start Paused", "Insert $DEBUG metacommand?", "#Yes;#No")
                     IF result = 1 THEN
                         ideselect = 0
@@ -5726,6 +5755,16 @@ FUNCTION ide2 (ignore)
                 PCOPY 2, 0
                 showWatchList:
                 IF vWatchOn = 0 THEN
+                    IF AutoAddDebugCommand = 0 THEN
+                        SCREEN , , 3, 0
+                        clearStatusWindow 2
+                        COLOR 14, 1
+                        x = 2
+                        y = idewy - 2
+                        printWrapStatus x, y, x, "$DEBUG metacommand is required for Watch List functionality."
+                        PCOPY 3, 0
+                        GOTO ideloop
+                    END IF
                     result = idemessagebox("Watch List", "Insert $DEBUG metacommand?", "#Yes;#No")
                     IF result = 1 THEN
                         ideselect = 0
@@ -5807,6 +5846,16 @@ FUNCTION ide2 (ignore)
                     PCOPY 3, 0: SCREEN , , 3, 0
                     toggleBreakpoint:
                     IF vWatchOn = 0 THEN
+                        IF AutoAddDebugCommand = 0 THEN
+                            SCREEN , , 3, 0
+                            clearStatusWindow 2
+                            COLOR 14, 1
+                            x = 2
+                            y = idewy - 2
+                            printWrapStatus x, y, x, "$DEBUG metacommand is required to enable breakpoints."
+                            PCOPY 3, 0
+                            GOTO ideloop
+                        END IF
                         result = idemessagebox("Toggle Breakpoint", "Insert $DEBUG metacommand?", "#Yes;#No")
                         IF result = 1 THEN
                             ideselect = 0
@@ -5843,6 +5892,16 @@ FUNCTION ide2 (ignore)
                     PCOPY 3, 0: SCREEN , , 3, 0
                     toggleSkipLine:
                     IF vWatchOn = 0 THEN
+                        IF AutoAddDebugCommand = 0 THEN
+                            SCREEN , , 3, 0
+                            clearStatusWindow 2
+                            COLOR 14, 1
+                            x = 2
+                            y = idewy - 2
+                            printWrapStatus x, y, x, "$DEBUG metacommand is required to enable line skipping."
+                            PCOPY 3, 0
+                            GOTO ideloop
+                        END IF
                         result = idemessagebox("Toggle Skip Line", "Insert $DEBUG metacommand?", "#Yes;#No")
                         IF result = 1 THEN
                             ideselect = 0
