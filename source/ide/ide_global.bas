@@ -12,6 +12,8 @@ DIM SHARED IdeInfo AS STRING
 DIM SHARED IdeContextHelpSF AS _BYTE
 
 DIM SHARED host&, debugClient&, hostport$, variableWatchList$
+DIM SHARED vWatchReceivedData$(1 TO 1000), nextvWatchDataSlot
+DIM SHARED startPausedPending AS _BYTE
 
 DIM SHARED IdeSystem AS LONG
 '1=Entering text into the main IDE window
@@ -219,7 +221,7 @@ DIM SHARED ViewMenuID AS INTEGER, ViewMenuShowLineNumbersSubMenuID AS INTEGER
 DIM SHARED ViewMenuShowSeparatorID AS INTEGER, ViewMenuShowBGID AS INTEGER
 DIM SHARED ViewMenuCompilerWarnings AS INTEGER
 DIM SHARED RunMenuID AS INTEGER, RunMenuSaveExeWithSource AS INTEGER, brackethighlight AS INTEGER
-DIM SHARED DebugMenuID AS INTEGER, DebugMenuCallStack AS INTEGER
+DIM SHARED DebugMenuID AS INTEGER, DebugMenuCallStack AS INTEGER, DebugMenuWatchListToConsole AS INTEGER
 DIM SHARED multihighlight AS INTEGER, keywordHighlight AS INTEGER
 DIM SHARED PresetColorSchemes AS INTEGER, TotalColorSchemes AS INTEGER, ColorSchemes$(0)
 DIM SHARED LastValidColorScheme AS INTEGER

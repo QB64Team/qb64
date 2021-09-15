@@ -187,6 +187,7 @@ extern int32 func__controlchr();
 extern void sub__blink(int32);
 extern int32 func__blink();
 extern int32 func__hasfocus();
+extern void set_foreground_window(ptrszint i);
 extern qbs *func__title();
 extern int32 func__handle();
 extern int32 func__fileexists(qbs*);
@@ -286,6 +287,7 @@ extern double get_error_erl();
 extern uint32 get_error_err();
 extern char *human_error(int32 errorcode);
 extern void end();
+extern int32 stop_program_state();
 extern uint8 *mem_static_malloc(uint32 size);
 extern void mem_static_restore(uint8* restore_point);
 extern uint8 *cmem_dynamic_malloc(uint32 size);
@@ -310,6 +312,7 @@ extern qbs *qbs_new_txt(const char *txt);
 extern qbs *qbs_new_txt_len(const char *txt,int32 len);
 extern qbs *qbs_new_fixed(uint8 *offset,uint32 size,uint8 tmp);
 extern qbs *qbs_new(int32 size,uint8 tmp);
+extern void set_qbs_size(ptrszint *target_qbs,int32 newlength);
 extern qbs *qbs_set(qbs *deststr,qbs *srcstr);
 extern qbs *qbs_add(qbs *str1,qbs *str2);
 extern qbs *qbs_ucase(qbs *str);
@@ -937,6 +940,14 @@ inline int8 func_abs(int8 d){return abs(d);}
 inline int16 func_abs(int16 d){return abs(d);}
 inline int32 func_abs(int32 d){return abs(d);}
 inline int64 func_abs(int64 d){return llabs(d);}
+
+ptrszint check_lbound(ptrszint *array,int32 index, int32 num_indexes) {
+    return func_lbound((ptrszint*)(*array),index,num_indexes);
+}
+
+ptrszint check_ubound(ptrszint *array,int32 index, int32 num_indexes) {
+    return func_ubound((ptrszint*)(*array),index,num_indexes);
+}
 
 inline ptrszint array_check(uptrszint index,uptrszint limit){
     //nb. forces signed index into an unsigned variable for quicker comparison

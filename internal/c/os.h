@@ -34,10 +34,14 @@
     #error "Unknown system; refusing to build. Edit os.h if needed"
 #endif
 
-#if defined(_WIN64) || defined(__x86_64__) || defined(__ppc64__) || defined(QB64_MACOSX)
+#if defined(_WIN64) || defined(__x86_64__) || defined(__ppc64__) || defined(QB64_MACOSX) || defined(__aarch64__)
     #define QB64_64
     #else
     #define QB64_32
+#endif
+
+#if !defined(i386) && !defined(__x86_64__)
+    #define QB64_NOT_X86
 #endif
 
 /* common types (not quite an include guard, but allows an including

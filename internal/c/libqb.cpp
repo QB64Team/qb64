@@ -64,7 +64,7 @@ return (word << shift) | (word >> (32 - shift));
     uint64 qbr_longdouble_to_uint64(long double f){if (f<0) return(f-0.5f); else return(f+0.5f);}
     int32 qbr_float_to_long(float f){if (f<0) return(f-0.5f); else return(f+0.5f);}
     int32 qbr_double_to_long(double f){if (f<0) return(f-0.5f); else return(f+0.5f);}
-    void fpu_reinit() { // do nothing }
+    void fpu_reinit() { } // do nothing
     #else
     //QBASIC compatible rounding via FPU:
     //FLDS=load single
@@ -5604,6 +5604,9 @@ void end(){
     while(1) Sleep(16);
 }
 
+int32 stop_program_state() {
+    return stop_program;
+}
 
 
 //MEM_STATIC memory manager
@@ -6554,6 +6557,11 @@ qbs *func_string(int32 characters,int32 asciivalue){
     tqbs=qbs_new(characters,1);
     if (characters) memset(tqbs->chr,asciivalue&0xFF,characters);
     return tqbs;
+}
+
+void set_qbs_size(ptrszint *target_qbs,int32 newlength) {
+    qbs_set((qbs*)(*target_qbs), func_space(newlength));
+    return;
 }
 
 int32 func_instr(int32 start,qbs *str,qbs *substr,int32 passed){
@@ -12650,6 +12658,8 @@ int64 func__handle(){
                 char pszConsoleTitle[1024];
                 GetConsoleTitle(pszConsoleTitle,1024);
                 window_handle = FindWindow(NULL, pszConsoleTitle);
+            #else
+                if (!window_exists) return 0;
             #endif
             while (!window_handle){Sleep(100);}
             return (ptrszint)window_handle;
@@ -12665,6 +12675,13 @@ qbs *func__title(){
         }else{
         return qbs_new_txt((char*)window_title);
     }
+}
+
+void set_foreground_window(ptrszint i) {
+    #ifdef QB64_WINDOWS
+        BOOL result = SetForegroundWindow((HWND) i);
+    #endif
+    return;
 }
 
 int32 func__hasfocus() {
@@ -18092,6 +18109,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                     if (qbs_equal(str,qbs_new_txt ("TOPRIGHT_BOTTOMLEFT"))) {mouse_cursor_style=GLUT_CURSOR_TOP_RIGHT_CORNER; goto cursor_valid;}
                     if (qbs_equal(str,qbs_new_txt ("WAIT"))) {mouse_cursor_style=GLUT_CURSOR_WAIT; goto cursor_valid;}
                     if (qbs_equal(str,qbs_new_txt ("HELP"))) {mouse_cursor_style=GLUT_CURSOR_HELP; goto cursor_valid;}
+                    if(qbs_equal(str,qbs_new_txt("CYCLE"))||qbs_equal(str, qbs_new_txt("MOVE"))) {mouse_cursor_style=GLUT_CURSOR_CYCLE; goto cursor_valid;}
                     error(5); return;
                 }
                 cursor_valid:
@@ -26186,15 +26204,16 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         int32 func__screenhide(){return -screen_hide;}
         
         void sub__consoletitle(qbs* s){
-            if (new_error) return;
-            static qbs *sz=NULL; if (!sz) sz=qbs_new(0,0);
-            static qbs *cz=NULL; if (!cz){cz=qbs_new(1,0); cz->chr[0]=0;}
-            qbs_set(sz,qbs_add(s,cz));
-            if (console){ if (console_active){
-                #ifdef QB64_WINDOWS
-                    SetConsoleTitle((char*)sz->chr);
-                #endif
-            }}
+            #ifdef QB64_WINDOWS
+                char *title;
+                title = (char *)malloc(s->len + 1);
+                title[s->len] = '\0'; //add NULL terminator
+                memcpy(title, s->chr, s->len);
+                if (console){ if (console_active){
+                    SetConsoleTitle(title);
+                    Sleep(40);
+                }}
+            #endif
         }
         
         

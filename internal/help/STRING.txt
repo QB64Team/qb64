@@ -13,16 +13,16 @@
 * Literal string ends are designated by quotation marks such as: "text". Use [[CHR$]](34) to add quotes to string values.
 * Variable suffix type definition is $ such as: text$.
 * STRING values are compared according to the [[ASCII]] code values from left to right until one string code value exceeds the other.
-* '''NOTE: Many QBasic keyword variable names CAN be used with a [[STRING]] suffix($) ONLY! You CANNOT use them without the suffix, use a numerical suffix or use [[DIM]], [[REDIM]], [[_DEFINE]], [[BYVAL]] or [[TYPE]] variable [[AS]] statements!'''
 
 
-:::::'''Creating a fixed length STRING variable in QBasic:'''
+:::::'''Creating a fixed length STRING variable'''
 
 :* Variable$ = " " ' 1 space creates a one [[_BYTE|byte]] string length in a procedure(not fixed)
 :* Variable$ = SPACE$(n%) ' defined as a n% length string in a procedure(not fixed)
 :* [[DIM]] variable AS STRING * n% ' fixed string length cannot be changed later
 :* Variable AS STRING * n% ' fixed string length in a [[SUB]] parameter or [[TYPE]] definition.
 :* [[CONST]] variables can also be used after the constant value is defined.
+:* Fixed length strings may not be initialized with spaces and may contain only a series of CHR$(0) at program start.
 
 
 :::::'''QB64 fixed length string type suffixes'''

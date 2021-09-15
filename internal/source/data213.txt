@@ -1,49 +1,36 @@
-qbs *_FUNC_FINDPROPOSEDTITLE_STRING_FINDPROPOSEDTITLE=NULL;
-if (!_FUNC_FINDPROPOSEDTITLE_STRING_FINDPROPOSEDTITLE)_FUNC_FINDPROPOSEDTITLE_STRING_FINDPROPOSEDTITLE=qbs_new(0,0);
-int8 *_FUNC_FINDPROPOSEDTITLE_BYTE_C=NULL;
-if(_FUNC_FINDPROPOSEDTITLE_BYTE_C==NULL){
-_FUNC_FINDPROPOSEDTITLE_BYTE_C=(int8*)mem_static_malloc(1);
-*_FUNC_FINDPROPOSEDTITLE_BYTE_C=0;
+qbs*oldstr6022=NULL;
+if(_SUB_IDEADDSEARCHED_STRING_S2->tmp||_SUB_IDEADDSEARCHED_STRING_S2->fixed||_SUB_IDEADDSEARCHED_STRING_S2->readonly){
+oldstr6022=_SUB_IDEADDSEARCHED_STRING_S2;
+if (oldstr6022->cmem_descriptor){
+_SUB_IDEADDSEARCHED_STRING_S2=qbs_new_cmem(oldstr6022->len,0);
+}else{
+_SUB_IDEADDSEARCHED_STRING_S2=qbs_new(oldstr6022->len,0);
 }
-int8 *_FUNC_FINDPROPOSEDTITLE_BYTE_Q=NULL;
-if(_FUNC_FINDPROPOSEDTITLE_BYTE_Q==NULL){
-_FUNC_FINDPROPOSEDTITLE_BYTE_Q=(int8*)mem_static_malloc(1);
-*_FUNC_FINDPROPOSEDTITLE_BYTE_Q=0;
+memcpy(_SUB_IDEADDSEARCHED_STRING_S2->chr,oldstr6022->chr,oldstr6022->len);
 }
-int32 *_FUNC_FINDPROPOSEDTITLE_LONG_I=NULL;
-if(_FUNC_FINDPROPOSEDTITLE_LONG_I==NULL){
-_FUNC_FINDPROPOSEDTITLE_LONG_I=(int32*)mem_static_malloc(4);
-*_FUNC_FINDPROPOSEDTITLE_LONG_I=0;
+qbs *_SUB_IDEADDSEARCHED_STRING_S=NULL;
+if (!_SUB_IDEADDSEARCHED_STRING_S)_SUB_IDEADDSEARCHED_STRING_S=qbs_new(0,0);
+int32 *_SUB_IDEADDSEARCHED_LONG_FH=NULL;
+if(_SUB_IDEADDSEARCHED_LONG_FH==NULL){
+_SUB_IDEADDSEARCHED_LONG_FH=(int32*)mem_static_malloc(4);
+*_SUB_IDEADDSEARCHED_LONG_FH=0;
 }
-int64 fornext_value5900;
-int64 fornext_finalvalue5900;
-int64 fornext_step5900;
-uint8 fornext_step_negative5900;
-qbs *_FUNC_FINDPROPOSEDTITLE_STRING_THISLINE=NULL;
-if (!_FUNC_FINDPROPOSEDTITLE_STRING_THISLINE)_FUNC_FINDPROPOSEDTITLE_STRING_THISLINE=qbs_new(0,0);
-int32 *_FUNC_FINDPROPOSEDTITLE_LONG_FOUND_TITLE=NULL;
-if(_FUNC_FINDPROPOSEDTITLE_LONG_FOUND_TITLE==NULL){
-_FUNC_FINDPROPOSEDTITLE_LONG_FOUND_TITLE=(int32*)mem_static_malloc(4);
-*_FUNC_FINDPROPOSEDTITLE_LONG_FOUND_TITLE=0;
+qbs *_SUB_IDEADDSEARCHED_STRING_A=NULL;
+if (!_SUB_IDEADDSEARCHED_STRING_A)_SUB_IDEADDSEARCHED_STRING_A=qbs_new(0,0);
+int32 *_SUB_IDEADDSEARCHED_LONG_X=NULL;
+if(_SUB_IDEADDSEARCHED_LONG_X==NULL){
+_SUB_IDEADDSEARCHED_LONG_X=(int32*)mem_static_malloc(4);
+*_SUB_IDEADDSEARCHED_LONG_X=0;
 }
-int32 *_FUNC_FINDPROPOSEDTITLE_LONG_FIND_CLOSINGQUOTE=NULL;
-if(_FUNC_FINDPROPOSEDTITLE_LONG_FIND_CLOSINGQUOTE==NULL){
-_FUNC_FINDPROPOSEDTITLE_LONG_FIND_CLOSINGQUOTE=(int32*)mem_static_malloc(4);
-*_FUNC_FINDPROPOSEDTITLE_LONG_FIND_CLOSINGQUOTE=0;
+byte_element_struct *byte_element_6023=NULL;
+if (!byte_element_6023){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6023=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6023=(byte_element_struct*)mem_static_malloc(12);
 }
-qbs *_FUNC_FINDPROPOSEDTITLE_STRING_TEMPFOUND_TITLE=NULL;
-if (!_FUNC_FINDPROPOSEDTITLE_STRING_TEMPFOUND_TITLE)_FUNC_FINDPROPOSEDTITLE_STRING_TEMPFOUND_TITLE=qbs_new(0,0);
-qbs *_FUNC_FINDPROPOSEDTITLE_STRING_INVALIDCHARS=NULL;
-if (!_FUNC_FINDPROPOSEDTITLE_STRING_INVALIDCHARS)_FUNC_FINDPROPOSEDTITLE_STRING_INVALIDCHARS=qbs_new(0,0);
-int64 fornext_value5902;
-int64 fornext_finalvalue5902;
-int64 fornext_step5902;
-uint8 fornext_step_negative5902;
-byte_element_struct *byte_element_5903=NULL;
-if (!byte_element_5903){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5903=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5903=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_6024=NULL;
+if (!byte_element_6024){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6024=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6024=(byte_element_struct*)mem_static_malloc(12);
 }
-qbs *_FUNC_FINDPROPOSEDTITLE_STRING_THISCHAR=NULL;
-if (!_FUNC_FINDPROPOSEDTITLE_STRING_THISCHAR)_FUNC_FINDPROPOSEDTITLE_STRING_THISCHAR=qbs_new(0,0);
-qbs *_FUNC_FINDPROPOSEDTITLE_STRING_FOUND_TITLE=NULL;
-if (!_FUNC_FINDPROPOSEDTITLE_STRING_FOUND_TITLE)_FUNC_FINDPROPOSEDTITLE_STRING_FOUND_TITLE=qbs_new(0,0);
+byte_element_struct *byte_element_6025=NULL;
+if (!byte_element_6025){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6025=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6025=(byte_element_struct*)mem_static_malloc(12);
+}
