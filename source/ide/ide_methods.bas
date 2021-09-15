@@ -358,7 +358,7 @@ FUNCTION ide2 (ignore)
         menuDesc$(m, i - 1) = "Displays the call stack of the current program's last execution"
         menu$(m, i) = "-": i = i + 1
         DebugMenuAutoAddCommand = i
-        menu$(m, i) = "Auto-add $#Debug metacommand": i = i + 1
+        menu$(m, i) = "Auto-add $#Debug Metacommand": i = i + 1
         menuDesc$(m, i - 1) = "Toggles whether the IDE will auto-add the $Debug metacommand as required"
         IF AutoAddDebugCommand THEN
             menu$(DebugMenuID, DebugMenuAutoAddCommand) = CHR$(7) + menu$(DebugMenuID, DebugMenuAutoAddCommand)
@@ -4994,15 +4994,15 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF RIGHT$(menu$(m, s), 28) = "Auto-add $#Debug metacommand" THEN
+            IF RIGHT$(menu$(m, s), 28) = "Auto-add $#Debug Metacommand" THEN
                 PCOPY 2, 0
                 AutoAddDebugCommand = NOT AutoAddDebugCommand
                 IF AutoAddDebugCommand THEN
                     WriteConfigSetting debugSettingsSection$, "AutoAddDebugCommand", "True"
-                    menu$(DebugMenuID, DebugMenuAutoAddCommand) = CHR$(7) + "Auto-add $#Debug metacommand"
+                    menu$(DebugMenuID, DebugMenuAutoAddCommand) = CHR$(7) + "Auto-add $#Debug Metacommand"
                 ELSE
                     WriteConfigSetting debugSettingsSection$, "AutoAddDebugCommand", "False"
-                    menu$(DebugMenuID, DebugMenuAutoAddCommand) = "Auto-add $#Debug metacommand"
+                    menu$(DebugMenuID, DebugMenuAutoAddCommand) = "Auto-add $#Debug Metacommand"
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
