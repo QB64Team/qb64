@@ -3,15 +3,15 @@ if(_FUNC_NUMELEMENTS_LONG_NUMELEMENTS==NULL){
 _FUNC_NUMELEMENTS_LONG_NUMELEMENTS=(int32*)mem_static_malloc(4);
 *_FUNC_NUMELEMENTS_LONG_NUMELEMENTS=0;
 }
-qbs*oldstr3035=NULL;
+qbs*oldstr3033=NULL;
 if(_FUNC_NUMELEMENTS_STRING_A->tmp||_FUNC_NUMELEMENTS_STRING_A->fixed||_FUNC_NUMELEMENTS_STRING_A->readonly){
-oldstr3035=_FUNC_NUMELEMENTS_STRING_A;
-if (oldstr3035->cmem_descriptor){
-_FUNC_NUMELEMENTS_STRING_A=qbs_new_cmem(oldstr3035->len,0);
+oldstr3033=_FUNC_NUMELEMENTS_STRING_A;
+if (oldstr3033->cmem_descriptor){
+_FUNC_NUMELEMENTS_STRING_A=qbs_new_cmem(oldstr3033->len,0);
 }else{
-_FUNC_NUMELEMENTS_STRING_A=qbs_new(oldstr3035->len,0);
+_FUNC_NUMELEMENTS_STRING_A=qbs_new(oldstr3033->len,0);
 }
-memcpy(_FUNC_NUMELEMENTS_STRING_A->chr,oldstr3035->chr,oldstr3035->len);
+memcpy(_FUNC_NUMELEMENTS_STRING_A->chr,oldstr3033->chr,oldstr3033->len);
 }
 int32 *_FUNC_NUMELEMENTS_LONG_N=NULL;
 if(_FUNC_NUMELEMENTS_LONG_N==NULL){
