@@ -7521,9 +7521,10 @@ SUB DebugMode
                 BypassRequestCallStack = 0
                 IF cmd$ = "watchpoint" THEN
                     temp$ = GetBytes$("", 0) 'reset buffer
+                    tempIndex& = CVL(GetBytes$(value$, 4))
                     i = CVI(GetBytes$(value$, 2))
-                    temp$ = GetBytes$(value$, i)
-                    result = idemessagebox("Watchpoint", temp$, "#OK")
+                    temp$ = usedVariableList(tempIndex&).name + GetBytes$(value$, i)
+                    result = idemessagebox("Watchpoint condition met", temp$, "#Continue;#Clear Watchpoint")
                     value$ = RIGHT$(value$, 4)
                 END IF
                 l = CVL(value$)
@@ -7535,6 +7536,8 @@ SUB DebugMode
                 clearStatusWindow 1
                 IF cmd$ = "breakpoint" THEN
                     setStatusMessage 1, "Breakpoint reached on line" + STR$(l), 2
+                ELSEIF cmd$ = "watchpoint" THEN
+                    setStatusMessage 1, "Watchpoint condition met (" + temp$ + ")", 2
                 ELSE
                     setStatusMessage 1, "Paused.", 2
                 END IF
