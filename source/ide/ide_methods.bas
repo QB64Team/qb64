@@ -7156,6 +7156,7 @@ SUB DebugMode
                                 cmd$ = "set local address:"
                             END IF
 
+                            findVarSize:
                             tempVarType$ = varType$
                             fixedVarSize& = 0
                             IF INSTR(varType$, "STRING *") THEN
@@ -7232,6 +7233,8 @@ SUB DebugMode
                                     END IF
                             END SELECT
 
+                            IF returnAction = 2 OR returnAction = 3 THEN RETURN
+
                             cmd$ = cmd$ + MKL$(tempIndex&)
                             cmd$ = cmd$ + _MK$(_BYTE, tempIsArray& <> 0)
                             cmd$ = cmd$ + MKL$(0)
@@ -7290,6 +7293,9 @@ SUB DebugMode
                                 cmd$ = temp$ + "local watchpoint:"
                             END IF
 
+                            temp$ = value$
+                            GOSUB findVarSize
+
                             cmd$ = cmd$ + MKL$(tempIndex&)
                             cmd$ = cmd$ + _MK$(_BYTE, tempIsArray& <> 0)
                             cmd$ = cmd$ + MKL$(usedVariableList(tempIndex&).linenumber)
@@ -7303,7 +7309,7 @@ SUB DebugMode
                             cmd$ = cmd$ + MKL$(tempStorage&)
                             cmd$ = cmd$ + MKI$(LEN(tempScope$)) + tempScope$
                             cmd$ = cmd$ + MKI$(LEN(varType$)) + varType$
-                            cmd$ = cmd$ + MKI$(LEN(value$)) + value$
+                            cmd$ = cmd$ + MKI$(LEN(temp$)) + temp$
                             GOSUB SendCommand
 
                             PCOPY 3, 0: SCREEN , , 3, 0
@@ -7524,7 +7530,11 @@ SUB DebugMode
                     tempIndex& = CVL(GetBytes$(value$, 4))
                     i = CVI(GetBytes$(value$, 2))
                     temp$ = usedVariableList(tempIndex&).name + GetBytes$(value$, i)
-                    result = idemessagebox("Watchpoint condition met", temp$, "#Continue;#Clear Watchpoint")
+                    result = idemessagebox("Watchpoint condition met", temp$, "#OK;#Clear Watchpoint")
+                    IF result = 2 THEN
+                        cmd$ = "clear last watchpoint"
+                        GOSUB SendCommand
+                    END IF
                     value$ = RIGHT$(value$, 4)
                 END IF
                 l = CVL(value$)
@@ -8016,7 +8026,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
 
     dialogWidth = 6 + maxModuleNameLen + maxVarLen + maxTypeLen
     IF IdeDebugMode > 0 THEN dialogWidth = dialogWidth + 40 'make room for "= values"
-    IF dialogWidth < 60 THEN dialogWidth = 60
+    IF dialogWidth < 65 THEN dialogWidth = 65
     IF dialogWidth > idewx - 8 THEN dialogWidth = idewx - 8
 
     idepar p, dialogWidth, dialogHeight, "Add Watch - Variable List"
@@ -8190,8 +8200,8 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
 
             IF y >= 1 AND y <= totalVisibleVariables THEN
                 tempIndex& = varDlgList(y).index
-                IF usedVariableList(tempIndex&).subfunc = currentScope$ OR usedVariableList(tempIndex&).subfunc = "" THEN
-                    'scope is valid
+                IF (focus = 5 AND (usedVariableList(tempIndex&).subfunc = currentScope$ OR usedVariableList(tempIndex&).subfunc = "")) OR focus = 6 THEN
+                    'scope is valid (or we're setting a watchpoint)
                     tempArrayIndex& = 0
                     tempArrayIndexes$ = MKL$(0)
                     tempStorage& = 0
@@ -8200,6 +8210,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                     IF usedVariableList(tempIndex&).isarray THEN
                         setArrayRange3:
                         v$ = ideinputbox$(dlgTitle$, dlgPrompt$, temp$, "01234567890,", 45, 0, ok)
+                        _KEYCLEAR
                         IF ok THEN
                             IF LEN(v$) > 0 THEN
                                 WHILE RIGHT$(v$, 1) = ",": v$ = LEFT$(v$, LEN(v$) - 1): WEND
@@ -8207,6 +8218,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                                 i = countelements(temp$)
                                 IF i <> ABS(ids(usedVariableList(tempIndex&).id).arrayelements) THEN
                                     result = idemessagebox("Error", "Array has" + STR$(ABS(ids(usedVariableList(tempIndex&).id).arrayelements)) + " dimension(s).", "#OK")
+                                    _KEYCLEAR
                                     temp$ = _TRIM$(v$)
                                     GOTO setArrayRange3
                                 END IF
@@ -8253,6 +8265,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                         LOOP
                         PCOPY 0, 4
                         v$ = ideelementwatchbox$(usedVariableList(tempIndex&).name + ".", elementIndexes$, 0, -1, ok)
+                        _KEYCLEAR
                         PCOPY 2, 0
                         PCOPY 2, 1
                         SCREEN , , 1, 0
@@ -8277,6 +8290,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                             IF numelements(temp$) <> 1 THEN
                                 'shouldn't ever happen
                                 result = idemessagebox("Error", "Only one UDT element can be selected at a time", "#OK")
+                                _KEYCLEAR
                                 _CONTINUE
                             END IF
 
@@ -8290,6 +8304,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                                 'shouldn't ever happen
                                 Error_Happened = 0
                                 result = idemessagebox("Error", Error_Message, "#OK")
+                                _KEYCLEAR
                                 _CONTINUE
                             ELSE
                                 typ = typ - ISUDT
@@ -8333,6 +8348,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                                         ELSE
                                             'shouldn't ever happen
                                             result = idemessagebox("Error", "Cannot select full UDT", "#OK")
+                                            _KEYCLEAR
                                             GOTO dlgLoop
                                         END IF
                                 END SELECT
@@ -8369,6 +8385,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                     END IF
                     getNewValueInput:
                     v$ = ideinputbox$(dlgTitle$, dlgPrompt2$, a2$, "", thisWidth, 0, ok)
+                    _KEYCLEAR
                     IF ok THEN
                         IF focus = 6 THEN
                             'validate condition string first
@@ -8389,11 +8406,13 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                                     CASE ">"
                                         IF op2$ = "<" OR op2$ = ">" THEN
                                             result = idemessagebox(dlgTitle$, "Invalid expression.\nYou can use =, <>, >, >=, < and <=", "#OK")
+                                            _KEYCLEAR
                                             GOTO getNewValueInput
                                         END IF
                                     CASE "<"
                                     CASE ELSE
                                         result = idemessagebox(dlgTitle$, "Invalid expression.\nYou can use =, <>, >, >=, < and <=", "#OK")
+                                        _KEYCLEAR
                                         GOTO getNewValueInput
                                 END SELECT
                             END IF
@@ -8408,12 +8427,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                         cmd$ = cmd$ + MKL$(usedVariableList(tempIndex&).arrayElementSize)
                         cmd$ = cmd$ + MKL$(tempIsUDT&)
                         cmd$ = cmd$ + MKL$(tempElement&)
-                        IF tempElement& THEN
-                            tempElementOffset& = CVL(MID$(usedVariableList(tempIndex&).elementOffset, tempElement& * 4 - 3, 4))
-                        ELSE
-                            tempElementOffset& = 0
-                        END IF
-                        cmd$ = cmd$ + MKL$(tempElementOffset&)
+                        cmd$ = cmd$ + tempElementOffset$
                         cmd$ = cmd$ + MKL$(varSize&)
                         cmd$ = cmd$ + MKL$(tempStorage&)
                         cmd$ = cmd$ + MKI$(LEN(usedVariableList(tempIndex&).subfunc))
@@ -8429,9 +8443,11 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                     EXIT FUNCTION
                 ELSE
                     result = idemessagebox(dlgTitle$, "Variable is out of scope.", "#OK")
+                    _KEYCLEAR
                 END IF
             ELSE
                 result = idemessagebox(dlgTitle$, "Select a variable first.", "#OK")
+                _KEYCLEAR
             END IF
             focus = filterBox
             _CONTINUE
