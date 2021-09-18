@@ -7299,7 +7299,11 @@ SUB DebugMode
                             END IF
 
                             temp$ = value$
-                            GOSUB findVarSize
+                            IF INSTR(varType$, "STRING") = 0 THEN
+                                GOSUB findVarSize
+                            ELSE
+                                varSize& = LEN(dummy%&) + LEN(dummy&)
+                            END IF
 
                             cmd$ = cmd$ + MKL$(tempIndex&)
                             cmd$ = cmd$ + _MK$(_BYTE, tempIsArray& <> 0)
@@ -8065,7 +8069,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
 
     dialogWidth = 6 + maxModuleNameLen + maxVarLen + maxTypeLen
     IF IdeDebugMode > 0 THEN dialogWidth = dialogWidth + 40 'make room for "= values"
-    IF dialogWidth < 65 THEN dialogWidth = 65
+    IF dialogWidth < 70 THEN dialogWidth = 70
     IF dialogWidth > idewx - 8 THEN dialogWidth = idewx - 8
 
     idepar p, dialogWidth, dialogHeight, "Add Watch - Variable List"
@@ -8485,7 +8489,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                         cmd$ = cmd$ + MKL$(tempIsUDT&)
                         cmd$ = cmd$ + MKL$(tempElement&)
                         cmd$ = cmd$ + tempElementOffset$
-                        cmd$ = cmd$ + MKL$(varSize&)
+                        cmd$ = cmd$ + MKL$(0)
                         cmd$ = cmd$ + MKL$(tempStorage&)
                         cmd$ = cmd$ + MKI$(LEN(usedVariableList(tempIndex&).subfunc))
                         cmd$ = cmd$ + usedVariableList(tempIndex&).subfunc

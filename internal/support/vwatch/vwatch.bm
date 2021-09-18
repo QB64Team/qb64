@@ -406,6 +406,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                         vw_address = _CV(LONG, LEFT$(vw_buf$, 4)) 'Pointer to data
                         vw_varSize = CVL(MID$(vw_buf$, 5))
                     END IF
+
                     vw_buf$ = SPACE$(vw_varSize)
                     vw_m = _MEM(vw_address, vw_varSize)
                     vw_m2 = _MEM(_OFFSET(vw_buf$), vw_varSize)
