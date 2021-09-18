@@ -506,6 +506,7 @@ FUNCTION ide2 (ignore)
         REDIM IdeBreakpoints(iden) AS _BYTE
         REDIM IdeSkipLines(iden) AS _BYTE
         variableWatchList$ = ""
+        watchpointList$ = ""
         callstacklist$ = "": callStackLength = 0
         ideunsaved = -1
         idechangemade = 1
@@ -602,6 +603,7 @@ FUNCTION ide2 (ignore)
                 REDIM IdeBreakpoints(iden) AS _BYTE
                 REDIM IdeSkipLines(iden) AS _BYTE
                 variableWatchList$ = ""
+                watchpointList$ = ""
                 callstacklist$ = "": callStackLength = 0
                 IF ideStartAtLine > 0 AND ideStartAtLine <= iden THEN
                     idecy = ideStartAtLine
@@ -1153,6 +1155,7 @@ FUNCTION ide2 (ignore)
             IF idelayoutallow THEN idelayoutallow = idelayoutallow - 1
 
             variableWatchList$ = ""
+            watchpointList$ = ""
             idecurrentlinelayouti = 0 'invalidate
             idefocusline = 0
             idechangemade = 0
@@ -6005,6 +6008,7 @@ FUNCTION ide2 (ignore)
                 REDIM IdeBreakpoints(1) AS _BYTE
                 REDIM IdeSkipLines(1) AS _BYTE
                 variableWatchList$ = ""
+                watchpointList$ = ""
                 callstacklist$ = "": callStackLength = 0
                 idet$ = MKL$(0) + MKL$(0): idel = 1: ideli = 1: iden = 1: IdeBmkN = 0
                 idesx = 1
@@ -6472,6 +6476,7 @@ SUB DebugMode
                 vWatchPanel.h = 5
             END IF
 
+            watchpointList$ = ""
             vWatchPanel.w = 40
             vWatchPanel.x = idewx - vWatchPanel.w - 6
             vWatchPanel.y = 4
@@ -7528,15 +7533,35 @@ SUB DebugMode
                 IF cmd$ = "watchpoint" THEN
                     temp$ = GetBytes$("", 0) 'reset buffer
                     tempIndex& = CVL(GetBytes$(value$, 4))
+                    tempArrayIndexes$ = GetBytes$(value$, 4)
+                    tempArrayIndexes$ = tempArrayIndexes$ + GetBytes$(value$, CVL(tempArrayIndexes$))
+                    tempElementOffset$ = GetBytes$(value$, 4)
                     i = CVI(GetBytes$(value$, 2))
                     temp$ = usedVariableList(tempIndex&).name + GetBytes$(value$, i)
                     result = idemessagebox("Watchpoint condition met", temp$, "#OK;#Clear Watchpoint")
                     IF result = 2 THEN
+                        'find existing watchpoint for the same variable/index/element
+                        temp$ = MKL$(tempIndex&) + tempArrayIndexes$ + tempElementOffset$
+                        i = 0
+                        i = INSTR(i + 1, watchpointList$, MKL$(-1))
+                        DO WHILE i
+                            IF MID$(watchpointList$, i + 8, LEN(temp$)) = temp$ THEN EXIT DO
+                            i = INSTR(i + 1, watchpointList$, MKL$(-1))
+                        LOOP
+
+                        IF i > 0 THEN
+                            'remove it
+                            j = CVL(MID$(watchpointList$, i + 4, 4))
+                            watchpointList$ = LEFT$(watchpointList$, i - 1) + MID$(watchpointList$, i + j + 8)
+                        END IF
+
                         cmd$ = "clear last watchpoint"
                         GOSUB SendCommand
                     END IF
                     value$ = RIGHT$(value$, 4)
                 END IF
+                PCOPY 3, 0: SCREEN , , 3, 0
+                WHILE _MOUSEINPUT: WEND
                 l = CVL(value$)
                 idecy = l
                 ideselect = 0
@@ -7917,6 +7942,20 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, action as _BYTE)
         END IF
         IF LEN(item$) > this.contentWidth THEN this.contentWidth = LEN(item$)
         IF WatchListToConsole = 0 THEN
+            'find existing watchpoint for this variable/index/element
+            temp2$ = MKL$(tempIndex&) + MKL$(tempTotalArrayIndexes& * 4) + tempArrayIndexes$ + MKL$(tempElementOffset&)
+            j = 0
+            j = INSTR(j + 1, watchpointList$, MKL$(-1))
+            DO WHILE j
+                IF MID$(watchpointList$, j + 8, LEN(temp2$)) = temp2$ THEN EXIT DO
+                j = INSTR(j + 1, watchpointList$, MKL$(-1))
+            LOOP
+
+            IF j > 0 THEN
+                COLOR 4
+                _PRINTSTRING (this.x + 1, this.y + y), CHR$(7) 'watchpoint bullet indicator
+                COLOR fg
+            END IF
             _PRINTSTRING (this.x + 2, this.y + y), MID$(item$, this.hPos, this.w - 4)
         ELSE
             _ECHO item$
@@ -7996,7 +8035,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
     selectedBG = 2
 
     TYPE varDlgList
-        AS LONG index, bgColorFlag, colorFlag, colorFlag2, indicator
+        AS LONG index, bgColorFlag, colorFlag, colorFlag2, indicator, indicator2
         AS _BYTE selected
         AS STRING varType
     END TYPE
@@ -8375,8 +8414,24 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                         LOOP
                     END IF
                     a2$ = ""
-                    IF storageSlot& > 0 THEN
+                    IF storageSlot& > 0 AND focus = 5 THEN
                         a2$ = vWatchReceivedData$(storageSlot&)
+                    ELSEIF focus = 6 THEN
+                        'find existing watchpoint for this variable/index/element
+                        temp$ = MKL$(tempIndex&) + tempArrayIndexes$ + tempElementOffset$
+                        i = 0
+                        i = INSTR(i + 1, watchpointList$, MKL$(-1))
+                        DO WHILE i
+                            IF MID$(watchpointList$, i + 8, LEN(temp$)) = temp$ THEN EXIT DO
+                            i = INSTR(i + 1, watchpointList$, MKL$(-1))
+                        LOOP
+
+                        IF i > 0 THEN
+                            j = CVL(MID$(watchpointList$, i + 4, 4))
+                            temp$ = MID$(watchpointList$, i + 8, j)
+                            j = CVI(RIGHT$(temp$, 2))
+                            a2$ = MID$(temp$, LEN(temp$) - (2 + j) + 1, j)
+                        END IF
                     END IF
                     IF INSTR(varType$, "STRING") THEN
                         thisWidth = idewx - 20
@@ -8391,6 +8446,8 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                             'validate condition string first
                             v$ = LTRIM$(v$)
                             IF LEN(v$) < 2 THEN
+                                result = idemessagebox(dlgTitle$, "Watchpoint cleared.", "#OK")
+                                _KEYCLEAR
                                 v$ = ""
                                 thisReturnAction = 3 'remove watchpoint for this variable
                             ELSE
@@ -8435,6 +8492,30 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                         cmd$ = cmd$ + MKI$(LEN(varType$)) + varType$
                         cmd$ = cmd$ + MKI$(LEN(v$)) + v$
                         idevariablewatchbox$ = cmd$
+
+                        IF thisReturnAction = 2 OR thisReturnAction = 3 THEN
+                            'find existing watchpoint for the same variable/index/element
+                            temp$ = MKL$(tempIndex&) + tempArrayIndexes$ + tempElementOffset$
+                            i = 0
+                            i = INSTR(i + 1, watchpointList$, MKL$(-1))
+                            DO WHILE i
+                                IF MID$(watchpointList$, i + 8, LEN(temp$)) = temp$ THEN EXIT DO
+                                i = INSTR(i + 1, watchpointList$, MKL$(-1))
+                            LOOP
+
+                            IF i > 0 THEN
+                                'remove it
+                                j = CVL(MID$(watchpointList$, i + 4, 4))
+                                watchpointList$ = LEFT$(watchpointList$, i - 1) + MID$(watchpointList$, i + j + 8)
+                            END IF
+                        END IF
+
+                        IF thisReturnAction = 2 THEN
+                            'add watchpoint
+                            temp$ = temp$ + v$ + MKI$(LEN(v$))
+                            watchpointList$ = watchpointList$ + MKL$(-1) + MKL$(LEN(temp$)) + temp$
+                        END IF
+
                         returnAction = thisReturnAction 'actually send command
                     ELSE
                         returnAction = -1 'redraw and carry on
@@ -8872,7 +8953,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
     maxVarLen = LEN("Variable")
     FOR x = 1 TO totalVariablesCreated
         IF usedVariableList(x).includedLine THEN _CONTINUE 'don't deal with variables in $INCLUDEs
-        thisLen = LEN(usedVariableList(x).name)
+        thisLen = LEN(usedVariableList(x).name) + 3 'extra room for the eventual bullet
         IF LEN(usedVariableList(x).watchRange) > 0 THEN
             thisLen = thisLen + LEN(usedVariableList(x).watchRange)
         END IF
@@ -8925,6 +9006,22 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
         IF LEN(usedVariableList(x).watchRange) THEN
             thisName$ = LEFT$(thisName$, LEN(thisName$) - 1) + usedVariableList(x).watchRange + ")"
         END IF
+
+        'find existing watchpoint for this variable/index/element
+        temp$ = MKL$(x)
+        i = 0
+        i = INSTR(i + 1, watchpointList$, MKL$(-1))
+        DO WHILE i
+            IF MID$(watchpointList$, i + 8, LEN(temp$)) = temp$ THEN EXIT DO
+            i = INSTR(i + 1, watchpointList$, MKL$(-1))
+        LOOP
+
+        IF i > 0 THEN
+            thisName$ = thisName$ + CHR$(16) + CHR$(4) + CHR$(7) 'red bullet to indicate watchpoint
+        ELSE
+            thisName$ = thisName$ + CHR$(16) + CHR$(16) + " "
+        END IF
+
         text$ = thisName$ + CHR$(16)
         varDlgList(totalVisibleVariables).colorFlag2 = LEN(l$) + LEN(text$) + 1
         IF usedVariableList(x).watch THEN
@@ -14859,7 +14956,14 @@ FUNCTION idemessagebox (titlestr$, messagestr$, buttons$)
         'specific post controls
         IF K$ = CHR$(27) THEN EXIT FUNCTION
 
-        IF K$ = CHR$(13) OR (info <> 0) THEN idemessagebox = focus: EXIT FUNCTION
+        IF K$ = CHR$(13) OR (info <> 0) THEN
+            idemessagebox = focus
+            DO UNTIL mCLICK = 0
+                GetInput
+                _LIMIT 100
+            LOOP
+            EXIT FUNCTION
+        END IF
         'end of custom controls
 
         mousedown = 0

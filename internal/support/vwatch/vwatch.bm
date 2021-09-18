@@ -185,7 +185,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
             vw_pauseMode = -1
             vw_stepOver = 0
             vw_runToLine = 0
-            vw_cmd$ = "watchpoint:" + MKL$(vw_tempIndex) + MKI$(LEN(vw_wpExpression$)) + vw_wpExpression$
+            vw_cmd$ = "watchpoint:" + MKL$(vw_tempIndex) + MKL$(LEN(vw_arrayIndexes$)) + vw_arrayIndexes$ + MKL$(vw_elementOffset) + MKI$(LEN(vw_wpExpression$)) + vw_wpExpression$
             GOTO breakReached
         END IF
     END IF
@@ -598,7 +598,6 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 IF vw_i > 0 THEN
                     'remove existing watchpoint for the same variable/index/element
                     vw_j = CVL(MID$(vw_buf$, vw_i + 4, 4))
-                    templen = LEN(vw_buf$)
                     vw_buf$ = LEFT$(vw_buf$, vw_i - 1) + MID$(vw_buf$, vw_i + vw_j + 8)
                 END IF
 

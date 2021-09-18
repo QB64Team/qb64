@@ -11,7 +11,7 @@ DIM SHARED IDEBuildModeChanged
 DIM SHARED IdeInfo AS STRING
 DIM SHARED IdeContextHelpSF AS _BYTE
 
-DIM SHARED host&, debugClient&, hostport$, variableWatchList$
+DIM SHARED host&, debugClient&, hostport$, variableWatchList$, watchpointList$
 DIM SHARED vWatchReceivedData$(1 TO 1000), nextvWatchDataSlot
 DIM SHARED startPausedPending AS _BYTE
 
