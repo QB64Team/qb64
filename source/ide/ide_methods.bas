@@ -8464,18 +8464,43 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                                             MID$(v$, 1, 2) = op2$ + "="
                                             GOTO StartWatchPointEval
                                         END IF
+                                        op$ = "="
+                                        actualValue$ = _TRIM$(MID$(v$, 2))
                                     CASE ">"
                                         IF op2$ = "<" OR op2$ = ">" THEN
-                                            result = idemessagebox(dlgTitle$, "Invalid expression.\nYou can use =, <>, >, >=, < and <=", "#OK")
+                                            result = idemessagebox(dlgTitle$, "Invalid expression.\nYou can use =, <>, >, >=, <, <=, and a literal value", "#OK")
                                             _KEYCLEAR
                                             GOTO getNewValueInput
                                         END IF
+                                        IF op2$ = "=" THEN
+                                            op$ = ">="
+                                            actualValue$ = _TRIM$(MID$(v$, 3))
+                                        ELSE
+                                            op$ = ">"
+                                            actualValue$ = _TRIM$(MID$(v$, 2))
+                                        END IF
                                     CASE "<"
+                                        IF op2$ = ">" OR op2$ = "=" THEN
+                                            op$ = "<" + op2$
+                                            actualValue$ = _TRIM$(MID$(v$, 3))
+                                        ELSE
+                                            op$ = "<"
+                                            actualValue$ = _TRIM$(MID$(v$, 2))
+                                        END IF
                                     CASE ELSE
-                                        result = idemessagebox(dlgTitle$, "Invalid expression.\nYou can use =, <>, >, >=, < and <=", "#OK")
+                                        result = idemessagebox(dlgTitle$, "Invalid expression.\nYou can use =, <>, >, >=, <, <=, and a literal value", "#OK")
                                         _KEYCLEAR
                                         GOTO getNewValueInput
                                 END SELECT
+                            END IF
+                        END IF
+
+                        IF INSTR(varType$, "STRING") = 0 THEN
+                            v$ = op$ + actualValue$
+                            IF v$ <> op$ + LTRIM$(STR$(VAL(actualValue$))) THEN
+                                result = idemessagebox(dlgTitle$, "Invalid expression.\nYou can use =, <>, >, >=, <, <=, and a literal value\n(scientific notation not allowed).", "#OK")
+                                _KEYCLEAR
+                                GOTO getNewValueInput
                             END IF
                         END IF
 
