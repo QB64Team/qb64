@@ -75,6 +75,7 @@ qbs_free(__STRING_HELP_PAGELOADED);
 qbs_free(__STRING_IDEINFO);
 qbs_free(__STRING_HOSTPORT);
 qbs_free(__STRING_VARIABLEWATCHLIST);
+qbs_free(__STRING_WATCHPOINTLIST);
 if (__ARRAY_STRING_VWATCHRECEIVEDDATA[2]&1){
 tmp_long=__ARRAY_STRING_VWATCHRECEIVEDDATA[5];
 while(tmp_long--) qbs_free((qbs*)((uint64*)(__ARRAY_STRING_VWATCHRECEIVEDDATA[0]))[tmp_long]);
