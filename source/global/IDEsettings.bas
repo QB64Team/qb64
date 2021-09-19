@@ -18,7 +18,7 @@ DIM SHARED WatchListToConsole AS _BYTE
 DIM SHARED windowSettingsSection$, colorSettingsSection$, customDictionarySection$
 DIM SHARED mouseSettingsSection$, generalSettingsSection$, displaySettingsSection$
 DIM SHARED colorSchemesSection$, debugSettingsSection$, iniFolderIndex$, DebugInfoIniWarning$, ConfigFile$
-DIM SHARED idebaseTcpPort AS LONG
+DIM SHARED idebaseTcpPort AS LONG, AutoAddDebugCommand AS _BYTE
 
 ConfigFile$ = "internal/config.ini"
 iniFolderIndex$ = STR$(tempfolderindex)
@@ -239,6 +239,18 @@ IF UCASE$(value$) = "TRUE" OR VAL(value$) = -1 THEN
 ELSE
     WatchListToConsole = 0
     WriteConfigSetting debugSettingsSection$, "WatchListToConsole", "False"
+END IF
+
+IF ReadConfigSetting(debugSettingsSection$, "AutoAddDebugCommand", value$) THEN
+    IF UCASE$(value$) = "TRUE" OR VAL(value$) = -1 THEN
+        AutoAddDebugCommand = -1
+    ELSE
+        AutoAddDebugCommand = 0
+        WriteConfigSetting debugSettingsSection$, "AutoAddDebugCommand", "False"
+    END IF
+ELSE
+    AutoAddDebugCommand = -1
+    WriteConfigSetting debugSettingsSection$, "AutoAddDebugCommand", "True"
 END IF
 
 'Display settings -------------------------------------------------------------

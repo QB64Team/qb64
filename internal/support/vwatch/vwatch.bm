@@ -5,16 +5,16 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     STATIC AS LONG vw_runToLine, vw_originalVarLineNumber
     STATIC AS _BYTE vw_pauseMode, vw_stepOver, vw_bypass, vw_setNextLine, vw_hwndSent
     STATIC AS _OFFSET vw_ideHwnd
-    STATIC vw_buffer$
-    DIM AS LONG vw_i, vw_tempIndex, vw_localIndex, vw_varSize, vw_cmdSize
+    STATIC vw_buffer$, vw_globalWatchpoints$, vw_localWatchpoints$, vw_lastWatchpoint$
+    DIM AS LONG vw_i, vw_j, vw_tempIndex, vw_localIndex, vw_varSize, vw_cmdSize
     DIM AS LONG vw_arrayElementSize, vw_element, vw_elementOffset, vw_storage, vw_blockSize
     DIM AS LONG vw_arrayDimension, vw_arrayTotalDimensions, vw_arrayIndex, vw_realArrayIndex
     DIM AS _OFFSET vw_address, vw_lBound, vw_uBound
     DIM AS _MEM vw_m, vw_m2
-    DIM AS _BYTE vw_isArray, vw_isUDT
+    DIM AS _BYTE vw_isArray, vw_isUDT, vw_checkingWatchpoints
     DIM vw_start!, vw_temp$, vw_cmd$, vw_value$, vw_k&, vw_buf$, vw_scope$, vw_varType$
-    DIM vw_prevValue$, vw_getBytes&, vw_getBytesPosition&, vw_valueBytes$, vw_dummy%&
-    DIM vw_arrayIndexes$
+    DIM vw_getBytes&, vw_getBytesPosition&, vw_valueBytes$, vw_dummy%&
+    DIM vw_arrayIndexes$, vw_wpExpression$
 
     DECLARE LIBRARY
         SUB vwatch_stoptimers ALIAS stop_timers
@@ -27,8 +27,8 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     END DECLARE
 
     $IF WIN THEN
-        DECLARE DYNAMIC LIBRARY "user32"
-            FUNCTION SetForegroundWindow& (BYVAL hWnd AS _OFFSET)
+        DECLARE CUSTOMTYPE LIBRARY
+            FUNCTION vwSetForegroundWindow& ALIAS "SetForegroundWindow" (BYVAL hWnd AS _OFFSET)
         END DECLARE
     $END IF
 
@@ -177,6 +177,20 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
             REDIM vwatch_skiplines(UBOUND(vwatch_skiplines)) AS _BYTE
     END SELECT
 
+    IF LEN(vw_globalWatchpoints$) > 0 OR LEN(vw_localWatchpoints$) > 0 THEN
+        vw_checkingWatchpoints = -1
+        GOSUB CheckWatchpoints
+        IF vw_checkingWatchpoints = 2 THEN
+            vw_checkingWatchpoints = 0
+            vw_pauseMode = -1
+            vw_stepOver = 0
+            vw_runToLine = 0
+            vw_cmd$ = "watchpoint:" + MKL$(vw_tempIndex) + MKL$(LEN(vw_arrayIndexes$)) + vw_arrayIndexes$ + MKL$(vw_elementOffset) + MKI$(LEN(vw_wpExpression$)) + vw_wpExpression$
+            GOTO breakReached
+        END IF
+    END IF
+    vw_checkingWatchpoints = 0
+
     IF vwatch_skiplines(vwatch_linenumber) THEN vwatch_goto = -vwatch_linenumber: EXIT SUB
 
     IF vw_stepOver = -1 AND vwatch_sublevel > vw_startLevel AND vwatch_breakpoints(vwatch_linenumber) = 0 THEN
@@ -197,16 +211,17 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
         EXIT SUB
     END IF
 
-    vwatch_stoptimers
     vw_cmd$ = "line number:"
     IF vwatch_breakpoints(vwatch_linenumber) THEN vw_cmd$ = "breakpoint:"
+    breakReached:
+    vwatch_stoptimers
     vw_cmd$ = vw_cmd$ + MKL$(vwatch_linenumber)
     GOSUB SendCommand
     vw_cmd$ = "current sub:" + LEFT$(vwatch_stack(vwatch_sublevel), INSTR(vwatch_stack(vwatch_sublevel), ",") - 1)
     GOSUB SendCommand
 
     $IF WIN THEN
-        vw_i = SetForegroundWindow&(vw_ideHwnd)
+        vw_i = vwSetForegroundWindow&(vw_ideHwnd)
     $END IF
 
     DO 'main loop
@@ -258,6 +273,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 'send call stack history
                 GOSUB SendCallStack
             CASE "get global var", "get local var"
+                getGlobalLocal:
                 vw_getBytes& = 4: GOSUB GetBytes: vw_tempIndex = CVL(vw_valueBytes$)
                 vw_getBytes& = 1: GOSUB GetBytes: vw_isArray = _CV(_BYTE, vw_valueBytes$)
                 vw_getBytes& = 4: GOSUB GetBytes: vw_originalVarLineNumber = CVL(vw_valueBytes$)
@@ -266,10 +282,14 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 vw_getBytes& = vw_arrayTotalDimensions: GOSUB GetBytes: vw_arrayIndexes$ = vw_valueBytes$
                 vw_arrayTotalDimensions = vw_arrayTotalDimensions \ 4
                 vw_getBytes& = 4: GOSUB GetBytes: vw_arrayElementSize = CVL(vw_valueBytes$)
+                IF vw_checkingWatchpoints THEN vw_getBytes& = 4: GOSUB GetBytes 'discard 4 bytes (isUDT)
                 vw_getBytes& = 4: GOSUB GetBytes: vw_element = CVL(vw_valueBytes$)
                 vw_getBytes& = 4: GOSUB GetBytes: vw_elementOffset = CVL(vw_valueBytes$)
                 vw_getBytes& = 4: GOSUB GetBytes: vw_varSize = CVL(vw_valueBytes$)
-                IF vw_varSize = 0 THEN GOTO cmdProcessingDone
+                IF vw_varSize = 0 THEN
+                    IF vw_checkingWatchpoints THEN RETURN
+                    GOTO cmdProcessingDone
+                END IF
                 vw_getBytes& = 4: GOSUB GetBytes: vw_storage = CVL(vw_valueBytes$)
                 vw_getBytes& = 2: GOSUB GetBytes: vw_i = CVI(vw_valueBytes$)
                 IF vw_i THEN
@@ -284,6 +304,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                     IF vw_scope$ = LEFT$(vwatch_stack(vwatch_sublevel), INSTR(vwatch_stack(vwatch_sublevel), ",") - 1) THEN
                         vw_address = _OFFSET(localVariables) + LEN(vw_address) * vw_localIndex
                     ELSE
+                        IF vw_checkingWatchpoints THEN vw_varType$ = "": RETURN
                         GOTO cmdProcessingDone
                     END IF
                 END IF
@@ -294,7 +315,10 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 IF vw_isArray THEN
                     IF vw_originalVarLineNumber > 0 THEN
                         'prevent fetching array data before DIM line
-                        IF vwatch_linenumber <= vw_originalVarLineNumber THEN GOTO cmdProcessingDone
+                        IF vwatch_linenumber <= vw_originalVarLineNumber THEN
+                            IF vw_checkingWatchpoints THEN vw_varType$ = "": RETURN
+                            GOTO cmdProcessingDone
+                        END IF
                     END IF
 
                     vw_realArrayIndex = 0
@@ -305,6 +329,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                         vw_uBound = check_ubound%&(vw_address, vw_arrayDimension, vw_arrayTotalDimensions)
                         vw_arrayIndex = CVL(MID$(vw_arrayIndexes$, vw_arrayDimension * 4 - 3, 4))
                         IF vw_arrayIndex < vw_lBound OR vw_arrayIndex > vw_uBound THEN
+                            IF vw_checkingWatchpoints THEN vw_varType$ = "": RETURN
                             GOTO cmdProcessingDone
                         END IF
 
@@ -381,24 +406,36 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                         vw_address = _CV(LONG, LEFT$(vw_buf$, 4)) 'Pointer to data
                         vw_varSize = CVL(MID$(vw_buf$, 5))
                     END IF
+
                     vw_buf$ = SPACE$(vw_varSize)
                     vw_m = _MEM(vw_address, vw_varSize)
                     vw_m2 = _MEM(_OFFSET(vw_buf$), vw_varSize)
                     _MEMCOPY vw_m, vw_m.OFFSET, vw_m.SIZE TO vw_m2, vw_m2.OFFSET
                 END IF
 
+                IF vw_checkingWatchpoints THEN RETURN
+
                 vw_cmd$ = "address read:" + MKL$(vw_tempIndex) + MKL$(vw_arrayIndex) + MKL$(vw_element) + MKL$(vw_storage) + vw_buf$
                 GOSUB SendCommand
             CASE "set global address", "set local address"
+                vw_getBytes& = 4: GOSUB GetBytes: vw_tempIndex = CVL(vw_valueBytes$)
+                vw_getBytes& = 1: GOSUB GetBytes: vw_isArray = _CV(_BYTE, vw_valueBytes$)
+                vw_getBytes& = 4: GOSUB GetBytes: vw_originalVarLineNumber = CVL(vw_valueBytes$)
                 vw_getBytes& = 4: GOSUB GetBytes: vw_localIndex = CVL(vw_valueBytes$)
-                vw_getBytes& = 4: GOSUB GetBytes: vw_isArray = (CVL(vw_valueBytes$) <> 0)
                 vw_getBytes& = 4: GOSUB GetBytes: vw_arrayTotalDimensions = CVL(vw_valueBytes$)
                 vw_getBytes& = vw_arrayTotalDimensions: GOSUB GetBytes: vw_arrayIndexes$ = vw_valueBytes$
                 vw_arrayTotalDimensions = vw_arrayTotalDimensions \ 4
-                vw_getBytes& = 4: GOSUB GetBytes: vw_isUDT = (CVL(vw_valueBytes$) <> 0)
-                vw_getBytes& = 4: GOSUB GetBytes: vw_elementOffset = CVL(vw_valueBytes$)
                 vw_getBytes& = 4: GOSUB GetBytes: vw_arrayElementSize = CVL(vw_valueBytes$)
+                vw_getBytes& = 4: GOSUB GetBytes: vw_isUDT = (CVL(vw_valueBytes$) <> 0)
+                vw_getBytes& = 4: GOSUB GetBytes: vw_element = CVL(vw_valueBytes$)
+                vw_getBytes& = 4: GOSUB GetBytes: vw_elementOffset = CVL(vw_valueBytes$)
                 vw_getBytes& = 4: GOSUB GetBytes: vw_varSize = CVL(vw_valueBytes$)
+                IF vw_varSize = 0 THEN GOTO cmdProcessingDone
+                vw_getBytes& = 4: GOSUB GetBytes: vw_storage = CVL(vw_valueBytes$)
+                vw_getBytes& = 2: GOSUB GetBytes: vw_i = CVI(vw_valueBytes$)
+                IF vw_i THEN
+                    vw_getBytes& = vw_i: GOSUB GetBytes: vw_scope$ = vw_valueBytes$
+                END IF
                 vw_getBytes& = 2: GOSUB GetBytes: vw_i = CVI(vw_valueBytes$)
                 vw_getBytes& = vw_i: GOSUB GetBytes: vw_varType$ = vw_valueBytes$
                 vw_getBytes& = 2: GOSUB GetBytes: vw_i = CVI(vw_valueBytes$)
@@ -509,6 +546,72 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 'vw_address now points to the actual data
                 vw_m = _MEM(vw_address, vw_varSize)
                 _MEMPUT vw_m, vw_m.OFFSET, vw_value$
+            CASE "clear last watchpoint"
+                IF LEFT$(vw_lastWatchpoint$, 1) = "g" THEN
+                    vw_cmd$ = "clear global watchpoint"
+                ELSE
+                    vw_cmd$ = "clear local watchpoint"
+                END IF
+                vw_value$ = MID$(vw_lastWatchpoint$, 2)
+                vw_getBytesPosition& = 1
+                GOTO WatchpointCommands
+            CASE "set global watchpoint", "set local watchpoint", "clear global watchpoint", "clear local watchpoint"
+                WatchpointCommands:
+                vw_getBytes& = 4: GOSUB GetBytes: vw_tempIndex = CVL(vw_valueBytes$)
+                vw_getBytes& = 1: GOSUB GetBytes: vw_isArray = _CV(_BYTE, vw_valueBytes$)
+                vw_getBytes& = 4: GOSUB GetBytes: vw_originalVarLineNumber = CVL(vw_valueBytes$)
+                vw_getBytes& = 4: GOSUB GetBytes: vw_localIndex = CVL(vw_valueBytes$)
+                vw_getBytes& = 4: GOSUB GetBytes: vw_arrayTotalDimensions = CVL(vw_valueBytes$)
+                vw_getBytes& = vw_arrayTotalDimensions: GOSUB GetBytes: vw_arrayIndexes$ = vw_valueBytes$
+
+                vw_temp$ = LEFT$(vw_value$, vw_arrayTotalDimensions + 33)
+
+                vw_arrayTotalDimensions = vw_arrayTotalDimensions \ 4
+                vw_getBytes& = 4: GOSUB GetBytes: vw_arrayElementSize = CVL(vw_valueBytes$)
+                vw_getBytes& = 4: GOSUB GetBytes: vw_isUDT = (CVL(vw_valueBytes$) <> 0)
+                vw_getBytes& = 4: GOSUB GetBytes: vw_element = CVL(vw_valueBytes$)
+                vw_getBytes& = 4: GOSUB GetBytes: vw_elementOffset = CVL(vw_valueBytes$)
+                vw_getBytes& = 4: GOSUB GetBytes: vw_varSize = CVL(vw_valueBytes$)
+                IF vw_varSize = 0 THEN GOTO cmdProcessingDone
+                vw_getBytes& = 4: GOSUB GetBytes: vw_storage = CVL(vw_valueBytes$)
+                vw_getBytes& = 2: GOSUB GetBytes: vw_i = CVI(vw_valueBytes$)
+                IF vw_i THEN
+                    vw_getBytes& = vw_i: GOSUB GetBytes: vw_scope$ = vw_valueBytes$
+                END IF
+                vw_getBytes& = 2: GOSUB GetBytes: vw_i = CVI(vw_valueBytes$)
+                vw_getBytes& = vw_i: GOSUB GetBytes: vw_varType$ = vw_valueBytes$
+                vw_getBytes& = 2: GOSUB GetBytes: vw_i = CVI(vw_valueBytes$)
+                vw_getBytes& = vw_i: GOSUB GetBytes: vw_wpExpression$ = vw_valueBytes$
+
+                IF INSTR(vw_cmd$, " global ") THEN
+                    vw_buf$ = vw_globalWatchpoints$
+                ELSE
+                    vw_buf$ = vw_localWatchpoints$
+                END IF
+
+                vw_i = 0
+                vw_i = INSTR(vw_i + 1, vw_buf$, MKL$(-1))
+                DO WHILE vw_i
+                    IF MID$(vw_buf$, vw_i + 8, LEN(vw_temp$)) = vw_temp$ THEN EXIT DO
+                    vw_i = INSTR(vw_i + 1, vw_buf$, MKL$(-1))
+                LOOP
+
+                IF vw_i > 0 THEN
+                    'remove existing watchpoint for the same variable/index/element
+                    vw_j = CVL(MID$(vw_buf$, vw_i + 4, 4))
+                    vw_buf$ = LEFT$(vw_buf$, vw_i - 1) + MID$(vw_buf$, vw_i + vw_j + 8)
+                END IF
+
+                IF LEFT$(vw_cmd$, 4) = "set " THEN
+                    vw_value$ = vw_value$ + MKL$(LEN(vw_wpExpression$))
+                    vw_buf$ = vw_buf$ + MKL$(-1) + MKL$(LEN(vw_value$)) + vw_value$
+                END IF
+
+                IF INSTR(vw_cmd$, " global ") THEN
+                    vw_globalWatchpoints$ = vw_buf$
+                ELSE
+                    vw_localWatchpoints$ = vw_buf$
+                END IF
             CASE "current sub"
                 vw_cmd$ = "current sub:" + LEFT$(vwatch_stack(vwatch_sublevel), INSTR(vwatch_stack(vwatch_sublevel), ",") - 1)
                 GOSUB SendCommand
@@ -594,5 +697,124 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     IF vw_getBytes& = 0 THEN vw_valueBytes$ = "": RETURN
     vw_valueBytes$ = MID$(vw_value$, vw_getBytesPosition&, vw_getBytes&)
     vw_getBytesPosition& = vw_getBytesPosition& + vw_getBytes&
+    RETURN
+
+    CheckWatchpoints:
+    DIM AS LONG vw_wpi, vw_wpj
+    DIM vw_wpTemp$, vw_v1$, vw_v2$
+    FOR vw_wpi = 1 TO 2
+        IF vw_wpi = 1 AND LEN(vw_globalWatchpoints$) > 0 THEN
+            vw_wpTemp$ = MID$(vw_globalWatchpoints$, 5)
+        ELSEIF vw_wpi = 2 AND LEN(vw_localWatchpoints$) > 0 THEN
+            vw_wpTemp$ = MID$(vw_localWatchpoints$, 5)
+        ELSE
+            _CONTINUE
+        END IF
+
+        DO WHILE LEN(vw_wpTemp$)
+            vw_wpj = CVL(LEFT$(vw_wpTemp$, 4))
+            vw_value$ = MID$(vw_wpTemp$, 5, vw_wpj)
+            vw_wpTemp$ = MID$(vw_wpTemp$, 9 + vw_wpj)
+            IF vw_wpi = 1 THEN vw_cmd$ = "get global var" ELSE vw_cmd$ = "get local var"
+
+            vw_i = CVL(RIGHT$(vw_value$, 4))
+            vw_wpExpression$ = MID$(vw_value$, LEN(vw_value$) - (4 + vw_i) + 1, vw_i)
+
+            vw_getBytesPosition& = 1
+            GOSUB getGlobalLocal
+            IF vw_varType$ = "" THEN _CONTINUE
+
+            IF INSTR(vw_varType$, "STRING") THEN
+                IF LEFT$(vw_wpExpression$, 1) = "=" THEN
+                    IF _TRIM$(MID$(vw_wpExpression$, 2)) = _TRIM$(vw_buf$) THEN GOTO WatchPointBreak
+                ELSEIF LEFT$(vw_wpExpression$, 2) = "<=" THEN
+                    IF _TRIM$(MID$(vw_wpExpression$, 2)) <= _TRIM$(vw_buf$) THEN GOTO WatchPointBreak
+                ELSEIF LEFT$(vw_wpExpression$, 2) = ">=" THEN
+                    IF _TRIM$(MID$(vw_wpExpression$, 2)) >= _TRIM$(vw_buf$) THEN GOTO WatchPointBreak
+                ELSEIF LEFT$(vw_wpExpression$, 2) = "<>" THEN
+                    IF _TRIM$(MID$(vw_wpExpression$, 2)) <> _TRIM$(vw_buf$) THEN GOTO WatchPointBreak
+                ELSEIF LEFT$(vw_wpExpression$, 1) = "<" THEN
+                    IF _TRIM$(MID$(vw_wpExpression$, 2)) < _TRIM$(vw_buf$) THEN GOTO WatchPointBreak
+                ELSEIF LEFT$(vw_wpExpression$, 1) = ">" THEN
+                    IF _TRIM$(MID$(vw_wpExpression$, 2)) > _TRIM$(vw_buf$) THEN GOTO WatchPointBreak
+                END IF
+            ELSE
+                IF LEFT$(vw_wpExpression$, 1) = "=" THEN
+                    vw_v1$ = _TRIM$(MID$(vw_wpExpression$, 2))
+                ELSEIF LEFT$(vw_wpExpression$, 2) = "<=" OR LEFT$(vw_wpExpression$, 2) = ">=" OR LEFT$(vw_wpExpression$, 2) = "<>" THEN
+                    vw_v1$ = _TRIM$(MID$(vw_wpExpression$, 3))
+                ELSEIF LEFT$(vw_wpExpression$, 1) = "<" OR LEFT$(vw_wpExpression$, 1) = ">" THEN
+                    vw_v1$ = _TRIM$(MID$(vw_wpExpression$, 2))
+                END IF
+
+                GOSUB GetV2
+
+                IF LEFT$(vw_wpExpression$, 1) = "=" THEN
+                    IF VAL(vw_v2$) = VAL(vw_v1$) THEN GOTO WatchPointBreak
+                ELSEIF LEFT$(vw_wpExpression$, 2) = "<=" THEN
+                    IF VAL(vw_v2$) <= VAL(vw_v1$) THEN GOTO WatchPointBreak
+                ELSEIF LEFT$(vw_wpExpression$, 2) = ">=" THEN
+                    IF VAL(vw_v2$) >= VAL(vw_v1$) THEN GOTO WatchPointBreak
+                ELSEIF LEFT$(vw_wpExpression$, 2) = "<>" THEN
+                    IF VAL(vw_v2$) <> VAL(vw_v1$) THEN GOTO WatchPointBreak
+                ELSEIF LEFT$(vw_wpExpression$, 1) = "<" THEN
+                    IF VAL(vw_v2$) < VAL(vw_v1$) THEN GOTO WatchPointBreak
+                ELSEIF LEFT$(vw_wpExpression$, 1) = ">" THEN
+                    IF VAL(vw_v2$) > VAL(vw_v1$) THEN GOTO WatchPointBreak
+                END IF
+            END IF
+        LOOP
+    NEXT
+    RETURN
+
+    WatchPointBreak:
+    'send watchpoint info and pause
+    IF INSTR(vw_cmd$, "global") THEN
+        vw_lastWatchpoint$ = "g" + vw_value$
+    ELSE
+        vw_lastWatchpoint$ = "l" + vw_value$
+    END IF
+    vw_checkingWatchpoints = 2
+    RETURN
+
+    GetV2:
+    IF INSTR(vw_varType$, "BIT *") THEN
+        IF VAL(MID$(vw_varType$, _INSTRREV(vw_varType$, " ") + 1)) > 32 THEN
+            IF INSTR(vw_varType$, "UNSIGNED") THEN
+                vw_v2$ = STR$(_CV(_UNSIGNED _INTEGER64, vw_buf$))
+            ELSE
+                vw_v2$ = STR$(_CV(_INTEGER64, vw_buf$))
+            END IF
+        ELSE
+            IF INSTR(vw_varType$, "UNSIGNED") THEN
+                vw_v2$ = STR$(_CV(_UNSIGNED LONG, vw_buf$))
+            ELSE
+                vw_v2$ = STR$(_CV(LONG, vw_buf$))
+            END IF
+        END IF
+        RETURN
+    ELSEIF INSTR("@_BIT@BIT@_UNSIGNED _BIT@UNSIGNED BIT@", "@" + vw_varType$ + "@") THEN
+        IF INSTR(vw_varType$, "UNSIGNED") THEN
+            vw_v2$ = STR$(_CV(_UNSIGNED LONG, vw_buf$))
+        ELSE
+            vw_v2$ = STR$(_CV(LONG, vw_buf$))
+        END IF
+        RETURN
+    END IF
+    SELECT CASE vw_varType$
+        CASE "_BYTE", "BYTE": vw_v2$ = STR$(_CV(_BYTE, vw_buf$))
+        CASE "_UNSIGNED _BYTE", "UNSIGNED BYTE": vw_v2$ = STR$(_CV(_UNSIGNED _BYTE, vw_buf$))
+        CASE "INTEGER": vw_v2$ = STR$(_CV(INTEGER, vw_buf$))
+        CASE "_UNSIGNED INTEGER", "UNSIGNED INTEGER": vw_v2$ = STR$(_CV(_UNSIGNED INTEGER, vw_buf$))
+        CASE "LONG": vw_v2$ = STR$(_CV(LONG, vw_buf$))
+        CASE "_UNSIGNED LONG", "UNSIGNED LONG": vw_v2$ = STR$(_CV(_UNSIGNED LONG, vw_buf$))
+        CASE "_INTEGER64", "INTEGER64": vw_v2$ = STR$(_CV(_INTEGER64, vw_buf$))
+        CASE "_UNSIGNED _INTEGER64", "UNSIGNED INTEGER64": vw_v2$ = STR$(_CV(_UNSIGNED _INTEGER64, vw_buf$))
+        CASE "SINGLE": vw_v2$ = STR$(CVS(vw_buf$))
+        CASE "DOUBLE": vw_v2$ = STR$(CVD(vw_buf$))
+        CASE "_FLOAT", "FLOAT": vw_v2$ = STR$(_CV(_FLOAT, vw_buf$))
+        CASE "_OFFSET", "OFFSET": vw_v2$ = STR$(_CV(_OFFSET, vw_buf$))
+        CASE "_UNSIGNED _OFFSET", "UNSIGNED OFFSET": vw_v2$ = STR$(_CV(_UNSIGNED _OFFSET, vw_buf$))
+    END SELECT
     RETURN
 END SUB
