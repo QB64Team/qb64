@@ -2054,6 +2054,7 @@ DO
                                 IF typ = 0 THEN a$ = "Undefined type": GOTO errmes
                                 typsize = typname2typsize
 
+                                previousElement$ = lastElement$
                                 nexttypeelement:
                                 lasttypeelement = lasttypeelement + 1
                                 i2 = lasttypeelement
@@ -2074,8 +2075,14 @@ DO
                                 lastElement$ = getelement$(a$, ii)
                                 IF lastElement$ = "" THEN GOTO finishedlinepp
                                 IF ii = n AND lastElement$ = "," THEN a$ = "Expected element-name": GOTO errmes
-                                IF lastElement$ = "," THEN GOTO getNextElement
+                                IF lastElement$ = "," THEN
+                                    IF previousElement$ = "," THEN a$ = "Expected element-name": GOTO errmes
+                                    previousElement$ = lastElement$
+                                    GOTO getNextElement
+                                END IF
                                 n$ = lastElement$
+                                IF previousElement$ <> "," THEN a$ = "Expected ,": GOTO errmes
+                                previousElement$ = lastElement$
                                 cn$ = getelement$(ca$, ii)
                                 GOTO nexttypeelement
                             END IF
@@ -8120,7 +8127,7 @@ DO
                 GOTO dimgottyp
 
                 dimgottyp:
-                IF d$ <> "" AND d$ <> "," THEN a$ = "DIM: Expected comma!": GOTO errmes
+                IF d$ <> "" AND d$ <> "," THEN a$ = "DIM: Expected ,": GOTO errmes
 
                 'In QBASIC, if no type info is given it can refer to an expeicit/formally defined array
                 IF notype <> 0 AND dimoption <> 3 AND dimoption <> 1 THEN 'not DIM or STATIC which only create new content
@@ -8674,7 +8681,7 @@ DO
                     GOTO errmes
                 END IF
 
-                IF d$ <> "" AND d$ <> "," THEN a$ = "DIM: Expected comma!": GOTO errmes
+                IF d$ <> "" AND d$ <> "," THEN a$ = "DIM: Expected ,": GOTO errmes
 
                 newDimSyntax = -1
                 GOSUB NormalDimBlock
