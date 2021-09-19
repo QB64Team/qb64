@@ -7537,6 +7537,7 @@ SUB DebugMode
                 IF cmd$ = "watchpoint" THEN
                     temp$ = GetBytes$("", 0) 'reset buffer
                     tempIndex& = CVL(GetBytes$(value$, 4))
+                    latestWatchpointMet& = tempIndex&
                     tempArrayIndexes$ = GetBytes$(value$, 4)
                     tempArrayIndexes$ = tempArrayIndexes$ + GetBytes$(value$, CVL(tempArrayIndexes$))
                     tempElementOffset$ = GetBytes$(value$, 4)
@@ -7563,6 +7564,8 @@ SUB DebugMode
                         GOSUB SendCommand
                     END IF
                     value$ = RIGHT$(value$, 4)
+                ELSE
+                    latestWatchpointMet& = 0
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0
                 WHILE _MOUSEINPUT: WEND
@@ -7956,7 +7959,7 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, action as _BYTE)
             LOOP
 
             IF j > 0 THEN
-                COLOR 4
+                IF latestWatchpointMet& = tempIndex& THEN COLOR 15 ELSE COLOR 4
                 _PRINTSTRING (this.x + 1, this.y + y), CHR$(7) 'watchpoint bullet indicator
                 COLOR fg
             END IF
@@ -8495,7 +8498,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                             END IF
                         END IF
 
-                        IF INSTR(varType$, "STRING") = 0 THEN
+                        IF INSTR(varType$, "STRING") = 0 AND thisReturnAction <> 3 THEN
                             v$ = op$ + actualValue$
                             IF v$ <> op$ + LTRIM$(STR$(VAL(actualValue$))) THEN
                                 result = idemessagebox(dlgTitle$, "Invalid expression.\nYou can use =, <>, >, >=, <, <=, and a literal value\n(scientific notation not allowed).", "#OK")
