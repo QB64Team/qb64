@@ -1804,17 +1804,7 @@ DO
             IF temp = 0 THEN a$ = "Invalid Syntax.  $LET <flag> = <value>": GOTO errmes
             l$ = RTRIM$(LEFT$(temp$, temp - 1)): r$ = LTRIM$(MID$(temp$, temp + 1))
             'then validate to make certain the left side looks proper
-            l1$ = ""
-            FOR i = 1 TO LEN(l$)
-                a = ASC(l$, i)
-                SELECT CASE a
-                    CASE 32 'strip out spaces
-                    CASE 46: l1$ = l1$ + CHR$(a)
-                    CASE IS < 48, IS > 90: a$ = "Invalid symbol left of equal sign (" + CHR$(a) + ")": GOTO errmes
-                    CASE ELSE: l1$ = l1$ + CHR$(a)
-                END SELECT
-            NEXT
-            l$ = l1$
+            IF validname(l$) = 0 THEN a$ = "Invalid flag name": GOTO errmes
             IF LEFT$(r$, 1) = CHR$(34) THEN r$ = LTRIM$(MID$(r$, 2))
             IF RIGHT$(r$, 1) = CHR$(34) THEN r$ = RTRIM$(LEFT$(r$, LEN(r$) - 1))
             IF LEFT$(r$, 1) = "-" THEN
@@ -1831,7 +1821,7 @@ DO
                     CASE 46 'periods are fine.
                         r1$ = r1$ + "."
                     CASE IS < 48, IS > 90
-                        a$ = "Invalid symbol right of equal sign (" + CHR$(a) + ")": GOTO errmes
+                        a$ = "Invalid value": GOTO errmes
                     CASE ELSE
                         r1$ = r1$ + CHR$(a)
                 END SELECT
@@ -25730,6 +25720,7 @@ FUNCTION EvalPreIF (text$, err$)
             NEXT
             leftside$ = RTRIM$(LEFT$(temp$, i))
             l$ = LTRIM$(RTRIM$(MID$(temp$, i + 1, LEN(l$) - i)))
+            IF validname(l$) = 0 THEN err$ = "Invalid flag name": EXIT FUNCTION
             rightstop = LEN(r$)
             FOR i = 1 TO LEN(r$)
                 IF ASC(r$, i) = 32 THEN EXIT FOR
