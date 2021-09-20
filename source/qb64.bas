@@ -2189,7 +2189,7 @@ DO
                                 IF LEN(readable_e$) = 0 THEN
                                     readable_e$ = e3$
                                 ELSE
-                                    readable_e$ = readable_e$ + e3$
+                                    readable_e$ = readable_e$ + " " + e3$
                                 END IF
                             NEXT
 
@@ -24943,26 +24943,6 @@ SUB PreParse (e$)
     LOOP UNTIL l = 0
     IF c <> c1 THEN e$ = "ERROR -- Bad Parenthesis:" + STR$(c) + "( vs" + STR$(c1) + ")": EXIT SUB
 
-    'Modify so that NOT will process properly
-    l = 0
-    DO
-        l = INSTR(l + 1, t$, "NOT")
-        IF l THEN
-            'We need to work magic on the statement so it looks pretty.
-            ' 1 + NOT 2 + 1 is actually processed as 1 + (NOT 2 + 1)
-            'Look for something not proper
-            l1 = INSTR(l + 1, t$, "AND")
-            IF l1 = 0 OR (INSTR(l + 1, t$, "OR") > 0 AND INSTR(l + 1, t$, "OR") < l1) THEN l1 = INSTR(l + 1, t$, "OR")
-            IF l1 = 0 OR (INSTR(l + 1, t$, "XOR") > 0 AND INSTR(l + 1, t$, "XOR") < l1) THEN l1 = INSTR(l + 1, t$, "XOR")
-            IF l1 = 0 OR (INSTR(l + 1, t$, "EQV") > 0 AND INSTR(l + 1, t$, "EQV") < l1) THEN l1 = INSTR(l + 1, t$, "EQV")
-            IF l1 = 0 OR (INSTR(l + 1, t$, "IMP") > 0 AND INSTR(l + 1, t$, "IMP") < l1) THEN l1 = INSTR(l + 1, t$, "IMP")
-            IF l1 = 0 THEN l1 = LEN(t$) + 1
-            t$ = LEFT$(t$, l - 1) + "(" + MID$(t$, l, l1 - l) + ")" + MID$(t$, l + l1 - l)
-            l = l + 3
-            'PRINT t$
-        END IF
-    LOOP UNTIL l = 0
-
     'replace existing CONST values
     sep$ = "()+-*/\><=^"
     FOR i2 = 0 TO constlast
@@ -24997,6 +24977,26 @@ SUB PreParse (e$)
             thisConstName$ = constname(i2) + constnamesymbol(i2)
         NEXT
     NEXT
+
+    'Modify so that NOT will process properly
+    l = 0
+    DO
+        l = INSTR(l + 1, t$, "NOT ")
+        IF l THEN
+            'We need to work magic on the statement so it looks pretty.
+            ' 1 + NOT 2 + 1 is actually processed as 1 + (NOT 2 + 1)
+            'Look for something not proper
+            l1 = INSTR(l + 1, t$, "AND")
+            IF l1 = 0 OR (INSTR(l + 1, t$, "OR") > 0 AND INSTR(l + 1, t$, "OR") < l1) THEN l1 = INSTR(l + 1, t$, "OR")
+            IF l1 = 0 OR (INSTR(l + 1, t$, "XOR") > 0 AND INSTR(l + 1, t$, "XOR") < l1) THEN l1 = INSTR(l + 1, t$, "XOR")
+            IF l1 = 0 OR (INSTR(l + 1, t$, "EQV") > 0 AND INSTR(l + 1, t$, "EQV") < l1) THEN l1 = INSTR(l + 1, t$, "EQV")
+            IF l1 = 0 OR (INSTR(l + 1, t$, "IMP") > 0 AND INSTR(l + 1, t$, "IMP") < l1) THEN l1 = INSTR(l + 1, t$, "IMP")
+            IF l1 = 0 THEN l1 = LEN(t$) + 1
+            t$ = LEFT$(t$, l - 1) + "(" + MID$(t$, l, l1 - l) + ")" + MID$(t$, l + l1 - l)
+            l = l + 3
+            'PRINT t$
+        END IF
+    LOOP UNTIL l = 0
 
     uboundPP_TypeMod = TotalPrefixedPP_TypeMod
     IF qb64prefix_set = 1 THEN uboundPP_TypeMod = TotalPP_TypeMod
