@@ -8913,6 +8913,11 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
 
         IF focus = varListBox AND (K$ >= " " AND K$ <= CHR$(126)) THEN
             focus = filterBox
+            PrevFocus = focus
+            idetxt(o(focus).txt) = K$
+            o(focus).v1 = LEN(idetxt(o(focus).txt))
+            o(focus).issel = 0
+            searchTerm$ = ""
             _CONTINUE
         END IF
 
