@@ -29,7 +29,7 @@
 - Fixes `Clear` making `$Console` mode invalid.
 - Fixes a syntax highlighter issue regarding scientific notation.
 - Fixes an issue in Windows Vista and up with incorrect resolution returned on a scaled desktop.
-- Fixes `Const` parser accepting unsupported string functions.
+- Fixes `Const` parser accepting unsupported string functions and failing with some very specific const names.
 - Explicitly sets x87 fpu to extended precision mode.
 - Removes 255-character limit for `Input/Line Input` with strings.
 - Fixes `Data` commands failing to compile in some circumstances.
@@ -40,6 +40,9 @@
 - Fixes issue that prevented loading file names beginning with numbers.
 - Fixes file open/save dialogs issue with path navigation.
 - Complete rewrite of the internals for `Environ$()`.
+- Fixes evaluation of valid var/flag names for `$Let`/`$If` - same rules for variable names now apply.
+- Fixes incorrect parsing of `Type` blocks with multiple elements using the `AS type element-list` syntax.
+- Fixes issue with `Put #` and variable-length strings in UDTs (`Binary` files).
 
 ### Windows
 - Allows `$Console:Only` programs to return `_WindowHandle`.
