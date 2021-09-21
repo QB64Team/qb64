@@ -373,7 +373,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                         IF INSTR(vw_varType$, "UNSIGNED") THEN
                             vw_buf$ = _MK$(_UNSIGNED _INTEGER64, call_getubits~&&(vw_i, vw_address, vw_realArrayIndex))
                         ELSE
-                            vw_buf$ = _MK$(_UNSIGNED _INTEGER64, call_getbits&&(vw_i, vw_address, vw_realArrayIndex))
+                            vw_buf$ = _MK$(_INTEGER64, call_getbits&&(vw_i, vw_address, vw_realArrayIndex))
                         END IF
 
                         IF vw_checkingWatchpoints THEN RETURN
