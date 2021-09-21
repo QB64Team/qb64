@@ -14316,12 +14316,19 @@ FUNCTION idezpathlist$ (path$)
             IF LEN(pathlist$) THEN pathlist$ = ".." + sep + pathlist$ ELSE pathlist$ = ".."
         END IF
         'add drive paths
+
+        DECLARE LIBRARY
+            FUNCTION logical_drives& ()
+        END DECLARE
+
+        d = logical_drives&
         FOR i = 0 TO 25
             IF RIGHT$(pathlist$, 1) <> sep AND LEN(pathlist$) > 0 THEN pathlist$ = pathlist$ + sep
-            IF _DIREXISTS(CHR$(65 + i) + ":\") THEN
+            IF _READBIT(d, i) THEN
                 pathlist$ = pathlist$ + CHR$(65 + i) + ":"
             END IF
         NEXT
+
         idezpathlist$ = pathlist$
         EXIT FUNCTION
     END IF

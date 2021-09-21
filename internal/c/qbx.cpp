@@ -961,6 +961,14 @@ void call_setbits(uint32 bsize,ptrszint *array,ptrszint i,int64 val) {
     setbits(bsize,(uint8*)(*array),i,val);
 }
 
+int32 logical_drives() {
+    #ifdef QB64_WINDOWS
+        return GetLogicalDrives();
+    #else
+        return 0;
+    #endif
+}
+
 inline ptrszint array_check(uptrszint index,uptrszint limit){
     //nb. forces signed index into an unsigned variable for quicker comparison
     if (index<limit) return index;
