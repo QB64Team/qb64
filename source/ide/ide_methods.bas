@@ -8210,7 +8210,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
             FOR y = 1 TO totalVisibleVariables
                 varType$ = usedVariableList(y).varType
                 IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
-                IF INSTR(varType$, "_BIT *") THEN varType$ = "_BIT"
+                IF INSTR(varType$, "BIT *") THEN varType$ = "_BIT"
                 IF (usedVariableList(varDlgList(y).index).isarray AND LEN(usedVariableList(varDlgList(y).index).watchRange) = 0) OR _
                    INSTR(nativeDataTypes$, varType$) = 0 THEN _CONTINUE
                 usedVariableList(varDlgList(y).index).watch = -1
