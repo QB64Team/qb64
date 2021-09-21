@@ -8301,7 +8301,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                     varType$ = usedVariableList(tempIndex&).varType
                     tempVarType$ = varType$
                     IF INSTR(varType$, "STRING *") THEN tempVarType$ = "STRING"
-                    IF INSTR(varType$, "_BIT *") THEN tempVarType$ = "_BIT"
+                    IF INSTR(varType$, "BIT *") THEN tempVarType$ = "_BIT"
                     IF INSTR(nativeDataTypes$, tempVarType$) = 0 THEN
                         'It's a UDT
                         tempIsUDT& = -1
@@ -8768,7 +8768,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
 
                     varType$ = usedVariableList(varDlgList(y).index).varType
                     IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
-                    IF INSTR(varType$, "_BIT *") THEN varType$ = "_BIT"
+                    IF INSTR(varType$, "BIT *") THEN varType$ = "_BIT"
                     IF INSTR(nativeDataTypes$, varType$) = 0 THEN
                         'It's a UDT
                         elementIndexes$ = ""
