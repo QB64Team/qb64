@@ -145,7 +145,6 @@ FUNCTION ide2 (ignore)
     'report any IDE errors which have occurred
     IF ideerror THEN
         IF IdeDebugMode THEN
-            IdeDebugMode = 0
             COLOR 0, 7: _PRINTSTRING (1, 1), menubar$
         END IF
         mustdisplay = 1
@@ -187,11 +186,15 @@ FUNCTION ide2 (ignore)
             'a more serious error; let's report something that'll help bug reporting
             inclerrorline = _INCLERRORLINE
             IF inclerrorline THEN
-            errorat$ = errorat$ + CHR$(10) + " " + CHR$(10) + "(module: " + _
-                       RemoveFileExtension$(LEFT$(_INCLERRORFILE$, 60))
-                errorat$ = errorat$ + ", on line: " + str2$(inclerrorline) + ", " + MID$(AutoBuildMsg$, 10) + ")"
+                errorat$ = errorat$ + CHR$(10) + " " + CHR$(10) + "(module: " + _
+                           RemoveFileExtension$(LEFT$(_INCLERRORFILE$, 60))
+                errorat$ = errorat$ + ", on line: " + str2$(inclerrorline)
+                IF LEN(AutoBuildMsg$) THEN errorat$ = errorat$ + ", " + MID$(AutoBuildMsg$, 10)
+                errorat$ = errorat$ + ")"
             ELSE
-                errorat$ = errorat$ + CHR$(10) + " " + CHR$(10) + "(on line: " + str2$(_ERRORLINE) + ", " + MID$(AutoBuildMsg$, 10) + ")"
+                errorat$ = errorat$ + CHR$(10) + " " + CHR$(10) + "(on line: " + str2$(_ERRORLINE)
+                IF LEN(AutoBuildMsg$) THEN errorat$ = errorat$ + ", " + MID$(AutoBuildMsg$, 10)
+                errorat$ = errorat$ + ")"
             END IF
         END IF
 
@@ -746,6 +749,12 @@ FUNCTION ide2 (ignore)
         changingTcpPort = 0
     END IF
 
+    IF IdeDebugMode THEN
+        idecompiling = 0
+        ready = 1
+        GOSUB redrawItAll
+        GOTO ExitDebugMode 'IdeDebugMode must be 0 here, if not, DebugMode errored.
+    END IF
     IF c$ = CHR$(254) THEN
         '$DEBUG mode on
         IdeDebugMode = 1
@@ -767,6 +776,7 @@ FUNCTION ide2 (ignore)
         ready = 1
         _RESIZE OFF
         DebugMode
+        ExitDebugMode:
         IF WatchListToConsole THEN _CONSOLE OFF
         UpdateMenuHelpLine  ""
         SELECT CASE IdeDebugMode
