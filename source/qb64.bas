@@ -14828,6 +14828,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
 
         'array of bit-length variables
         IF elements$ <> "" THEN
+            IF bits > 63 THEN Give_Error "Cannot create a bit array of size > 63 bits": EXIT FUNCTION
             arraydesc = 0
             cmps$ = varname$: IF unsgn THEN cmps$ = cmps$ + "~"
             cmps$ = cmps$ + "`" + str2(bits)

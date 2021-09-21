@@ -949,6 +949,18 @@ ptrszint check_ubound(ptrszint *array,int32 index, int32 num_indexes) {
     return func_ubound((ptrszint*)(*array),index,num_indexes);
 }
 
+uint64 call_getubits(uint32 bsize,ptrszint *array,ptrszint i) {
+    return getubits(bsize,(uint8*)(*array),i);
+}
+
+int64 call_getbits(uint32 bsize,ptrszint *array,ptrszint i) {
+    return getbits(bsize,(uint8*)(*array),i);
+}
+
+void call_setbits(uint32 bsize,ptrszint *array,ptrszint i,int64 val) {
+    setbits(bsize,(uint8*)(*array),i,val);
+}
+
 inline ptrszint array_check(uptrszint index,uptrszint limit){
     //nb. forces signed index into an unsigned variable for quicker comparison
     if (index<limit) return index;

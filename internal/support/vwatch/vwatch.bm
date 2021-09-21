@@ -9,21 +9,26 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     DIM AS LONG vw_i, vw_j, vw_tempIndex, vw_localIndex, vw_varSize, vw_cmdSize
     DIM AS LONG vw_arrayElementSize, vw_element, vw_elementOffset, vw_storage, vw_blockSize
     DIM AS LONG vw_arrayDimension, vw_arrayTotalDimensions, vw_arrayIndex, vw_realArrayIndex
+    DIM AS LONG vw_wpi, vw_wpj
+    DIM AS _INTEGER64 vw_tempBitValue
     DIM AS _OFFSET vw_address, vw_lBound, vw_uBound
     DIM AS _MEM vw_m, vw_m2
     DIM AS _BYTE vw_isArray, vw_isUDT, vw_checkingWatchpoints
     DIM vw_start!, vw_temp$, vw_cmd$, vw_value$, vw_k&, vw_buf$, vw_scope$, vw_varType$
     DIM vw_getBytes&, vw_getBytesPosition&, vw_valueBytes$, vw_dummy%&
-    DIM vw_arrayIndexes$, vw_wpExpression$
+    DIM vw_arrayIndexes$, vw_wpExpression$, vw_wpTemp$, vw_v1$, vw_v2$
 
     DECLARE LIBRARY
         SUB vwatch_stoptimers ALIAS stop_timers
         SUB vwatch_starttimers ALIAS start_timers
         SUB unlockvWatchHandle
         SUB set_qbs_size (target AS _OFFSET, BYVAL length&)
+        SUB call_setbits (BYVAL bsize AS _UNSIGNED LONG, array AS _OFFSET, BYVAL index AS _OFFSET, BYVAL value AS _INTEGER64)
         FUNCTION stop_program_state&
         FUNCTION check_lbound%& (array AS _OFFSET, BYVAL index AS LONG, BYVAL num_indexes AS LONG)
         FUNCTION check_ubound%& (array AS _OFFSET, BYVAL index AS LONG, BYVAL num_indexes AS LONG)
+        FUNCTION call_getubits~&& (BYVAL bsize AS _UNSIGNED LONG, array AS _OFFSET, BYVAL index AS _OFFSET)
+        FUNCTION call_getbits&& (BYVAL bsize AS _UNSIGNED LONG, array AS _OFFSET, BYVAL index AS _OFFSET)
     END DECLARE
 
     $IF WIN THEN
@@ -357,11 +362,31 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                     ELSEIF vw_varType$ = "STRING" THEN
                         vw_varSize = LEN(vw_dummy%&)
                     END IF
-                    'this is where we calculate the actual array index position in memory
-                    IF vw_arrayElementSize = 0 THEN
-                        vw_address = vw_address + (vw_realArrayIndex * vw_varSize)
+
+                    IF INSTR(vw_varType$, "BIT") THEN
+                        vw_i = INSTR(vw_varType$, "*")
+                        IF vw_i > 0 THEN
+                            vw_i = VAL(MID$(vw_varType$, vw_i + 1))
+                        ELSE
+                            vw_i = 1
+                        END IF
+                        IF INSTR(vw_varType$, "UNSIGNED") THEN
+                            vw_buf$ = _MK$(_UNSIGNED _INTEGER64, call_getubits~&&(vw_i, vw_address, vw_realArrayIndex))
+                        ELSE
+                            vw_buf$ = _MK$(_UNSIGNED _INTEGER64, call_getbits&&(vw_i, vw_address, vw_realArrayIndex))
+                        END IF
+
+                        IF vw_checkingWatchpoints THEN RETURN
+                        vw_cmd$ = "address read:" + MKL$(vw_tempIndex) + MKL$(vw_arrayIndex) + MKL$(vw_element) + MKL$(vw_storage) + vw_buf$
+                        GOSUB SendCommand
+                        GOTO cmdProcessingDone
                     ELSE
-                        vw_address = vw_address + (vw_realArrayIndex * vw_arrayElementSize)
+                        'this is where we calculate the actual array index position in memory
+                        IF vw_arrayElementSize = 0 THEN
+                            vw_address = vw_address + (vw_realArrayIndex * vw_varSize)
+                        ELSE
+                            vw_address = vw_address + (vw_realArrayIndex * vw_arrayElementSize)
+                        END IF
                     END IF
                 END IF
 
@@ -490,11 +515,25 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                         vw_varSize = LEN(vw_dummy%&)
                     END IF
 
-                    'this is where we calculate the actual array index position in memory
-                    IF vw_arrayElementSize = 0 THEN
-                        vw_address = vw_address + (vw_realArrayIndex * vw_varSize)
+                    IF INSTR(vw_varType$, "BIT") THEN
+                        vw_i = INSTR(vw_varType$, "*")
+                        IF vw_i > 0 THEN
+                            vw_i = VAL(MID$(vw_varType$, vw_i + 1))
+                        ELSE
+                            vw_i = 1
+                        END IF
+                        vw_buf$ = vw_value$ + STRING$(4, 0) 'pad with zeros in case a LONG was sent
+                        GOSUB GetV2
+                        vw_tempBitValue = VAL(vw_v2$)
+                        call_setbits vw_i, vw_address, vw_realArrayIndex, vw_tempBitValue
+                        GOTO cmdProcessingDone
                     ELSE
-                        vw_address = vw_address + (vw_realArrayIndex * vw_arrayElementSize)
+                        'this is where we calculate the actual array index position in memory
+                        IF vw_arrayElementSize = 0 THEN
+                            vw_address = vw_address + (vw_realArrayIndex * vw_varSize)
+                        ELSE
+                            vw_address = vw_address + (vw_realArrayIndex * vw_arrayElementSize)
+                        END IF
                     END IF
                 ELSE
                     IF vw_isUDT = 0 THEN
@@ -700,8 +739,6 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     RETURN
 
     CheckWatchpoints:
-    DIM AS LONG vw_wpi, vw_wpj
-    DIM vw_wpTemp$, vw_v1$, vw_v2$
     FOR vw_wpi = 1 TO 2
         IF vw_wpi = 1 AND LEN(vw_globalWatchpoints$) > 0 THEN
             vw_wpTemp$ = MID$(vw_globalWatchpoints$, 5)
