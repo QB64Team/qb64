@@ -1,10 +1,10 @@
-qbs*oldstr3030=NULL;
+qbs*oldstr3032=NULL;
 if(_SUB_MAKEIDREFER_STRING_REF->tmp||_SUB_MAKEIDREFER_STRING_REF->fixed||_SUB_MAKEIDREFER_STRING_REF->readonly){
-oldstr3030=_SUB_MAKEIDREFER_STRING_REF;
-if (oldstr3030->cmem_descriptor){
-_SUB_MAKEIDREFER_STRING_REF=qbs_new_cmem(oldstr3030->len,0);
+oldstr3032=_SUB_MAKEIDREFER_STRING_REF;
+if (oldstr3032->cmem_descriptor){
+_SUB_MAKEIDREFER_STRING_REF=qbs_new_cmem(oldstr3032->len,0);
 }else{
-_SUB_MAKEIDREFER_STRING_REF=qbs_new(oldstr3030->len,0);
+_SUB_MAKEIDREFER_STRING_REF=qbs_new(oldstr3032->len,0);
 }
-memcpy(_SUB_MAKEIDREFER_STRING_REF->chr,oldstr3030->chr,oldstr3030->len);
+memcpy(_SUB_MAKEIDREFER_STRING_REF->chr,oldstr3032->chr,oldstr3032->len);
 }

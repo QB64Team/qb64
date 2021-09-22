@@ -1,25 +1,25 @@
-qbs*oldstr5316=NULL;
+qbs*oldstr5320=NULL;
 if(_SUB_IDEHPRINT_STRING_A->tmp||_SUB_IDEHPRINT_STRING_A->fixed||_SUB_IDEHPRINT_STRING_A->readonly){
-oldstr5316=_SUB_IDEHPRINT_STRING_A;
-if (oldstr5316->cmem_descriptor){
-_SUB_IDEHPRINT_STRING_A=qbs_new_cmem(oldstr5316->len,0);
+oldstr5320=_SUB_IDEHPRINT_STRING_A;
+if (oldstr5320->cmem_descriptor){
+_SUB_IDEHPRINT_STRING_A=qbs_new_cmem(oldstr5320->len,0);
 }else{
-_SUB_IDEHPRINT_STRING_A=qbs_new(oldstr5316->len,0);
+_SUB_IDEHPRINT_STRING_A=qbs_new(oldstr5320->len,0);
 }
-memcpy(_SUB_IDEHPRINT_STRING_A->chr,oldstr5316->chr,oldstr5316->len);
+memcpy(_SUB_IDEHPRINT_STRING_A->chr,oldstr5320->chr,oldstr5320->len);
 }
 int32 *_SUB_IDEHPRINT_LONG_I=NULL;
 if(_SUB_IDEHPRINT_LONG_I==NULL){
 _SUB_IDEHPRINT_LONG_I=(int32*)mem_static_malloc(4);
 *_SUB_IDEHPRINT_LONG_I=0;
 }
-int64 fornext_value5318;
-int64 fornext_finalvalue5318;
-int64 fornext_step5318;
-uint8 fornext_step_negative5318;
-byte_element_struct *byte_element_5319=NULL;
-if (!byte_element_5319){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5319=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5319=(byte_element_struct*)mem_static_malloc(12);
+int64 fornext_value5322;
+int64 fornext_finalvalue5322;
+int64 fornext_step5322;
+uint8 fornext_step_negative5322;
+byte_element_struct *byte_element_5323=NULL;
+if (!byte_element_5323){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5323=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5323=(byte_element_struct*)mem_static_malloc(12);
 }
 qbs *_SUB_IDEHPRINT_STRING_C=NULL;
 if (!_SUB_IDEHPRINT_STRING_C)_SUB_IDEHPRINT_STRING_C=qbs_new(0,0);
