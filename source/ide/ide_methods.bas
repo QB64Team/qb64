@@ -15050,21 +15050,21 @@ FUNCTION idedisplaybox
     '-------- init --------
     i = 0
 
-    'idepar p, 60, 16, "Display"
-    'note: manually set window position in case display to set too large by accident
-    p.x = (80 \ 2) - 60 \ 2
-    p.y = (25 \ 2) - 16 \ 2
+    'note: manually set window position in case display is set too large by accident
     p.w = 60
     p.h = 18
+    p.x = (80 \ 2) - p.w \ 2
+    p.y = (25 \ 2) - p.h \ 2
     p.nam = idenewtxt("Display")
 
     a2$ = str2$(idewx)
     i = i + 1
     PrevFocus = 1
     o(i).typ = 1
-    o(i).x = 16
+    o(i).x = 3
     o(i).y = 2
-    o(i).nam = idenewtxt("#Width")
+    o(i).w = 8
+    o(i).nam = idenewtxt("Window #width")
     o(i).txt = idenewtxt(a2$)
     o(i).v1 = LEN(a2$)
     IF o(i).v1 > 0 THEN
@@ -15075,33 +15075,52 @@ FUNCTION idedisplaybox
     a2$ = str2$(idewy + idesubwindow)
     i = i + 1
     o(i).typ = 1
-    o(i).x = 15
+    o(i).x = 2
     o(i).y = 5
-    o(i).nam = idenewtxt("#Height")
+    o(i).w = 8
+    o(i).nam = idenewtxt("Window #height")
     o(i).txt = idenewtxt(a2$)
     o(i).v1 = LEN(a2$)
 
     i = i + 1
     o(i).typ = 4 'check box
-    o(i).y = 8
+    o(i).y = 7
     IF INSTR(_OS$, "WIN") > 0 OR INSTR(_OS$, "MAC") > 0 THEN
-        o(i).nam = idenewtxt("Restore window #position and size at startup")
+        o(i).nam = idenewtxt("#Restore #position and size")
     ELSE
-        o(i).nam = idenewtxt("Restore window size at startu#p")
+        o(i).nam = idenewtxt("#Restore size")
     END IF
     IF IDE_AutoPosition THEN o(i).sel = 1
 
     i = i + 1
+    tmpNormalCursorStart = IDENormalCursorStart
+    o(i).typ = 1
+    o(i).x = 33
+    o(i).y = 2
+    o(i).nam = idenewtxt("Cursor #start")
+    o(i).txt = idenewtxt(str2$(IDENormalCursorStart))
+    o(i).v1 = LEN(a2$)
+
+    i = i + 1
+    tmpNormalCursorEnd = IDENormalCursorEnd
+    o(i).typ = 1
+    o(i).x = 35
+    o(i).y = 5
+    o(i).nam = idenewtxt("Cursor #end")
+    o(i).txt = idenewtxt(str2$(IDENormalCursorEnd))
+    o(i).v1 = LEN(a2$)
+
+    i = i + 1
     o(i).typ = 4 'check box
     o(i).y = 9
-    o(i).nam = idenewtxt("Use _FONT 8")
+    o(i).nam = idenewtxt("#Use _FONT 8")
     o(i).sel = IDE_UseFont8
     prevFont8Setting = o(i).sel
 
     i = i + 1
     o(i).typ = 4 'check box
     o(i).y = 10
-    o(i).nam = idenewtxt("Custom #Font:")
+    o(i).nam = idenewtxt("Use monospace #TTF font:")
     o(i).sel = idecustomfont
     prevCustomFontSetting = o(i).sel
 
@@ -15110,7 +15129,7 @@ FUNCTION idedisplaybox
     o(i).typ = 1
     o(i).x = 10
     o(i).y = 12
-    o(i).nam = idenewtxt("File #Name")
+    o(i).nam = idenewtxt("#Font file")
     o(i).txt = idenewtxt(a2$)
     o(i).v1 = LEN(a2$)
 
@@ -15119,13 +15138,13 @@ FUNCTION idedisplaybox
     o(i).typ = 1
     o(i).x = 10
     o(i).y = 15
-    o(i).nam = idenewtxt("#Row Height (Pixels)")
+    o(i).nam = idenewtxt("Font size in #pixels")
     o(i).txt = idenewtxt(a2$)
     o(i).v1 = LEN(a2$)
 
     i = i + 1
     o(i).typ = 3
-    o(i).y = 18
+    o(i).y = p.h
     o(i).txt = idenewtxt("#OK" + sep + "#Cancel")
     o(i).dft = 1
     '-------- end of init --------
@@ -15154,8 +15173,9 @@ FUNCTION idedisplaybox
         '-------- end of generic display dialog box & objects --------
 
         '-------- custom display changes --------
-        COLOR 0, 7: _PRINTSTRING (p.x + 2, p.y + 2), "Window Size -"
-        COLOR 0, 7: _PRINTSTRING (p.x + 29, p.y + 10), " Monospace TTF Font "
+        COLOR 0, 7
+        _PRINTSTRING (p.x + 10, p.y + 8), "at startup"
+        LOCATE , , , tmpNormalCursorStart, tmpNormalCursorEnd
         '-------- end of custom display changes --------
 
         'update visual page and cursor position
@@ -15209,13 +15229,14 @@ FUNCTION idedisplaybox
         IF focus <> PrevFocus THEN
             'Always start with TextBox values selected upon getting focus
             PrevFocus = focus
-            IF focus = 1 OR focus = 2 OR focus = 6 OR focus = 7 THEN
+            IF o(focus).typ = 1 THEN
                 o(focus).v1 = LEN(idetxt(o(focus).txt))
                 IF o(focus).v1 > 0 THEN o(focus).issel = -1
                 o(focus).sx1 = 0
             END IF
         END IF
 
+        'width
         a$ = idetxt(o(1).txt)
         IF LEN(a$) > 3 THEN a$ = LEFT$(a$, 3) '3 character limit
         FOR i = 1 TO LEN(a$)
@@ -15229,6 +15250,7 @@ FUNCTION idedisplaybox
         END IF
         idetxt(o(1).txt) = a$
 
+        'height
         a$ = idetxt(o(2).txt)
         IF LEN(a$) > 3 THEN a$ = LEFT$(a$, 3) '3 character limit
         FOR i = 1 TO LEN(a$)
@@ -15242,53 +15264,93 @@ FUNCTION idedisplaybox
         END IF
         idetxt(o(2).txt) = a$
 
-        IF prevFont8Setting <> o(4).sel THEN
-            prevFont8Setting = o(4).sel
-            IF o(4).sel THEN o(5).sel = 0: prevCustomFontSetting = 0
-        END IF
-
-        IF prevCustomFontSetting <> o(5).sel THEN
-            prevCustomFontSetting = o(5).sel
-            IF o(5).sel THEN o(4).sel = 0: prevFont8Setting = 0
-        END IF
-
-        a$ = idetxt(o(6).txt)
-        IF LEN(a$) > 1024 THEN a$ = LEFT$(a$, 1024)
-        idetxt(o(6).txt) = a$
-
-        a$ = idetxt(o(7).txt)
+        'cursor start
+        a$ = idetxt(o(4).txt)
         IF LEN(a$) > 2 THEN a$ = LEFT$(a$, 2) '2 character limit
         FOR i = 1 TO LEN(a$)
             a = ASC(a$, i)
             IF a < 48 OR a > 57 THEN a$ = "": EXIT FOR
             IF i = 2 AND ASC(a$, 1) = 48 THEN a$ = "0": EXIT FOR
         NEXT
-        IF focus <> 7 THEN
+        IF LEN(a$) THEN a = VAL(a$) ELSE a = 0
+        IF focus <> 4 THEN
+            IF a < 0 THEN a$ = "0"
+            IF a > 31 THEN a$ = "31"
+            tmpNormalCursorStart = VAL(a$)
+        ELSE
+            IF a < 0 THEN a = 0
+            IF a > 31 THEN a = 31
+            tmpNormalCursorStart = a
+        END IF
+        idetxt(o(4).txt) = a$
+
+        'cursor end
+        a$ = idetxt(o(5).txt)
+        IF LEN(a$) > 2 THEN a$ = LEFT$(a$, 2) '2 character limit
+        FOR i = 1 TO LEN(a$)
+            a = ASC(a$, i)
+            IF a < 48 OR a > 57 THEN a$ = "": EXIT FOR
+            IF i = 2 AND ASC(a$, 1) = 48 THEN a$ = "0": EXIT FOR
+        NEXT
+        IF LEN(a$) THEN a = VAL(a$) ELSE a = 0
+        IF focus <> 5 THEN
+            IF a < 0 THEN a$ = "0"
+            IF a > 31 THEN a$ = "31"
+            tmpNormalCursorEnd = VAL(a$)
+        ELSE
+            IF a < 0 THEN a = 0
+            IF a > 31 THEN a = 31
+            tmpNormalCursorEnd = a
+        END IF
+        idetxt(o(5).txt) = a$
+
+        IF prevFont8Setting <> o(6).sel THEN
+            prevFont8Setting = o(6).sel
+            IF o(6).sel THEN o(7).sel = 0: prevCustomFontSetting = 0
+        END IF
+
+        IF prevCustomFontSetting <> o(7).sel THEN
+            prevCustomFontSetting = o(7).sel
+            IF o(7).sel THEN o(6).sel = 0: prevFont8Setting = 0
+        END IF
+
+        a$ = idetxt(o(8).txt)
+        IF LEN(a$) > 1024 THEN a$ = LEFT$(a$, 1024)
+        idetxt(o(8).txt) = a$
+
+        a$ = idetxt(o(9).txt)
+        IF LEN(a$) > 2 THEN a$ = LEFT$(a$, 2) '2 character limit
+        FOR i = 1 TO LEN(a$)
+            a = ASC(a$, i)
+            IF a < 48 OR a > 57 THEN a$ = "": EXIT FOR
+            IF i = 2 AND ASC(a$, 1) = 48 THEN a$ = "0": EXIT FOR
+        NEXT
+        IF focus <> 9 THEN
             IF LEN(a$) THEN a = VAL(a$) ELSE a = 0
             IF a < 8 THEN a$ = "8"
         END IF
-        idetxt(o(7).txt) = a$
+        idetxt(o(9).txt) = a$
 
 
-        IF K$ = CHR$(27) OR (focus = 9 AND info <> 0) THEN EXIT FUNCTION
-        IF K$ = CHR$(13) OR (focus = 8 AND info <> 0) THEN
+        IF K$ = CHR$(27) OR (focus = 11 AND info <> 0) THEN EXIT FUNCTION
+        IF K$ = CHR$(13) OR (focus = 10 AND info <> 0) THEN
 
             x = 0 'change to custom font
 
             'get size in v%
-            v$ = idetxt(o(7).txt): IF v$ = "" THEN v$ = "0"
+            v$ = idetxt(o(9).txt): IF v$ = "" THEN v$ = "0"
             v% = VAL(v$)
             IF v% < 8 THEN v% = 8
             IF v% > 99 THEN v% = 99
             IF v% <> idecustomfontheight THEN x = 1
 
-            IF o(4).sel <> IDE_UseFont8 THEN
-                IDE_UseFont8 = o(4).sel
+            IF o(6).sel <> IDE_UseFont8 THEN
+                IDE_UseFont8 = o(6).sel
                 idedisplaybox = 1
             END IF
 
-            IF o(5).sel <> idecustomfont THEN
-                IF o(5).sel = 0 THEN
+            IF o(7).sel <> idecustomfont THEN
+                IF o(7).sel = 0 THEN
                     IF IDE_UseFont8 THEN _FONT 8 ELSE _FONT 16
                     _FREEFONT idecustomfonthandle
                 ELSE
@@ -15297,14 +15359,14 @@ FUNCTION idedisplaybox
             END IF
 
 
-            v$ = idetxt(o(6).txt): IF v$ <> idecustomfontfile$ THEN x = 1
+            v$ = idetxt(o(8).txt): IF v$ <> idecustomfontfile$ THEN x = 1
 
-            IF o(5).sel = 1 AND x = 1 THEN
+            IF o(7).sel = 1 AND x = 1 THEN
                 oldhandle = idecustomfonthandle
                 idecustomfonthandle = _LOADFONT(v$, v%, "MONOSPACE")
                 IF idecustomfonthandle = -1 THEN
                     'failed! - revert to default settings
-                    o(5).sel = 0: idetxt(o(6).txt) = "C:\Windows\Fonts\lucon.ttf": idetxt(o(7).txt) = "21": IF IDE_UseFont8 THEN _FONT 8 ELSE _FONT 16
+                    o(7).sel = 0: idetxt(o(8).txt) = "C:\Windows\Fonts\lucon.ttf": idetxt(o(9).txt) = "21": IF IDE_UseFont8 THEN _FONT 8 ELSE _FONT 16
                 ELSE
                     _FONT idecustomfonthandle
                 END IF
@@ -15331,16 +15393,16 @@ FUNCTION idedisplaybox
             IF v% <> 0 THEN v% = -1
             IDE_AutoPosition = v%
 
-            v% = o(5).sel
+            v% = o(7).sel
             IF v% <> 0 THEN v% = 1
             idecustomfont = v%
 
-            v$ = idetxt(o(6).txt)
+            v$ = idetxt(o(8).txt)
             IF LEN(v$) > 1024 THEN v$ = LEFT$(v$, 1024)
             idecustomfontfile$ = v$
             v$ = v$ + SPACE$(1024 - LEN(v$))
 
-            v$ = idetxt(o(7).txt): IF v$ = "" THEN v$ = "0"
+            v$ = idetxt(o(9).txt): IF v$ = "" THEN v$ = "0"
             v% = VAL(v$)
             IF v% < 8 THEN v% = 8
             IF v% > 99 THEN v% = 99
@@ -15367,7 +15429,11 @@ FUNCTION idedisplaybox
             WriteConfigSetting displaySettingsSection$, "IDE_CustomFont$", idecustomfontfile$
             WriteConfigSetting displaySettingsSection$, "IDE_CustomFontSize", STR$(idecustomfontheight)
 
+            IDENormalCursorStart = tmpNormalCursorStart
+            WriteConfigSetting displaySettingsSection$, "IDE_NormalCursorStart", str2$(IDENormalCursorStart)
 
+            IDENormalCursorEnd = tmpNormalCursorEnd
+            WriteConfigSetting displaySettingsSection$, "IDE_NormalCursorEnd", str2$(IDENormalCursorEnd)
             EXIT FUNCTION
         END IF
 

@@ -305,8 +305,8 @@ END IF
 result = ReadConfigSetting(displaySettingsSection$, "IDE_NormalCursorStart", value$)
 IDENormalCursorStart = VAL(value$)
 IF IDENormalCursorStart < 0 OR IDENormalCursorStart > 31 OR result = 0 THEN
-    IDENormalCursorStart = 8
-    WriteConfigSetting displaySettingsSection$, "IDE_NormalCursorStart", "8"
+    IDENormalCursorStart = 6
+    WriteConfigSetting displaySettingsSection$, "IDE_NormalCursorStart", "6"
 END IF
 
 result = ReadConfigSetting(displaySettingsSection$, "IDE_NormalCursorEnd", value$)
