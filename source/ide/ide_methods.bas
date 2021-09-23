@@ -15128,6 +15128,7 @@ FUNCTION idedisplaybox
     prevCustomFontSetting = o(i).sel
 
     a2$ = idecustomfontfile$
+    prevFontFile$ = a2$
     i = i + 1
     o(i).typ = 1
     o(i).x = 10
@@ -15137,6 +15138,7 @@ FUNCTION idedisplaybox
     o(i).v1 = LEN(a2$)
 
     a2$ = str2$(idecustomfontheight)
+    prevFontSize$ = a2$
     i = i + 1
     o(i).typ = 1
     o(i).x = 10
@@ -15318,6 +15320,13 @@ FUNCTION idedisplaybox
         a$ = idetxt(o(8).txt)
         IF LEN(a$) > 1024 THEN a$ = LEFT$(a$, 1024)
         idetxt(o(8).txt) = a$
+        IF a$ <> prevFontFile$ THEN
+            prevFontFile$ = a$
+            IF o(7).sel = 0 THEN
+                o(6).sel = 0: prevFont8Setting = 0
+                o(7).sel = 1: prevCustomFontSetting = 1
+            END IF
+        END IF
 
         a$ = idetxt(o(9).txt)
         IF LEN(a$) > 2 THEN a$ = LEFT$(a$, 2) '2 character limit
@@ -15331,6 +15340,13 @@ FUNCTION idedisplaybox
             IF a < 8 THEN a$ = "8"
         END IF
         idetxt(o(9).txt) = a$
+        IF a$ <> prevFontSize$ THEN
+            prevFontSize$ = a$
+            IF o(7).sel = 0 THEN
+                o(6).sel = 0: prevFont8Setting = 0
+                o(7).sel = 1: prevCustomFontSetting = 1
+            END IF
+        END IF
 
 
         IF K$ = CHR$(27) OR (focus = 11 AND info <> 0) THEN EXIT FUNCTION
