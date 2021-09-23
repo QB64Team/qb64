@@ -15063,7 +15063,7 @@ FUNCTION idedisplaybox
     o(i).typ = 1
     o(i).x = 3
     o(i).y = 2
-    o(i).w = 8
+    o(i).w = 10
     o(i).nam = idenewtxt("Window #width")
     o(i).txt = idenewtxt(a2$)
     o(i).v1 = LEN(a2$)
@@ -15077,7 +15077,7 @@ FUNCTION idedisplaybox
     o(i).typ = 1
     o(i).x = 2
     o(i).y = 5
-    o(i).w = 8
+    o(i).w = 10
     o(i).nam = idenewtxt("Window #height")
     o(i).txt = idenewtxt(a2$)
     o(i).v1 = LEN(a2$)
@@ -15086,9 +15086,9 @@ FUNCTION idedisplaybox
     o(i).typ = 4 'check box
     o(i).y = 7
     IF INSTR(_OS$, "WIN") > 0 OR INSTR(_OS$, "MAC") > 0 THEN
-        o(i).nam = idenewtxt("#Restore #position and size")
+        o(i).nam = idenewtxt("#Remember position + size")
     ELSE
-        o(i).nam = idenewtxt("#Restore size")
+        o(i).nam = idenewtxt("#Remember size")
     END IF
     IF IDE_AutoPosition THEN o(i).sel = 1
 
@@ -15173,8 +15173,6 @@ FUNCTION idedisplaybox
         '-------- end of generic display dialog box & objects --------
 
         '-------- custom display changes --------
-        COLOR 0, 7
-        _PRINTSTRING (p.x + 10, p.y + 8), "at startup"
         LOCATE , , , tmpNormalCursorStart, tmpNormalCursorEnd
         '-------- end of custom display changes --------
 
