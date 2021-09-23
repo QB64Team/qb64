@@ -13224,7 +13224,7 @@ FUNCTION idelanguagebox
     l$ = UCASE$(l$)
 
     i = 0
-    dialogHeight = idecpnum + 4
+    dialogHeight = idecpnum + 5
     IF dialogHeight > idewy + idesubwindow - 6 THEN
         dialogHeight = idewy + idesubwindow - 6
     END IF
@@ -13235,8 +13235,8 @@ FUNCTION idelanguagebox
 
     i = i + 1
     o(i).typ = 2
-    o(i).y = 2
-    o(i).w = dialogWidth - 4: o(i).h = dialogheight - 4
+    o(i).y = 3
+    o(i).w = dialogWidth - 4: o(i).h = dialogheight - 5
     o(i).txt = idenewtxt(l$)
     o(i).sel = 1: IF idecpindex THEN o(i).sel = idecpindex
     o(i).nam = idenewtxt("Code Pages")
@@ -13275,7 +13275,10 @@ FUNCTION idelanguagebox
         '-------- end of generic display dialog box & objects --------
 
         '-------- custom display changes --------
-        COLOR 0, 7: _PRINTSTRING (p.x + 2, p.y + 1), "Code-page for ASCII-UNICODE mapping: (Default: CP437)"
+        COLOR 0, 7
+        _PRINTSTRING (p.x + 2, p.y + 1), "Code-page for ASCII-UNICODE mapping (Default = CP437):"
+        COLOR 2, 7
+        _PRINTSTRING (p.x + 2, p.y + 2), "(affects the display of TTF fonts set in Options-Display)"
 
         '-------- end of custom display changes --------
 
