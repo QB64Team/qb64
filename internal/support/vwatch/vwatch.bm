@@ -130,6 +130,9 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
         GOSUB SendCallStack
         vw_cmd$ = "error:" + MKL$(vw_lastLine)
         GOSUB SendCommand
+        $IF WIN THEN
+            vw_i = vwSetForegroundWindow&(vw_ideHwnd)
+        $END IF
         EXIT SUB
     ELSEIF vwatch_linenumber = -2 THEN
         'report a new sub/function has been "entered"
