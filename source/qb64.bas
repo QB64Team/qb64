@@ -18590,7 +18590,7 @@ FUNCTION findid& (n2$)
         hashretry:
         z = HashFindCont(unrequired, i)
     ELSE
-        z = HashFindRev(n$, 1, unrequired, i)
+        z = HashFind(n$, 1, unrequired, i)
     END IF
     findidinternal = z
     IF z = 0 THEN GOTO noid

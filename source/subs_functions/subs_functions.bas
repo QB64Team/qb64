@@ -1771,16 +1771,6 @@ id.arg = MKL$(STRINGTYPE - ISPOINTER)
 id.hr_syntax = "CHAIN moduleName$"
 regid
 
-clearid
-id.n = "Shell"
-id.subfunc = 2
-id.callname = "sub_shell"
-id.args = 1
-id.arg = MKL$(STRINGTYPE - ISPOINTER)
-id.specialformat = "[?]"
-'id.secondargcantbe = "_HIDE"
-id.hr_syntax = "SHELL [_DONTWAIT] [_HIDE] commandToRun$"
-regid
 
 clearid
 id.n = "Shell"
@@ -1801,6 +1791,17 @@ id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
 id.specialformat = "{_DontWait}[{_Hide}][?]"
 id.secondargmustbe = "_DontWait"
+id.hr_syntax = "SHELL [_DONTWAIT] [_HIDE] commandToRun$"
+regid
+
+clearid
+id.n = "Shell"
+id.subfunc = 2
+id.callname = "sub_shell"
+id.args = 1
+id.arg = MKL$(STRINGTYPE - ISPOINTER)
+id.specialformat = "[?]"
+'id.secondargcantbe = "_HIDE"
 id.hr_syntax = "SHELL [_DONTWAIT] [_HIDE] commandToRun$"
 regid
 
@@ -2506,20 +2507,21 @@ regid
 clearid
 id.n = "Open"
 id.subfunc = 2
-id.callname = "sub_open_gwbasic"
-id.args = 4
-id.arg = MKL$(STRINGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(STRINGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
-id.specialformat = "?,[#]?,?[,?]"
-id.hr_syntax = "OPEN modeLetter$, [#]fileNumber&, fileName$[, recordLength]"
-regid
-clearid
-id.n = "Open"
-id.subfunc = 2
 id.callname = "sub_open"
 id.args = 6
 id.arg = MKL$(STRINGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "?[{For Random|For Binary|For Input|For Output|For Append}][{Access Read Write|Access Read|Access Write}][{Shared|Lock Read Write|Lock Read|Lock Write}]{As}[#]?[{Len =}?]"
 id.hr_syntax = "OPEN fileName$ [FOR mode] [ACCESS|LOCK|SHARED [{READ|WRITE}] AS [#]fileNumber& [LEN = recordLength]"
+regid
+
+clearid
+id.n = "Open"
+id.subfunc = 2
+id.callname = "sub_open_gwbasic"
+id.args = 4
+id.arg = MKL$(STRINGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(STRINGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "?,[#]?,?[,?]"
+id.hr_syntax = "OPEN modeLetter$, [#]fileNumber&, fileName$[, recordLength]"
 regid
 
 clearid
