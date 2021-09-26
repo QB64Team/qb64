@@ -638,22 +638,22 @@ REDIM SHARED constdefined(constmax) AS LONG
 'UDT
 'names
 DIM SHARED lasttype AS LONG
-DIM SHARED udtxname(1000) AS STRING * 256
-DIM SHARED udtxcname(1000) AS STRING * 256
-DIM SHARED udtxsize(1000) AS LONG
-DIM SHARED udtxbytealign(1000) AS INTEGER 'first element MUST be on a byte alignment & size is a multiple of 8
-DIM SHARED udtxnext(1000) AS LONG
-DIM SHARED udtxvariable(1000) AS INTEGER 'true if the udt contains variable length elements
+REDIM SHARED udtxname(1000) AS STRING * 256
+REDIM SHARED udtxcname(1000) AS STRING * 256
+REDIM SHARED udtxsize(1000) AS LONG
+REDIM SHARED udtxbytealign(1000) AS INTEGER 'first element MUST be on a byte alignment & size is a multiple of 8
+REDIM SHARED udtxnext(1000) AS LONG
+REDIM SHARED udtxvariable(1000) AS INTEGER 'true if the udt contains variable length elements
 'elements
-DIM SHARED lasttypeelement AS LONG
-DIM SHARED udtename(1000) AS STRING * 256
-DIM SHARED udtecname(1000) AS STRING * 256
-DIM SHARED udtebytealign(1000) AS INTEGER
-DIM SHARED udtesize(1000) AS LONG
-DIM SHARED udtetype(1000) AS LONG
-DIM SHARED udtetypesize(1000) AS LONG
-DIM SHARED udtearrayelements(1000) AS LONG
-DIM SHARED udtenext(1000) AS LONG
+REDIM SHARED lasttypeelement AS LONG
+REDIM SHARED udtename(1000) AS STRING * 256
+REDIM SHARED udtecname(1000) AS STRING * 256
+REDIM SHARED udtebytealign(1000) AS INTEGER
+REDIM SHARED udtesize(1000) AS LONG
+REDIM SHARED udtetype(1000) AS LONG
+REDIM SHARED udtetypesize(1000) AS LONG
+REDIM SHARED udtearrayelements(1000) AS LONG
+REDIM SHARED udtenext(1000) AS LONG
 
 TYPE idstruct
 
@@ -1940,6 +1940,7 @@ DO
                                 'traditional variable-name AS type syntax, single-element
                                 lasttypeelement = lasttypeelement + 1
                                 i2 = lasttypeelement
+                                WHILE i2 > UBOUND(udtenext): increaseUDTArrays: WEND
                                 udtenext(i2) = 0
 
                                 ii = 2
@@ -2050,6 +2051,7 @@ DO
                                 nexttypeelement:
                                 lasttypeelement = lasttypeelement + 1
                                 i2 = lasttypeelement
+                                WHILE i2 > UBOUND(udtenext): increaseUDTArrays: WEND
                                 udtenext(i2) = 0
                                 udtearrayelements(i2) = 0
 
@@ -2088,6 +2090,7 @@ DO
                                 lasttype = lasttype + 1
                                 definingtype = lasttype
                                 i = definingtype
+                                WHILE i > UBOUND(udtenext): increaseUDTArrays: WEND
                                 IF validname(secondelement$) = 0 THEN a$ = "Invalid name": GOTO errmes
                                 udtxname(i) = secondelement$
                                 udtxcname(i) = getelement(ca$, 2)
@@ -26149,6 +26152,26 @@ FUNCTION SCase2$ (t$)
         SCase2$ = temp$
     END IF
 END FUNCTION
+
+SUB increaseUDTArrays
+    x = UBOUND(udtxname)
+    REDIM _PRESERVE udtxname(x + 1000) AS STRING * 256
+    REDIM _PRESERVE udtxcname(x + 1000) AS STRING * 256
+    REDIM _PRESERVE udtxsize(x + 1000) AS LONG
+    REDIM _PRESERVE udtxbytealign(x + 1000) AS INTEGER 'first element MUST be on a byte alignment & size is a multiple of 8
+    REDIM _PRESERVE udtxnext(x + 1000) AS LONG
+    REDIM _PRESERVE udtxvariable(x + 1000) AS INTEGER 'true if the udt contains variable length elements
+    'elements
+    REDIM _PRESERVE lasttypeelement AS LONG
+    REDIM _PRESERVE udtename(x + 1000) AS STRING * 256
+    REDIM _PRESERVE udtecname(x + 1000) AS STRING * 256
+    REDIM _PRESERVE udtebytealign(x + 1000) AS INTEGER
+    REDIM _PRESERVE udtesize(x + 1000) AS LONG
+    REDIM _PRESERVE udtetype(x + 1000) AS LONG
+    REDIM _PRESERVE udtetypesize(x + 1000) AS LONG
+    REDIM _PRESERVE udtearrayelements(x + 1000) AS LONG
+    REDIM _PRESERVE udtenext(x + 1000) AS LONG
+END SUB
 
 '$INCLUDE:'utilities\strings.bas'
 '$INCLUDE:'subs_functions\extensions\opengl\opengl_methods.bas'
