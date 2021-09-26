@@ -1,114 +1,54 @@
-qbs *_FUNC_PARSERANGE_STRING_PARSERANGE=NULL;
-if (!_FUNC_PARSERANGE_STRING_PARSERANGE)_FUNC_PARSERANGE_STRING_PARSERANGE=qbs_new(0,0);
-qbs*oldstr5118=NULL;
-if(_FUNC_PARSERANGE_STRING___TEXT->tmp||_FUNC_PARSERANGE_STRING___TEXT->fixed||_FUNC_PARSERANGE_STRING___TEXT->readonly){
-oldstr5118=_FUNC_PARSERANGE_STRING___TEXT;
-if (oldstr5118->cmem_descriptor){
-_FUNC_PARSERANGE_STRING___TEXT=qbs_new_cmem(oldstr5118->len,0);
+qbs *_FUNC_EXPANDARRAY_STRING_EXPANDARRAY=NULL;
+if (!_FUNC_EXPANDARRAY_STRING_EXPANDARRAY)_FUNC_EXPANDARRAY_STRING_EXPANDARRAY=qbs_new(0,0);
+qbs*oldstr5114=NULL;
+if(_FUNC_EXPANDARRAY_STRING___INDEXES->tmp||_FUNC_EXPANDARRAY_STRING___INDEXES->fixed||_FUNC_EXPANDARRAY_STRING___INDEXES->readonly){
+oldstr5114=_FUNC_EXPANDARRAY_STRING___INDEXES;
+if (oldstr5114->cmem_descriptor){
+_FUNC_EXPANDARRAY_STRING___INDEXES=qbs_new_cmem(oldstr5114->len,0);
 }else{
-_FUNC_PARSERANGE_STRING___TEXT=qbs_new(oldstr5118->len,0);
+_FUNC_EXPANDARRAY_STRING___INDEXES=qbs_new(oldstr5114->len,0);
 }
-memcpy(_FUNC_PARSERANGE_STRING___TEXT->chr,oldstr5118->chr,oldstr5118->len);
+memcpy(_FUNC_EXPANDARRAY_STRING___INDEXES->chr,oldstr5114->chr,oldstr5114->len);
 }
-int8 *_FUNC_PARSERANGE_BYTE_ZEROINCLUDED=NULL;
-if(_FUNC_PARSERANGE_BYTE_ZEROINCLUDED==NULL){
-_FUNC_PARSERANGE_BYTE_ZEROINCLUDED=(int8*)mem_static_malloc(1);
-*_FUNC_PARSERANGE_BYTE_ZEROINCLUDED=0;
+qbs*oldstr5115=NULL;
+if(_FUNC_EXPANDARRAY_STRING___PATH->tmp||_FUNC_EXPANDARRAY_STRING___PATH->fixed||_FUNC_EXPANDARRAY_STRING___PATH->readonly){
+oldstr5115=_FUNC_EXPANDARRAY_STRING___PATH;
+if (oldstr5115->cmem_descriptor){
+_FUNC_EXPANDARRAY_STRING___PATH=qbs_new_cmem(oldstr5115->len,0);
+}else{
+_FUNC_EXPANDARRAY_STRING___PATH=qbs_new(oldstr5115->len,0);
 }
-qbs *_FUNC_PARSERANGE_STRING_FILTER=NULL;
-if (!_FUNC_PARSERANGE_STRING_FILTER)_FUNC_PARSERANGE_STRING_FILTER=qbs_new(0,0);
-int32 *_FUNC_PARSERANGE_LONG_J=NULL;
-if(_FUNC_PARSERANGE_LONG_J==NULL){
-_FUNC_PARSERANGE_LONG_J=(int32*)mem_static_malloc(4);
-*_FUNC_PARSERANGE_LONG_J=0;
+memcpy(_FUNC_EXPANDARRAY_STRING___PATH->chr,oldstr5115->chr,oldstr5115->len);
 }
-qbs *_FUNC_PARSERANGE_STRING_TEMP=NULL;
-if (!_FUNC_PARSERANGE_STRING_TEMP)_FUNC_PARSERANGE_STRING_TEMP=qbs_new(0,0);
-int32 *_FUNC_PARSERANGE_LONG_READING=NULL;
-if(_FUNC_PARSERANGE_LONG_READING==NULL){
-_FUNC_PARSERANGE_LONG_READING=(int32*)mem_static_malloc(4);
-*_FUNC_PARSERANGE_LONG_READING=0;
+int32 *_FUNC_EXPANDARRAY_LONG_TOTALINDEXES=NULL;
+if(_FUNC_EXPANDARRAY_LONG_TOTALINDEXES==NULL){
+_FUNC_EXPANDARRAY_LONG_TOTALINDEXES=(int32*)mem_static_malloc(4);
+*_FUNC_EXPANDARRAY_LONG_TOTALINDEXES=0;
 }
-int64 fornext_value5120;
-int64 fornext_finalvalue5120;
-int64 fornext_step5120;
-uint8 fornext_step_negative5120;
-byte_element_struct *byte_element_5121=NULL;
-if (!byte_element_5121){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5121=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5121=(byte_element_struct*)mem_static_malloc(12);
+qbs *_FUNC_EXPANDARRAY_STRING_INDEXES=NULL;
+if (!_FUNC_EXPANDARRAY_STRING_INDEXES)_FUNC_EXPANDARRAY_STRING_INDEXES=qbs_new(0,0);
+qbs *_FUNC_EXPANDARRAY_STRING_REMAININGINDEXES=NULL;
+if (!_FUNC_EXPANDARRAY_STRING_REMAININGINDEXES)_FUNC_EXPANDARRAY_STRING_REMAININGINDEXES=qbs_new(0,0);
+int32 *_FUNC_EXPANDARRAY_LONG_I=NULL;
+if(_FUNC_EXPANDARRAY_LONG_I==NULL){
+_FUNC_EXPANDARRAY_LONG_I=(int32*)mem_static_malloc(4);
+*_FUNC_EXPANDARRAY_LONG_I=0;
 }
-int32 *_FUNC_PARSERANGE_LONG_V=NULL;
-if(_FUNC_PARSERANGE_LONG_V==NULL){
-_FUNC_PARSERANGE_LONG_V=(int32*)mem_static_malloc(4);
-*_FUNC_PARSERANGE_LONG_V=0;
+int64 fornext_value5117;
+int64 fornext_finalvalue5117;
+int64 fornext_step5117;
+uint8 fornext_step_negative5117;
+qbs *_FUNC_EXPANDARRAY_STRING_TEMP=NULL;
+if (!_FUNC_EXPANDARRAY_STRING_TEMP)_FUNC_EXPANDARRAY_STRING_TEMP=qbs_new(0,0);
+byte_element_struct *byte_element_5118=NULL;
+if (!byte_element_5118){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5118=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5118=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_FUNC_PARSERANGE_LONG_PREVCHAR=NULL;
-if(_FUNC_PARSERANGE_LONG_PREVCHAR==NULL){
-_FUNC_PARSERANGE_LONG_PREVCHAR=(int32*)mem_static_malloc(4);
-*_FUNC_PARSERANGE_LONG_PREVCHAR=0;
+byte_element_struct *byte_element_5119=NULL;
+if (!byte_element_5119){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5119=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5119=(byte_element_struct*)mem_static_malloc(12);
 }
-byte_element_struct *byte_element_5123=NULL;
-if (!byte_element_5123){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5123=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5123=(byte_element_struct*)mem_static_malloc(12);
-}
-qbs *_FUNC_PARSERANGE_STRING_V1=NULL;
-if (!_FUNC_PARSERANGE_STRING_V1)_FUNC_PARSERANGE_STRING_V1=qbs_new(0,0);
-qbs *_FUNC_PARSERANGE_STRING_V2=NULL;
-if (!_FUNC_PARSERANGE_STRING_V2)_FUNC_PARSERANGE_STRING_V2=qbs_new(0,0);
-byte_element_struct *byte_element_5124=NULL;
-if (!byte_element_5124){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5124=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5124=(byte_element_struct*)mem_static_malloc(12);
-}
-qbs *_FUNC_PARSERANGE_STRING_RETURNVALUE=NULL;
-if (!_FUNC_PARSERANGE_STRING_RETURNVALUE)_FUNC_PARSERANGE_STRING_RETURNVALUE=qbs_new(0,0);
-int32 *_FUNC_PARSERANGE_LONG_I=NULL;
-if(_FUNC_PARSERANGE_LONG_I==NULL){
-_FUNC_PARSERANGE_LONG_I=(int32*)mem_static_malloc(4);
-*_FUNC_PARSERANGE_LONG_I=0;
-}
-int64 fornext_value5126;
-int64 fornext_finalvalue5126;
-int64 fornext_step5126;
-uint8 fornext_step_negative5126;
-byte_element_struct *byte_element_5127=NULL;
-if (!byte_element_5127){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5127=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5127=(byte_element_struct*)mem_static_malloc(12);
-}
-int32 *_FUNC_PARSERANGE_LONG_V1=NULL;
-if(_FUNC_PARSERANGE_LONG_V1==NULL){
-_FUNC_PARSERANGE_LONG_V1=(int32*)mem_static_malloc(4);
-*_FUNC_PARSERANGE_LONG_V1=0;
-}
-int32 *_FUNC_PARSERANGE_LONG_V2=NULL;
-if(_FUNC_PARSERANGE_LONG_V2==NULL){
-_FUNC_PARSERANGE_LONG_V2=(int32*)mem_static_malloc(4);
-*_FUNC_PARSERANGE_LONG_V2=0;
-}
-byte_element_struct *byte_element_5128=NULL;
-if (!byte_element_5128){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5128=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5128=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_5129=NULL;
-if (!byte_element_5129){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5129=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5129=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_5130=NULL;
-if (!byte_element_5130){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5130=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5130=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_5131=NULL;
-if (!byte_element_5131){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5131=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5131=(byte_element_struct*)mem_static_malloc(12);
-}
-int64 fornext_value5133;
-int64 fornext_finalvalue5133;
-int64 fornext_step5133;
-uint8 fornext_step_negative5133;
-byte_element_struct *byte_element_5134=NULL;
-if (!byte_element_5134){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5134=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5134=(byte_element_struct*)mem_static_malloc(12);
-}
-byte_element_struct *byte_element_5135=NULL;
-if (!byte_element_5135){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5135=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5135=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_5120=NULL;
+if (!byte_element_5120){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_5120=(byte_element_struct*)(mem_static_pointer-12); else byte_element_5120=(byte_element_struct*)mem_static_malloc(12);
 }

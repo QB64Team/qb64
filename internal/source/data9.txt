@@ -1,16 +1,16 @@
-qbs*oldstr2310=NULL;
+qbs*oldstr2313=NULL;
 if(_SUB_VWATCHVARIABLE_STRING_THIS->tmp||_SUB_VWATCHVARIABLE_STRING_THIS->fixed||_SUB_VWATCHVARIABLE_STRING_THIS->readonly){
-oldstr2310=_SUB_VWATCHVARIABLE_STRING_THIS;
-if (oldstr2310->cmem_descriptor){
-_SUB_VWATCHVARIABLE_STRING_THIS=qbs_new_cmem(oldstr2310->len,0);
+oldstr2313=_SUB_VWATCHVARIABLE_STRING_THIS;
+if (oldstr2313->cmem_descriptor){
+_SUB_VWATCHVARIABLE_STRING_THIS=qbs_new_cmem(oldstr2313->len,0);
 }else{
-_SUB_VWATCHVARIABLE_STRING_THIS=qbs_new(oldstr2310->len,0);
+_SUB_VWATCHVARIABLE_STRING_THIS=qbs_new(oldstr2313->len,0);
 }
-memcpy(_SUB_VWATCHVARIABLE_STRING_THIS->chr,oldstr2310->chr,oldstr2310->len);
+memcpy(_SUB_VWATCHVARIABLE_STRING_THIS->chr,oldstr2313->chr,oldstr2313->len);
 }
-int32 pass2312;
-int32 pass2313;
-int8 pass2314;
 int32 pass2315;
 int32 pass2316;
 int8 pass2317;
+int32 pass2318;
+int32 pass2319;
+int8 pass2320;

@@ -1,12 +1,12 @@
 qbs *_FUNC_SCASE_STRING_SCASE=NULL;
 if (!_FUNC_SCASE_STRING_SCASE)_FUNC_SCASE_STRING_SCASE=qbs_new(0,0);
-qbs*oldstr3813=NULL;
+qbs*oldstr3816=NULL;
 if(_FUNC_SCASE_STRING_T->tmp||_FUNC_SCASE_STRING_T->fixed||_FUNC_SCASE_STRING_T->readonly){
-oldstr3813=_FUNC_SCASE_STRING_T;
-if (oldstr3813->cmem_descriptor){
-_FUNC_SCASE_STRING_T=qbs_new_cmem(oldstr3813->len,0);
+oldstr3816=_FUNC_SCASE_STRING_T;
+if (oldstr3816->cmem_descriptor){
+_FUNC_SCASE_STRING_T=qbs_new_cmem(oldstr3816->len,0);
 }else{
-_FUNC_SCASE_STRING_T=qbs_new(oldstr3813->len,0);
+_FUNC_SCASE_STRING_T=qbs_new(oldstr3816->len,0);
 }
-memcpy(_FUNC_SCASE_STRING_T->chr,oldstr3813->chr,oldstr3813->len);
+memcpy(_FUNC_SCASE_STRING_T->chr,oldstr3816->chr,oldstr3816->len);
 }

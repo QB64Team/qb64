@@ -1,36 +1,28 @@
-qbs *_FUNC_FINDHELPTOPIC_STRING_FINDHELPTOPIC=NULL;
-if (!_FUNC_FINDHELPTOPIC_STRING_FINDHELPTOPIC)_FUNC_FINDHELPTOPIC_STRING_FINDHELPTOPIC=qbs_new(0,0);
-qbs*oldstr6258=NULL;
-if(_FUNC_FINDHELPTOPIC_STRING_TOPIC->tmp||_FUNC_FINDHELPTOPIC_STRING_TOPIC->fixed||_FUNC_FINDHELPTOPIC_STRING_TOPIC->readonly){
-oldstr6258=_FUNC_FINDHELPTOPIC_STRING_TOPIC;
-if (oldstr6258->cmem_descriptor){
-_FUNC_FINDHELPTOPIC_STRING_TOPIC=qbs_new_cmem(oldstr6258->len,0);
+qbs*oldstr6256=NULL;
+if(_SUB_INSERTATCURSOR_STRING_TEMPK->tmp||_SUB_INSERTATCURSOR_STRING_TEMPK->fixed||_SUB_INSERTATCURSOR_STRING_TEMPK->readonly){
+oldstr6256=_SUB_INSERTATCURSOR_STRING_TEMPK;
+if (oldstr6256->cmem_descriptor){
+_SUB_INSERTATCURSOR_STRING_TEMPK=qbs_new_cmem(oldstr6256->len,0);
 }else{
-_FUNC_FINDHELPTOPIC_STRING_TOPIC=qbs_new(oldstr6258->len,0);
+_SUB_INSERTATCURSOR_STRING_TEMPK=qbs_new(oldstr6256->len,0);
 }
-memcpy(_FUNC_FINDHELPTOPIC_STRING_TOPIC->chr,oldstr6258->chr,oldstr6258->len);
+memcpy(_SUB_INSERTATCURSOR_STRING_TEMPK->chr,oldstr6256->chr,oldstr6256->len);
 }
-qbs *_FUNC_FINDHELPTOPIC_STRING_A2=NULL;
-if (!_FUNC_FINDHELPTOPIC_STRING_A2)_FUNC_FINDHELPTOPIC_STRING_A2=qbs_new(0,0);
-int32 *_FUNC_FINDHELPTOPIC_LONG_FH=NULL;
-if(_FUNC_FINDHELPTOPIC_LONG_FH==NULL){
-_FUNC_FINDHELPTOPIC_LONG_FH=(int32*)mem_static_malloc(4);
-*_FUNC_FINDHELPTOPIC_LONG_FH=0;
+qbs *_SUB_INSERTATCURSOR_STRING_A=NULL;
+if (!_SUB_INSERTATCURSOR_STRING_A)_SUB_INSERTATCURSOR_STRING_A=qbs_new(0,0);
+byte_element_struct *byte_element_6257=NULL;
+if (!byte_element_6257){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6257=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6257=(byte_element_struct*)mem_static_malloc(12);
 }
-qbs *_FUNC_FINDHELPTOPIC_STRING_LNKS=NULL;
-if (!_FUNC_FINDHELPTOPIC_STRING_LNKS)_FUNC_FINDHELPTOPIC_STRING_LNKS=qbs_new(0,0);
-qbs *_FUNC_FINDHELPTOPIC_STRING_L=NULL;
-if (!_FUNC_FINDHELPTOPIC_STRING_L)_FUNC_FINDHELPTOPIC_STRING_L=qbs_new(0,0);
-int32 *_FUNC_FINDHELPTOPIC_LONG_C=NULL;
-if(_FUNC_FINDHELPTOPIC_LONG_C==NULL){
-_FUNC_FINDHELPTOPIC_LONG_C=(int32*)mem_static_malloc(4);
-*_FUNC_FINDHELPTOPIC_LONG_C=0;
+byte_element_struct *byte_element_6258=NULL;
+if (!byte_element_6258){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6258=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6258=(byte_element_struct*)mem_static_malloc(12);
 }
-qbs *_FUNC_FINDHELPTOPIC_STRING_L1=NULL;
-if (!_FUNC_FINDHELPTOPIC_STRING_L1)_FUNC_FINDHELPTOPIC_STRING_L1=qbs_new(0,0);
-qbs *_FUNC_FINDHELPTOPIC_STRING_L2=NULL;
-if (!_FUNC_FINDHELPTOPIC_STRING_L2)_FUNC_FINDHELPTOPIC_STRING_L2=qbs_new(0,0);
-byte_element_struct *byte_element_6261=NULL;
-if (!byte_element_6261){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6261=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6261=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_6259=NULL;
+if (!byte_element_6259){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6259=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6259=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_6260=NULL;
+if (!byte_element_6260){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6260=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6260=(byte_element_struct*)mem_static_malloc(12);
 }
