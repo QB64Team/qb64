@@ -26162,7 +26162,6 @@ SUB increaseUDTArrays
     REDIM _PRESERVE udtxnext(x + 1000) AS LONG
     REDIM _PRESERVE udtxvariable(x + 1000) AS INTEGER 'true if the udt contains variable length elements
     'elements
-    REDIM _PRESERVE lasttypeelement AS LONG
     REDIM _PRESERVE udtename(x + 1000) AS STRING * 256
     REDIM _PRESERVE udtecname(x + 1000) AS STRING * 256
     REDIM _PRESERVE udtebytealign(x + 1000) AS INTEGER
