@@ -11485,7 +11485,11 @@ FOR i = 1 TO idn
                 END IF
             END IF
             IF typ AND ISUDT THEN
-                PRINT #12, "memset((void*)" + e$ + ",0," + bytes$ + ");"
+                IF udtxvariable(typ AND 511) THEN
+                    'this is where new code must come to clear UDTs with variable-length strings
+                ELSE
+                    PRINT #12, "memset((void*)" + e$ + ",0," + bytes$ + ");"
+                END IF
             ELSE
                 IF INSTR(vWatchVariableExclusions$, "@" + e$ + "@") = 0 AND LEFT$(e$, 12) <> "_SUB_VWATCH_" THEN
                     PRINT #12, "*" + e$ + "=0;"
