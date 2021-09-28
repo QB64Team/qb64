@@ -8265,7 +8265,23 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                     'scope is valid (or we're setting a watchpoint)
                     tempArrayIndex& = 0
                     tempArrayIndexes$ = MKL$(0)
+
                     tempStorage& = 0
+                    IF LEN(usedVariableList(tempIndex&).storage) = 4 THEN
+                        tempStorage& = CVL(usedVariableList(tempIndex&).storage)
+                    ELSEIF LEN(usedVariableList(tempIndex&).storage) > 4 THEN
+                        i = 4
+                        DO
+                            i = INSTR(i + 1, variableWatchList$, MKL$(-1) + MKL$(tempIndex&) + tempArrayIndexes$)
+                            IF i = 0 THEN EXIT DO
+                            IF MID$(variableWatchList$, i + 8 + LEN(tempArrayIndexes$), 4) = tempElementOffset$ THEN
+                                'we found where this element's value is being stored
+                                tempStorage& = CVL(MID$(variableWatchList$, i + 16 + LEN(tempArrayIndexes$), 4))
+                                EXIT DO
+                            END IF
+                        LOOP
+                    END IF
+
                     tempIsUDT& = 0
                     tempElementOffset$ = MKL$(0)
                     IF usedVariableList(tempIndex&).isarray THEN
