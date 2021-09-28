@@ -8685,12 +8685,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                 END IF
             NEXT
             IF LEN(variableWatchList$) THEN MID$(variableWatchList$, 5, 4) = MKL$(totalVisibleVariables)
-            IF mousedown THEN
-                DO
-                    GetInput
-                    _LIMIT 100
-                LOOP UNTIL mRELEASE
-            END IF
+            ClearMouse
             EXIT FUNCTION
         END IF
 
@@ -9348,10 +9343,7 @@ FUNCTION ideelementwatchbox$(currentPath$, elementIndexes$, level, singleElement
                 ideelementwatchbox$ = returnList$
             END IF
 
-            DO UNTIL mCLICK = 0
-                GetInput
-                _LIMIT 100
-            LOOP
+            ClearMouse
             EXIT FUNCTION
         END IF
 
@@ -9783,13 +9775,7 @@ FUNCTION idecallstackbox
                 idecy = idegotobox_LastLineNum
                 idecentercurrentline
                 ideselect = 0
-
-                IF mousedown THEN
-                    DO
-                        GetInput
-                        _LIMIT 100
-                    LOOP UNTIL mRELEASE
-                END IF
+                ClearMouse
                 EXIT FUNCTION
             END IF
         END IF
@@ -11392,24 +11378,14 @@ FUNCTION ideinputbox$(title$, caption$, initialvalue$, validinput$, boxwidth, ma
         END IF
 
         IF K$ = CHR$(27) OR (focus = 3 AND info <> 0) THEN
-            IF mousedown THEN
-                DO
-                    GetInput
-                    _LIMIT 100
-                LOOP UNTIL mRELEASE
-            END IF
+            ClearMouse
             EXIT FUNCTION
         END IF
 
         IF K$ = CHR$(13) OR (focus = 2 AND info <> 0) THEN
             ideinputbox$ = idetxt(o(1).txt)
             ok = -1
-            IF mousedown THEN
-                DO
-                    GetInput
-                    _LIMIT 100
-                LOOP UNTIL mRELEASE
-            END IF
+            ClearMouse
             EXIT FUNCTION
         END IF
         'end of custom controls
@@ -13078,12 +13054,7 @@ FUNCTION idesubs$
         IF K$ = CHR$(27) OR (focus = 5 AND info <> 0) THEN
             idesubs$ = "C"
             GOSUB SaveSortSettings
-            IF mousedown THEN
-                DO
-                    GetInput
-                    _LIMIT 100
-                LOOP UNTIL mRELEASE
-            END IF
+            ClearMouse
             EXIT FUNCTION
         END IF
 
@@ -13101,12 +13072,7 @@ FUNCTION idesubs$
             idesx = 1
 
             GOSUB SaveSortSettings
-            IF mousedown THEN
-                DO
-                    GetInput
-                    _LIMIT 100
-                LOOP UNTIL mRELEASE
-            END IF
+            ClearMouse
             EXIT FUNCTION
         END IF
 
@@ -15020,10 +14986,7 @@ FUNCTION idemessagebox (titlestr$, messagestr$, buttons$)
 
         IF K$ = CHR$(13) OR (info <> 0) THEN
             idemessagebox = focus
-            DO UNTIL mCLICK = 0
-                GetInput
-                _LIMIT 100
-            LOOP
+            ClearMouse
             EXIT FUNCTION
         END IF
         'end of custom controls
@@ -16843,7 +16806,16 @@ SUB GetInput
     LOOP
 END SUB
 
-
+SUB ClearMouse
+    iCHANGED = 0
+    mB = 0
+    mB2 = 0
+    mCLICK = 0
+    mRELEASE = 0
+    DO WHILE _MOUSEBUTTON(1) OR _MOUSEBUTTON(2)
+        i = _MOUSEINPUT
+    LOOP
+END SUB
 
 
 SUB Help_ShowText
