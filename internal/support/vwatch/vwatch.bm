@@ -290,7 +290,11 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 vw_getBytes& = vw_arrayTotalDimensions: GOSUB GetBytes: vw_arrayIndexes$ = vw_valueBytes$
                 vw_arrayTotalDimensions = vw_arrayTotalDimensions \ 4
                 vw_getBytes& = 4: GOSUB GetBytes: vw_arrayElementSize = CVL(vw_valueBytes$)
-                IF vw_checkingWatchpoints THEN vw_getBytes& = 4: GOSUB GetBytes 'discard 4 bytes (isUDT)
+                IF vw_checkingWatchpoints THEN
+                    vw_getBytes& = 4: GOSUB GetBytes: vw_isUDT = (CVL(vw_valueBytes$) <> 0)
+                ELSE
+                    vw_isUDT = 0
+                END IF
                 vw_getBytes& = 4: GOSUB GetBytes: vw_element = CVL(vw_valueBytes$)
                 vw_getBytes& = 4: GOSUB GetBytes: vw_elementOffset = CVL(vw_valueBytes$)
                 vw_getBytes& = 4: GOSUB GetBytes: vw_varSize = CVL(vw_valueBytes$)
@@ -403,7 +407,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                 IF INSTR(vw_varType$, "STRING *") > 0 AND (vw_isArray <> 0 OR vw_element > 0) THEN
                     'actual data already fetched; nothing else to do
                 ELSEIF INSTR(vw_varType$, "STRING") > 0 THEN
-                    IF vw_isArray <> 0 OR vw_element > 0 THEN
+                    IF vw_isArray <> 0 OR vw_element > 0 OR vw_isUDT <> 0 THEN
                         'First pass
                         vw_varSize = LEN(vw_dummy%&)
                         vw_buf$ = SPACE$(vw_varSize)
