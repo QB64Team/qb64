@@ -11486,7 +11486,8 @@ FOR i = 1 TO idn
             END IF
             IF typ AND ISUDT THEN
                 IF udtxvariable(typ AND 511) THEN
-                    'this is where new code must come to clear UDTs with variable-length strings
+                    'this next procedure resets values of UDT variables with variable-length strings
+                    clear_udt_with_varstrings e$, typ AND 511, 12, 0
                 ELSE
                     PRINT #12, "memset((void*)" + e$ + ",0," + bytes$ + ");"
                 END IF
@@ -25914,6 +25915,30 @@ SUB free_udt_varstrings (n$, udt, file, base_offset)
         element = udtenext(element)
     LOOP
 END SUB
+
+SUB clear_udt_with_varstrings (n$, udt, file, base_offset)
+    IF NOT udtxvariable(udt) THEN EXIT SUB
+    element = udtxnext(udt)
+    offset = 0
+    DO WHILE element
+        IF udtetype(element) AND ISSTRING THEN
+            IF (udtetype(element) AND ISFIXEDLENGTH) = 0 THEN
+                PRINT #file, "(*(qbs**)(((char*)" + n$ + ")+" + STR$(base_offset + offset) + "))->len=0;"
+            ELSE
+                PRINT #file, "memset((void*)" + n$ + "+" + STR$(base_offset + offset) + ",0," + STR$(udtesize(element) \ 8) + ");"
+            END IF
+        ELSE
+            IF udtetype(element) AND ISUDT THEN
+                clear_udt_with_varstrings n$, udtetype(element) AND 511, file, base_offset + offset
+            ELSE
+                PRINT #file, "memset((void*)" + n$ + "+" + STR$(base_offset + offset) + ",0," + STR$(udtesize(element) \ 8) + ");"
+            END IF
+        END IF
+        offset = offset + udtesize(element) \ 8
+        element = udtenext(element)
+    LOOP
+END SUB
+
 
 SUB initialise_array_udt_varstrings (n$, udt, base_offset, bytesperelement$, acc$)
     IF NOT udtxvariable(udt) THEN EXIT SUB
