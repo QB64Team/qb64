@@ -7312,7 +7312,11 @@ SUB DebugMode
                             IF INSTR(varType$, "STRING") = 0 THEN
                                 GOSUB findVarSize
                             ELSE
-                                varSize& = LEN(dummy%&) + LEN(dummy&)
+                                IF INSTR(varType$, " * ") = 0 THEN
+                                    varSize& = LEN(dummy%&) + LEN(dummy&)
+                                ELSE
+                                    varSize& = VAL(_TRIM$(MID$(varType$, INSTR(varType$, "STRING *") + 8)))
+                                END IF
                             END IF
 
                             cmd$ = cmd$ + MKL$(tempIndex&)
