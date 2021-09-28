@@ -9424,10 +9424,10 @@ FUNCTION ideelementwatchbox$(currentPath$, elementIndexes$, level, singleElement
                             i = i + 1
                         LOOP
                         v$ = ideelementwatchbox$(currentPath$ + RTRIM$(udtecname(varDlgList(y).index)) + ".", elementIndexes2$, level + 1, singleElementSelection, ok2)
+                        ok = ok2
                         IF ok2 = -2 THEN
                             'single selection
-                            ideelementwatchbox$ = returnList$
-                            EXIT FUNCTION
+                            GOTO buildListToReturn
                         ELSEIF ok2 = -3 THEN
                             'single selection canceled
                             EXIT FUNCTION
