@@ -7851,6 +7851,11 @@ SUB DebugMode
         CASE "STRING": varSize& = LEN(dummy%&) + LEN(dummy&)
         CASE ELSE 'UDT?
             varType$ = getelement(usedVariableList(tempIndex&).elementTypes, tempElement&)
+            IF INSTR(varType$, "STRING *") THEN
+                'Request exactly the amount of bytes specified for fixed strings in UDTs
+                varSize& = VAL(_TRIM$(MID$(varType$, INSTR(varType$, "STRING *") + 8)))
+                RETURN
+            END IF
             IF LEN(varType$) THEN GOTO checkVarType
     END SELECT
     RETURN
