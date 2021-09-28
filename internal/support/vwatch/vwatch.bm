@@ -15,7 +15,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     DIM AS _MEM vw_m, vw_m2
     DIM AS _BYTE vw_isArray, vw_isUDT, vw_checkingWatchpoints
     DIM vw_start!, vw_temp$, vw_cmd$, vw_value$, vw_k&, vw_buf$, vw_scope$, vw_varType$
-    DIM vw_getBytes&, vw_getBytesPosition&, vw_valueBytes$, vw_dummy%&
+    DIM vw_getBytes&, vw_getBytesPosition&, vw_valueBytes$, vw_dummy%&, vw_dummy##
     DIM vw_arrayIndexes$, vw_wpExpression$, vw_wpTemp$, vw_v1$, vw_v2$
 
     DECLARE LIBRARY
@@ -368,6 +368,8 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                         vw_varSize = VAL(MID$(vw_varType$, _INSTRREV(vw_varType$, " ") + 1))
                     ELSEIF vw_varType$ = "STRING" THEN
                         vw_varSize = LEN(vw_dummy%&)
+                    ELSEIF INSTR(vw_varType$, "FLOAT") > 0 THEN
+                        vw_varSize = 16 'long double...
                     END IF
 
                     IF INSTR(vw_varType$, "BIT") THEN
@@ -443,6 +445,8 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                     vw_m = _MEM(vw_address, vw_varSize)
                     vw_m2 = _MEM(_OFFSET(vw_buf$), vw_varSize)
                     _MEMCOPY vw_m, vw_m.OFFSET, vw_m.SIZE TO vw_m2, vw_m2.OFFSET
+                ELSEIF INSTR(vw_varType$, "FLOAT") > 0 THEN
+                    vw_buf$ = vw_buf$ + STRING$(16, 0) 'pad with zeroes...
                 END IF
 
                 IF vw_checkingWatchpoints THEN RETURN
@@ -520,6 +524,9 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                         vw_varSize = VAL(MID$(vw_varType$, _INSTRREV(vw_varType$, " ") + 1))
                     ELSEIF vw_varType$ = "STRING" THEN
                         vw_varSize = LEN(vw_dummy%&)
+                    ELSEIF INSTR(vw_varType$, "FLOAT") > 0 THEN
+                        vw_varSize = 16 'long double...
+                        vw_value$ = LEFT$(vw_value$, vw_varSize)
                     END IF
 
                     IF INSTR(vw_varType$, "BIT") THEN
@@ -529,7 +536,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
                         ELSE
                             vw_i = 1
                         END IF
-                        vw_buf$ = vw_value$ + STRING$(4, 0) 'pad with zeros in case a LONG was sent
+                        vw_buf$ = vw_value$ + STRING$(4, 0) 'pad with zeroes in case a LONG was sent
                         GOSUB GetV2
                         vw_tempBitValue = VAL(vw_v2$)
                         call_setbits vw_i, vw_address, vw_realArrayIndex, vw_tempBitValue
