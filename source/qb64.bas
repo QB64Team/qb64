@@ -25925,13 +25925,13 @@ SUB clear_udt_with_varstrings (n$, udt, file, base_offset)
             IF (udtetype(element) AND ISFIXEDLENGTH) = 0 THEN
                 PRINT #file, "(*(qbs**)(((char*)" + n$ + ")+" + STR$(base_offset + offset) + "))->len=0;"
             ELSE
-                PRINT #file, "memset((void*)" + n$ + "+" + STR$(base_offset + offset) + ",0," + STR$(udtesize(element) \ 8) + ");"
+                PRINT #file, "memset((char*)" + n$ + "+" + STR$(base_offset + offset) + ",0," + STR$(udtesize(element) \ 8) + ");"
             END IF
         ELSE
             IF udtetype(element) AND ISUDT THEN
                 clear_udt_with_varstrings n$, udtetype(element) AND 511, file, base_offset + offset
             ELSE
-                PRINT #file, "memset((void*)" + n$ + "+" + STR$(base_offset + offset) + ",0," + STR$(udtesize(element) \ 8) + ");"
+                PRINT #file, "memset((char*)" + n$ + "+" + STR$(base_offset + offset) + ",0," + STR$(udtesize(element) \ 8) + ");"
             END IF
         END IF
         offset = offset + udtesize(element) \ 8
