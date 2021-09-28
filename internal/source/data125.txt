@@ -1,0 +1,101 @@
+qbs*oldstr3926=NULL;
+if(_SUB_WRITESETTING_STRING_FILE->tmp||_SUB_WRITESETTING_STRING_FILE->fixed||_SUB_WRITESETTING_STRING_FILE->readonly){
+oldstr3926=_SUB_WRITESETTING_STRING_FILE;
+if (oldstr3926->cmem_descriptor){
+_SUB_WRITESETTING_STRING_FILE=qbs_new_cmem(oldstr3926->len,0);
+}else{
+_SUB_WRITESETTING_STRING_FILE=qbs_new(oldstr3926->len,0);
+}
+memcpy(_SUB_WRITESETTING_STRING_FILE->chr,oldstr3926->chr,oldstr3926->len);
+}
+qbs*oldstr3927=NULL;
+if(_SUB_WRITESETTING_STRING___SECTION->tmp||_SUB_WRITESETTING_STRING___SECTION->fixed||_SUB_WRITESETTING_STRING___SECTION->readonly){
+oldstr3927=_SUB_WRITESETTING_STRING___SECTION;
+if (oldstr3927->cmem_descriptor){
+_SUB_WRITESETTING_STRING___SECTION=qbs_new_cmem(oldstr3927->len,0);
+}else{
+_SUB_WRITESETTING_STRING___SECTION=qbs_new(oldstr3927->len,0);
+}
+memcpy(_SUB_WRITESETTING_STRING___SECTION->chr,oldstr3927->chr,oldstr3927->len);
+}
+qbs*oldstr3928=NULL;
+if(_SUB_WRITESETTING_STRING___KEY->tmp||_SUB_WRITESETTING_STRING___KEY->fixed||_SUB_WRITESETTING_STRING___KEY->readonly){
+oldstr3928=_SUB_WRITESETTING_STRING___KEY;
+if (oldstr3928->cmem_descriptor){
+_SUB_WRITESETTING_STRING___KEY=qbs_new_cmem(oldstr3928->len,0);
+}else{
+_SUB_WRITESETTING_STRING___KEY=qbs_new(oldstr3928->len,0);
+}
+memcpy(_SUB_WRITESETTING_STRING___KEY->chr,oldstr3928->chr,oldstr3928->len);
+}
+qbs*oldstr3929=NULL;
+if(_SUB_WRITESETTING_STRING___VALUE->tmp||_SUB_WRITESETTING_STRING___VALUE->fixed||_SUB_WRITESETTING_STRING___VALUE->readonly){
+oldstr3929=_SUB_WRITESETTING_STRING___VALUE;
+if (oldstr3929->cmem_descriptor){
+_SUB_WRITESETTING_STRING___VALUE=qbs_new_cmem(oldstr3929->len,0);
+}else{
+_SUB_WRITESETTING_STRING___VALUE=qbs_new(oldstr3929->len,0);
+}
+memcpy(_SUB_WRITESETTING_STRING___VALUE->chr,oldstr3929->chr,oldstr3929->len);
+}
+qbs *_SUB_WRITESETTING_STRING_TEMPVALUE=NULL;
+if (!_SUB_WRITESETTING_STRING_TEMPVALUE)_SUB_WRITESETTING_STRING_TEMPVALUE=qbs_new(0,0);
+qbs *_SUB_WRITESETTING_STRING_SECTION=NULL;
+if (!_SUB_WRITESETTING_STRING_SECTION)_SUB_WRITESETTING_STRING_SECTION=qbs_new(0,0);
+qbs *_SUB_WRITESETTING_STRING_KEY=NULL;
+if (!_SUB_WRITESETTING_STRING_KEY)_SUB_WRITESETTING_STRING_KEY=qbs_new(0,0);
+qbs *_SUB_WRITESETTING_STRING_VALUE=NULL;
+if (!_SUB_WRITESETTING_STRING_VALUE)_SUB_WRITESETTING_STRING_VALUE=qbs_new(0,0);
+uint32 *_SUB_WRITESETTING_ULONG_NEXTLINE=NULL;
+if(_SUB_WRITESETTING_ULONG_NEXTLINE==NULL){
+_SUB_WRITESETTING_ULONG_NEXTLINE=(uint32*)mem_static_malloc(4);
+*_SUB_WRITESETTING_ULONG_NEXTLINE=0;
+}
+uint32 *_SUB_WRITESETTING_ULONG_BRACKET1=NULL;
+if(_SUB_WRITESETTING_ULONG_BRACKET1==NULL){
+_SUB_WRITESETTING_ULONG_BRACKET1=(uint32*)mem_static_malloc(4);
+*_SUB_WRITESETTING_ULONG_BRACKET1=0;
+}
+uint32 *_SUB_WRITESETTING_ULONG_BEGINSECTION=NULL;
+if(_SUB_WRITESETTING_ULONG_BEGINSECTION==NULL){
+_SUB_WRITESETTING_ULONG_BEGINSECTION=(uint32*)mem_static_malloc(4);
+*_SUB_WRITESETTING_ULONG_BEGINSECTION=0;
+}
+uint32 *_SUB_WRITESETTING_ULONG_ENDSECTION=NULL;
+if(_SUB_WRITESETTING_ULONG_ENDSECTION==NULL){
+_SUB_WRITESETTING_ULONG_ENDSECTION=(uint32*)mem_static_malloc(4);
+*_SUB_WRITESETTING_ULONG_ENDSECTION=0;
+}
+uint32 *_SUB_WRITESETTING_ULONG_I=NULL;
+if(_SUB_WRITESETTING_ULONG_I==NULL){
+_SUB_WRITESETTING_ULONG_I=(uint32*)mem_static_malloc(4);
+*_SUB_WRITESETTING_ULONG_I=0;
+}
+int64 fornext_value3931;
+int64 fornext_finalvalue3931;
+int64 fornext_step3931;
+uint8 fornext_step_negative3931;
+int64 fornext_value3933;
+int64 fornext_finalvalue3933;
+int64 fornext_step3933;
+uint8 fornext_step_negative3933;
+byte_element_struct *byte_element_3934=NULL;
+if (!byte_element_3934){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3934=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3934=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3935=NULL;
+if (!byte_element_3935){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3935=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3935=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3936=NULL;
+if (!byte_element_3936){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3936=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3936=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3937=NULL;
+if (!byte_element_3937){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3937=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3937=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3938=NULL;
+if (!byte_element_3938){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3938=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3938=(byte_element_struct*)mem_static_malloc(12);
+}

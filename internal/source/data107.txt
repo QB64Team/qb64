@@ -1,18 +1,32 @@
-int32 *_SUB_DUMP_UDTS_LONG_F=NULL;
-if(_SUB_DUMP_UDTS_LONG_F==NULL){
-_SUB_DUMP_UDTS_LONG_F=(int32*)mem_static_malloc(4);
-*_SUB_DUMP_UDTS_LONG_F=0;
+qbs*oldstr3786=NULL;
+if(_SUB_COPY_FULL_UDT_STRING_DST->tmp||_SUB_COPY_FULL_UDT_STRING_DST->fixed||_SUB_COPY_FULL_UDT_STRING_DST->readonly){
+oldstr3786=_SUB_COPY_FULL_UDT_STRING_DST;
+if (oldstr3786->cmem_descriptor){
+_SUB_COPY_FULL_UDT_STRING_DST=qbs_new_cmem(oldstr3786->len,0);
+}else{
+_SUB_COPY_FULL_UDT_STRING_DST=qbs_new(oldstr3786->len,0);
 }
-int32 *_SUB_DUMP_UDTS_LONG_I=NULL;
-if(_SUB_DUMP_UDTS_LONG_I==NULL){
-_SUB_DUMP_UDTS_LONG_I=(int32*)mem_static_malloc(4);
-*_SUB_DUMP_UDTS_LONG_I=0;
+memcpy(_SUB_COPY_FULL_UDT_STRING_DST->chr,oldstr3786->chr,oldstr3786->len);
 }
-int64 fornext_value3786;
-int64 fornext_finalvalue3786;
-int64 fornext_step3786;
-uint8 fornext_step_negative3786;
-int64 fornext_value3790;
-int64 fornext_finalvalue3790;
-int64 fornext_step3790;
-uint8 fornext_step_negative3790;
+qbs*oldstr3787=NULL;
+if(_SUB_COPY_FULL_UDT_STRING_SRC->tmp||_SUB_COPY_FULL_UDT_STRING_SRC->fixed||_SUB_COPY_FULL_UDT_STRING_SRC->readonly){
+oldstr3787=_SUB_COPY_FULL_UDT_STRING_SRC;
+if (oldstr3787->cmem_descriptor){
+_SUB_COPY_FULL_UDT_STRING_SRC=qbs_new_cmem(oldstr3787->len,0);
+}else{
+_SUB_COPY_FULL_UDT_STRING_SRC=qbs_new(oldstr3787->len,0);
+}
+memcpy(_SUB_COPY_FULL_UDT_STRING_SRC->chr,oldstr3787->chr,oldstr3787->len);
+}
+int32 *_SUB_COPY_FULL_UDT_LONG_OFFSET=NULL;
+if(_SUB_COPY_FULL_UDT_LONG_OFFSET==NULL){
+_SUB_COPY_FULL_UDT_LONG_OFFSET=(int32*)mem_static_malloc(4);
+*_SUB_COPY_FULL_UDT_LONG_OFFSET=0;
+}
+int32 *_SUB_COPY_FULL_UDT_LONG_ELEMENT=NULL;
+if(_SUB_COPY_FULL_UDT_LONG_ELEMENT==NULL){
+_SUB_COPY_FULL_UDT_LONG_ELEMENT=(int32*)mem_static_malloc(4);
+*_SUB_COPY_FULL_UDT_LONG_ELEMENT=0;
+}
+int32 pass3791;
+int32 pass3792;

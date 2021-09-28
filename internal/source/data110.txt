@@ -1,12 +1,50 @@
-qbs *_FUNC_SCASE_STRING_SCASE=NULL;
-if (!_FUNC_SCASE_STRING_SCASE)_FUNC_SCASE_STRING_SCASE=qbs_new(0,0);
-qbs*oldstr3816=NULL;
-if(_FUNC_SCASE_STRING_T->tmp||_FUNC_SCASE_STRING_T->fixed||_FUNC_SCASE_STRING_T->readonly){
-oldstr3816=_FUNC_SCASE_STRING_T;
-if (oldstr3816->cmem_descriptor){
-_FUNC_SCASE_STRING_T=qbs_new_cmem(oldstr3816->len,0);
+qbs*oldstr3812=NULL;
+if(_SUB_ADDWARNING_STRING_INCFILENAME->tmp||_SUB_ADDWARNING_STRING_INCFILENAME->fixed||_SUB_ADDWARNING_STRING_INCFILENAME->readonly){
+oldstr3812=_SUB_ADDWARNING_STRING_INCFILENAME;
+if (oldstr3812->cmem_descriptor){
+_SUB_ADDWARNING_STRING_INCFILENAME=qbs_new_cmem(oldstr3812->len,0);
 }else{
-_FUNC_SCASE_STRING_T=qbs_new(oldstr3816->len,0);
+_SUB_ADDWARNING_STRING_INCFILENAME=qbs_new(oldstr3812->len,0);
 }
-memcpy(_FUNC_SCASE_STRING_T->chr,oldstr3816->chr,oldstr3816->len);
+memcpy(_SUB_ADDWARNING_STRING_INCFILENAME->chr,oldstr3812->chr,oldstr3812->len);
+}
+qbs*oldstr3813=NULL;
+if(_SUB_ADDWARNING_STRING_HEADER->tmp||_SUB_ADDWARNING_STRING_HEADER->fixed||_SUB_ADDWARNING_STRING_HEADER->readonly){
+oldstr3813=_SUB_ADDWARNING_STRING_HEADER;
+if (oldstr3813->cmem_descriptor){
+_SUB_ADDWARNING_STRING_HEADER=qbs_new_cmem(oldstr3813->len,0);
+}else{
+_SUB_ADDWARNING_STRING_HEADER=qbs_new(oldstr3813->len,0);
+}
+memcpy(_SUB_ADDWARNING_STRING_HEADER->chr,oldstr3813->chr,oldstr3813->len);
+}
+qbs*oldstr3814=NULL;
+if(_SUB_ADDWARNING_STRING_TEXT->tmp||_SUB_ADDWARNING_STRING_TEXT->fixed||_SUB_ADDWARNING_STRING_TEXT->readonly){
+oldstr3814=_SUB_ADDWARNING_STRING_TEXT;
+if (oldstr3814->cmem_descriptor){
+_SUB_ADDWARNING_STRING_TEXT=qbs_new_cmem(oldstr3814->len,0);
+}else{
+_SUB_ADDWARNING_STRING_TEXT=qbs_new(oldstr3814->len,0);
+}
+memcpy(_SUB_ADDWARNING_STRING_TEXT->chr,oldstr3814->chr,oldstr3814->len);
+}
+qbs *_SUB_ADDWARNING_STRING_THISSOURCE=NULL;
+if (!_SUB_ADDWARNING_STRING_THISSOURCE)_SUB_ADDWARNING_STRING_THISSOURCE=qbs_new(0,0);
+byte_element_struct *byte_element_3815=NULL;
+if (!byte_element_3815){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3815=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3815=(byte_element_struct*)mem_static_malloc(12);
+}
+qbs *_SUB_ADDWARNING_STRING_THISINCNAME=NULL;
+if (!_SUB_ADDWARNING_STRING_THISINCNAME)_SUB_ADDWARNING_STRING_THISINCNAME=qbs_new(0,0);
+byte_element_struct *byte_element_3816=NULL;
+if (!byte_element_3816){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3816=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3816=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3823=NULL;
+if (!byte_element_3823){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3823=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3823=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3825=NULL;
+if (!byte_element_3825){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3825=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3825=(byte_element_struct*)mem_static_malloc(12);
 }

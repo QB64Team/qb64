@@ -1,44 +1,34 @@
-qbs *_FUNC_READCHUNK_STRING_READCHUNK=NULL;
-if (!_FUNC_READCHUNK_STRING_READCHUNK)_FUNC_READCHUNK_STRING_READCHUNK=qbs_new(0,0);
-qbs*oldstr3838=NULL;
-if(_FUNC_READCHUNK_STRING_A->tmp||_FUNC_READCHUNK_STRING_A->fixed||_FUNC_READCHUNK_STRING_A->readonly){
-oldstr3838=_FUNC_READCHUNK_STRING_A;
-if (oldstr3838->cmem_descriptor){
-_FUNC_READCHUNK_STRING_A=qbs_new_cmem(oldstr3838->len,0);
+qbs *_FUNC_GL2QB_TYPE_CONVERT_STRING_GL2QB_TYPE_CONVERT=NULL;
+if (!_FUNC_GL2QB_TYPE_CONVERT_STRING_GL2QB_TYPE_CONVERT)_FUNC_GL2QB_TYPE_CONVERT_STRING_GL2QB_TYPE_CONVERT=qbs_new(0,0);
+qbs*oldstr3844=NULL;
+if(_FUNC_GL2QB_TYPE_CONVERT_STRING_A->tmp||_FUNC_GL2QB_TYPE_CONVERT_STRING_A->fixed||_FUNC_GL2QB_TYPE_CONVERT_STRING_A->readonly){
+oldstr3844=_FUNC_GL2QB_TYPE_CONVERT_STRING_A;
+if (oldstr3844->cmem_descriptor){
+_FUNC_GL2QB_TYPE_CONVERT_STRING_A=qbs_new_cmem(oldstr3844->len,0);
 }else{
-_FUNC_READCHUNK_STRING_A=qbs_new(oldstr3838->len,0);
+_FUNC_GL2QB_TYPE_CONVERT_STRING_A=qbs_new(oldstr3844->len,0);
 }
-memcpy(_FUNC_READCHUNK_STRING_A->chr,oldstr3838->chr,oldstr3838->len);
+memcpy(_FUNC_GL2QB_TYPE_CONVERT_STRING_A->chr,oldstr3844->chr,oldstr3844->len);
 }
-qbs*oldstr3839=NULL;
-if(_FUNC_READCHUNK_STRING_LAST_CHARACTER->tmp||_FUNC_READCHUNK_STRING_LAST_CHARACTER->fixed||_FUNC_READCHUNK_STRING_LAST_CHARACTER->readonly){
-oldstr3839=_FUNC_READCHUNK_STRING_LAST_CHARACTER;
-if (oldstr3839->cmem_descriptor){
-_FUNC_READCHUNK_STRING_LAST_CHARACTER=qbs_new_cmem(oldstr3839->len,0);
+qbs*oldstr3845=NULL;
+if(_FUNC_GL2QB_TYPE_CONVERT_STRING_SYMBOL->tmp||_FUNC_GL2QB_TYPE_CONVERT_STRING_SYMBOL->fixed||_FUNC_GL2QB_TYPE_CONVERT_STRING_SYMBOL->readonly){
+oldstr3845=_FUNC_GL2QB_TYPE_CONVERT_STRING_SYMBOL;
+if (oldstr3845->cmem_descriptor){
+_FUNC_GL2QB_TYPE_CONVERT_STRING_SYMBOL=qbs_new_cmem(oldstr3845->len,0);
 }else{
-_FUNC_READCHUNK_STRING_LAST_CHARACTER=qbs_new(oldstr3839->len,0);
+_FUNC_GL2QB_TYPE_CONVERT_STRING_SYMBOL=qbs_new(oldstr3845->len,0);
 }
-memcpy(_FUNC_READCHUNK_STRING_LAST_CHARACTER->chr,oldstr3839->chr,oldstr3839->len);
+memcpy(_FUNC_GL2QB_TYPE_CONVERT_STRING_SYMBOL->chr,oldstr3845->chr,oldstr3845->len);
 }
-int32 *_FUNC_READCHUNK_LONG_X=NULL;
-if(_FUNC_READCHUNK_LONG_X==NULL){
-_FUNC_READCHUNK_LONG_X=(int32*)mem_static_malloc(4);
-*_FUNC_READCHUNK_LONG_X=0;
+qbs*oldstr3846=NULL;
+if(_FUNC_GL2QB_TYPE_CONVERT_STRING_CTYP->tmp||_FUNC_GL2QB_TYPE_CONVERT_STRING_CTYP->fixed||_FUNC_GL2QB_TYPE_CONVERT_STRING_CTYP->readonly){
+oldstr3846=_FUNC_GL2QB_TYPE_CONVERT_STRING_CTYP;
+if (oldstr3846->cmem_descriptor){
+_FUNC_GL2QB_TYPE_CONVERT_STRING_CTYP=qbs_new_cmem(oldstr3846->len,0);
+}else{
+_FUNC_GL2QB_TYPE_CONVERT_STRING_CTYP=qbs_new(oldstr3846->len,0);
 }
-int64 fornext_value3841;
-int64 fornext_finalvalue3841;
-int64 fornext_step3841;
-uint8 fornext_step_negative3841;
-byte_element_struct *byte_element_3842=NULL;
-if (!byte_element_3842){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3842=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3842=(byte_element_struct*)mem_static_malloc(12);
+memcpy(_FUNC_GL2QB_TYPE_CONVERT_STRING_CTYP->chr,oldstr3846->chr,oldstr3846->len);
 }
-int32 *_FUNC_READCHUNK_LONG_C=NULL;
-if(_FUNC_READCHUNK_LONG_C==NULL){
-_FUNC_READCHUNK_LONG_C=(int32*)mem_static_malloc(4);
-*_FUNC_READCHUNK_LONG_C=0;
-}
-byte_element_struct *byte_element_3843=NULL;
-if (!byte_element_3843){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3843=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3843=(byte_element_struct*)mem_static_malloc(12);
-}
+qbs *_FUNC_GL2QB_TYPE_CONVERT_STRING_B=NULL;
+if (!_FUNC_GL2QB_TYPE_CONVERT_STRING_B)_FUNC_GL2QB_TYPE_CONVERT_STRING_B=qbs_new(0,0);
