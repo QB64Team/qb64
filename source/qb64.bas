@@ -13265,6 +13265,22 @@ E = 1
 RESUME NEXT
 
 qberror:
+'_CONSOLE ON
+'_ECHO "A QB error has occurred (and you have compiled in debugging support)."
+'_ECHO "Some key information (qb64.bas):"
+'_ECHO "Error" + STR$(ERR)
+'_ECHO "Description: " + _ERRORMESSAGE$
+'_ECHO "Line" + STR$(_ERRORLINE)
+'IF _INCLERRORLINE THEN
+'    _ECHO "Included line" + STR$(_INCLERRORLINE)
+'    _ECHO "Included file " + _INCLERRORFILE$
+'END IF
+'_ECHO ""
+'_ECHO "Loaded source file details:"
+'_ECHO "ideerror =" + STR$(ideerror) + "; qberrorhappened =" + STR$(qberrorhappened) + "; qberrorhappenedvalue =" + STR$(qberrorhappenedvalue) + "; linenumber =" + STR$(linenumber)
+'_ECHO "ca$ = {" + ca$ + "}, idecommand$ = {" + idecommand$ + "}"
+'_ECHO "linefragment = {" + linefragment+ "}"
+
 IF Debug THEN 'A more in-your-face error handler
     IF ConsoleMode THEN
         PRINT
