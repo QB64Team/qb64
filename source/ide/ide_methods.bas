@@ -7999,7 +7999,7 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, action as _BYTE)
                     k = CVL(MID$(watchpointList$, j + 4, 4))
                     temp3$ = MID$(watchpointList$, j + 8, k)
                     k = CVI(RIGHT$(temp3$, 2))
-                    condition$ = " Watchpoint: " + usedVariableList(tempIndex&).name + " " + MID$(temp3$, LEN(temp3$) - (2 + k) + 1, k) + " "
+                    condition$ = " Watchpoint: " + thisName$ + " " + MID$(temp3$, LEN(temp3$) - (2 + k) + 1, k) + " "
 
                     IF LEN(condition$) > idewx - 8 THEN
                         condition$ = LEFT$(condition$, idewx - 10) + " "
