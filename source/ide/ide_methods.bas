@@ -6436,9 +6436,10 @@ SUB DebugMode
 
     TYPE vWatchPanelType
         AS INTEGER x, y, w, h, firstVisible, hPos, vBarThumb, hBarThumb
-        AS INTEGER draggingVBar, draggingHBar
+        AS INTEGER draggingVBar, draggingHBar, mX, mY
         AS LONG contentWidth
         AS _BYTE draggingPanel, resizingPanel, closingPanel
+        AS STRING visibleItems
     END TYPE
     STATIC vWatchPanel AS vWatchPanelType
 
@@ -6668,6 +6669,8 @@ SUB DebugMode
         WHILE _MOUSEINPUT
             mX = _MOUSEX
             mY = _MOUSEY
+            vWatchPanel.mX = mX
+            vWatchPanel.mY = mY
             IF LEN(variableWatchList$) > 0 AND _
                (mX >= vWatchPanel.x AND mX <= vWatchPanel.x + vWatchPanel.w) AND _
                (mY >= vWatchPanel.y AND mY <= vWatchPanel.y + vWatchPanel.h) THEN
@@ -6683,7 +6686,10 @@ SUB DebugMode
 
         IF idecy < 1 THEN idecy = 1
         IF idecy > iden THEN idecy = iden
-        IF idecy <> bkpidecy OR bkpPanelFirstVisible <> vWatchPanel.firstVisible THEN
+        IF idecy <> bkpidecy OR bkpPanelFirstVisible <> vWatchPanel.firstVisible OR _
+            (LEN(variableWatchList$) > 0 AND _
+            (mX >= vWatchPanel.x AND mX <= vWatchPanel.x + vWatchPanel.w) AND _
+            (mY >= vWatchPanel.y AND mY <= vWatchPanel.y + vWatchPanel.h)) THEN
             ideselect = 0: GOSUB UpdateDisplay
         END IF
 
@@ -7339,6 +7345,7 @@ SUB DebugMode
                             WHILE _MOUSEINPUT: WEND
                             hidePanel = -1
                             GOSUB UpdateDisplay
+                            _CONTINUE
                         ELSEIF returnAction = -1 THEN
                             PCOPY 3, 0: SCREEN , , 3, 0
                             WHILE _MOUSEINPUT: WEND
@@ -7912,6 +7919,10 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, action as _BYTE)
 
     y = 0
     i = 0
+    shadowX = 0
+    shadowY = 0
+    shadowLength = 0
+    this.visibleItems = ""
     this.contentWidth = 0
     IF this.hPos = 0 THEN this.hPos = 1
     temp$ = GetBytes$("", 0) 'reset buffer
@@ -7968,6 +7979,8 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, action as _BYTE)
         END IF
         IF LEN(item$) > this.contentWidth THEN this.contentWidth = LEN(item$)
         IF WatchListToConsole = 0 THEN
+            _PRINTSTRING (this.x + 2, this.y + y), MID$(item$, this.hPos, this.w - 4)
+
             'find existing watchpoint for this variable/index/element
             temp2$ = MKL$(tempIndex&) + MKL$(tempTotalArrayIndexes& * 4) + tempArrayIndexes$ + MKL$(tempElementOffset&)
             j = 0
@@ -7980,9 +7993,28 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, action as _BYTE)
             IF j > 0 THEN
                 IF latestWatchpointMet& = tempIndex& THEN COLOR 15 ELSE COLOR 4
                 _PRINTSTRING (this.x + 1, this.y + y), CHR$(7) 'watchpoint bullet indicator
-                COLOR fg
+                IF this.mX = this.x + 1 AND this.mY = this.y + y THEN
+                    COLOR 15, 3
+
+                    k = CVL(MID$(watchpointList$, j + 4, 4))
+                    temp3$ = MID$(watchpointList$, j + 8, k)
+                    k = CVI(RIGHT$(temp3$, 2))
+                    condition$ = " Watchpoint: " + usedVariableList(tempIndex&).name + " " + MID$(temp3$, LEN(temp3$) - (2 + k) + 1, k) + " "
+
+                    IF LEN(condition$) > idewx - 8 THEN
+                        condition$ = LEFT$(condition$, idewx - 10) + " "
+                    END IF
+                    k = this.x + 2
+                    IF k + LEN(condition$) > idewx THEN k = idewx - (LEN(condition$) + 2)
+
+                    _PRINTSTRING (k, this.y + y), condition$
+
+                    shadowX = k
+                    shadowY = this.y + y + 1
+                    shadowLength = LEN(condition$)
+                END IF
+                COLOR fg, bg
             END IF
-            _PRINTSTRING (this.x + 2, this.y + y), MID$(item$, this.hPos, this.w - 4)
         ELSE
             _ECHO item$
         END IF
@@ -7990,6 +8022,14 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, action as _BYTE)
     longestVarName = actualLongestVarName 'if these are different, next time it'll be fixed
 
     IF WatchListToConsole = 0 THEN
+        IF shadowLength THEN
+            'shadow for watchpoint popup
+            COLOR 2, 0
+            FOR x2 = shadowX + 2 TO shadowX + shadowLength
+                _PRINTSTRING (x2, shadowY), CHR$(SCREEN(shadowY, x2))
+            NEXT
+        END IF
+
         IF totalVisibleVariables > this.h - 2 THEN
             y = idevbar(this.x + this.w - 1, this.y + 1, this.h - 2, this.firstVisible, totalVisibleVariables - (this.h - 2) + 1)
             IF this.draggingVBar = 0 THEN
@@ -11406,6 +11446,7 @@ FUNCTION ideinputbox$(title$, caption$, initialvalue$, validinput$, boxwidth, ma
             ideinputbox$ = idetxt(o(1).txt)
             ok = -1
             ClearMouse
+            _KEYCLEAR
             EXIT FUNCTION
         END IF
         'end of custom controls
