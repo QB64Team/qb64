@@ -8581,16 +8581,18 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                                 END SELECT
                             END IF
 
-                            IF INSTR(varType$, "STRING") = 0 THEN
-                                v$ = op$ + actualValue$
-                                IF v$ <> op$ + LTRIM$(STR$(VAL(actualValue$))) THEN
-                                    result = idemessagebox(dlgTitle$, "Invalid expression.\nYou can use =, <>, >, >=, <, <=, and a literal value\n(scientific notation not allowed).", "#OK")
-                                    _KEYCLEAR
-                                    GOTO getNewValueInput
+                            IF thisReturnAction <> 3 THEN
+                                IF INSTR(varType$, "STRING") = 0 THEN
+                                    v$ = op$ + actualValue$
+                                    IF v$ <> op$ + LTRIM$(STR$(VAL(actualValue$))) THEN
+                                        result = idemessagebox(dlgTitle$, "Invalid expression.\nYou can use =, <>, >, >=, <, <=, and a literal value\n(scientific notation not allowed).", "#OK")
+                                        _KEYCLEAR
+                                        GOTO getNewValueInput
+                                    END IF
                                 END IF
-                            END IF
 
-                            v$ = op$ + " " + actualValue$ 'just to prettify it
+                                v$ = op$ + " " + actualValue$ 'just to prettify it
+                            END IF
                         END IF
 
                         cmd$ = ""
