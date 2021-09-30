@@ -2433,6 +2433,55 @@ id.arg = MKL$(STRINGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTY
 id.hr_syntax = "BSAVE saveFile$, VARPTR(array(index)), fileSize&"
 regid
 
+'double definition
+clearid
+id.n = "Get"
+id.subfunc = 2
+id.callname = "sub_graphics_get"
+id.args = 6
+id.arg = MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(-3) + MKL$(ULONGTYPE - ISPOINTER)
+id.specialformat = "[{Step}](?,?)-[{Step}](?,?),?[,?]"
+id.secondargmustbe = "Step"
+id.hr_syntax = "GET [STEP] (column1, row1)-[STEP](column2, row2), array([index])[, offscreenColor]"
+regid
+
+clearid
+id.n = "Get"
+id.subfunc = 2
+id.callname = "sub_graphics_get"
+id.args = 6
+id.arg = MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(-3) + MKL$(ULONGTYPE - ISPOINTER)
+id.specialformat = "[{Step}](?,?)-[{Step}](?,?),?[,?]"
+id.secondargmustbe = "("
+id.hr_syntax = "GET [STEP] (column1, row1)-[STEP](column2, row2), array([index])[, offscreenColor]"
+regid
+
+'double definition
+clearid
+id.n = "Put"
+id.subfunc = 2
+id.callname = "sub_graphics_put"
+id.args = 5
+id.arg = MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(-3) + MKL$(LONGTYPE - ISPOINTER) + MKL$(ULONGTYPE - ISPOINTER)
+id.specialformat = "[{Step}](?,?),?[,[{_Clip}][{PSet|PReset|And|Or|Xor}][,?]]"
+'PUT [STEP] (x!,y!),arrayname# [(indexes%)] [,actionverb]
+'PUT (10, 10), myimage, _CLIP, 0
+id.secondargmustbe = "Step"
+id.hr_syntax = "PUT [STEP](column, row), Array([index])[,] [_CLIP]  [{PSET|PRESET|AND|OR|XOR}]][, omitcolor]"
+regid
+clearid
+id.n = "Put"
+id.subfunc = 2
+id.callname = "sub_graphics_put"
+id.args = 5
+id.arg = MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(-3) + MKL$(LONGTYPE - ISPOINTER) + MKL$(ULONGTYPE - ISPOINTER)
+id.specialformat = "[{Step}](?,?),?[,[{_Clip}][{PSet|PReset|And|Or|Xor}][,?]]"
+'PUT [STEP] (x!,y!),arrayname# [(indexes%)] [,actionverb]
+'PUT (10, 10), myimage, _CLIP, 0
+id.secondargmustbe = "("
+id.hr_syntax = "PUT [STEP](column, row), Array([index])[,] [_CLIP]  [{PSET|PRESET|AND|OR|XOR}]][, omitcolor]"
+regid
+
 clearid
 id.n = "Get"
 id.subfunc = 2
@@ -2453,55 +2502,6 @@ id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(-4)
 'id.specialformat = "[#]?,[?],?" 'non field complient definition
 id.specialformat = "[#]?[,[?][,?]]" 'field complient definition
 id.hr_syntax = "PUT #filenumber&, [position][, {holdingvariable|holdingarray()}]"
-regid
-
-'double definition
-clearid
-id.n = "Get"
-id.subfunc = 2
-id.callname = "sub_graphics_get"
-id.args = 6
-id.arg = MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(-3) + MKL$(ULONGTYPE - ISPOINTER)
-id.specialformat = "[{Step}](?,?)-[{Step}](?,?),?[,?]"
-id.secondargmustbe = "Step"
-id.hr_syntax = "GET [STEP] (column1, row1)-[STEP](column2, row2), array([index])[, offscreenColor]"
-regid
-
-clearid
-id.n = "Get"
-id.subfunc = 2
-id.callname = "sub_graphics_get"
-id.args = 6
-id.arg = MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(-3) + MKL$(ULONGTYPE - ISPOINTER)
-id.specialformat = "[{Step}](?,?)-[{Step}](?,?),?[,?]"
-id.secondargmustbe = "("
-id.hr_syntax = "GET [STEP] (column1, row1)-[STEP](column2, row2), array([index])[, offscreenColor]"
-regid
-
-'double definition
-clearid
-id.n = "Put"
-id.subfunc = 2
-id.callname = "sub_graphics_put"
-id.args = 5
-id.arg = MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(-3) + MKL$(LONGTYPE - ISPOINTER) + MKL$(ULONGTYPE - ISPOINTER)
-id.specialformat = "[{Step}](?,?),?[,[{_Clip}][{PSet|PReset|And|Or|Xor}][,?]]"
-'PUT [STEP] (x!,y!),arrayname# [(indexes%)] [,actionverb]
-'PUT (10, 10), myimage, _CLIP, 0
-id.secondargmustbe = "Step"
-id.hr_syntax = "PUT [STEP](column, row), Array([index])[,] [_CLIP]  [{PSET|PRESET|AND|OR|XOR}]][, omitcolor]"
-regid
-clearid
-id.n = "Put"
-id.subfunc = 2
-id.callname = "sub_graphics_put"
-id.args = 5
-id.arg = MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(-3) + MKL$(LONGTYPE - ISPOINTER) + MKL$(ULONGTYPE - ISPOINTER)
-id.specialformat = "[{Step}](?,?),?[,[{_Clip}][{PSet|PReset|And|Or|Xor}][,?]]"
-'PUT [STEP] (x!,y!),arrayname# [(indexes%)] [,actionverb]
-'PUT (10, 10), myimage, _CLIP, 0
-id.secondargmustbe = "("
-id.hr_syntax = "PUT [STEP](column, row), Array([index])[,] [_CLIP]  [{PSET|PRESET|AND|OR|XOR}]][, omitcolor]"
 regid
 
 clearid
