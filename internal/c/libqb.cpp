@@ -5501,13 +5501,29 @@ char *human_error(int32 errorcode) {
     }
 }
 
+qbs *func_mid(qbs *str,int32 start,int32 l,int32 passed);
+qbs *qbs_new_txt_len(const char *txt,int32 len);
+qbs *func_command(int32 index, int32 passed);
+
 void fix_error(){
     char *errtitle = NULL, *errmess = NULL, *cp;
     int prevent_handling = 0, len, v;
     if ((new_error >= 300) && (new_error <= 315)) prevent_handling = 1;
     if (!error_goto_line || error_handling || prevent_handling) {
+        //strip path from binary name
+        static int32 i;
+        static qbs *binary_name=NULL;
+        if (!binary_name) binary_name=qbs_new(0,0);
+        qbs_set(binary_name,qbs_add(func_command( 0 ,1),qbs_new_txt_len("\0",1)));
+        for(i=binary_name->len;i>0;i--){
+            if ((binary_name->chr[i-1]==47)||(binary_name->chr[i-1]==92)) {
+                qbs_set(binary_name,func_mid(binary_name, i + 1,NULL,0));
+                break;
+            }
+        }
+        
         cp = human_error(new_error);        
-        #define FIXERRMSG_TITLE "%s%u"
+        #define FIXERRMSG_TITLE "%s%u - %s"
         #define FIXERRMSG_BODY "Line: %u (in %s)\n%s%s"
         #define FIXERRMSG_MAINFILE "main module"
         #define FIXERRMSG_CONT "\nContinue?"
@@ -5519,10 +5535,10 @@ void fix_error(){
         if (!errmess) exit(0); //At this point we just give up
         snprintf(errmess, len + 1, FIXERRMSG_BODY, (inclercl ? inclercl : ercl), (inclercl ? includedfilename : FIXERRMSG_MAINFILE), cp, (!prevent_handling ? FIXERRMSG_CONT : ""));
         
-        len = snprintf(errtitle, 0, FIXERRMSG_TITLE, (!prevent_handling ? FIXERRMSG_UNHAND : FIXERRMSG_CRIT), new_error);
+        len = snprintf(errtitle, 0, FIXERRMSG_TITLE, (!prevent_handling ? FIXERRMSG_UNHAND : FIXERRMSG_CRIT), new_error, binary_name->chr);
         errtitle = (char*)malloc(len + 1);
         if (!errtitle) exit(0); //At this point we just give up
-        snprintf(errtitle, len + 1, FIXERRMSG_TITLE, (!prevent_handling ? FIXERRMSG_UNHAND : FIXERRMSG_CRIT), new_error);
+        snprintf(errtitle, len + 1, FIXERRMSG_TITLE, (!prevent_handling ? FIXERRMSG_UNHAND : FIXERRMSG_CRIT), new_error, binary_name->chr);
         
         if (prevent_handling){
             v=MessageBox2(NULL,errmess,errtitle,MB_OK);
