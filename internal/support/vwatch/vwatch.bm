@@ -16,7 +16,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     DIM AS _BYTE vw_isArray, vw_isUDT, vw_checkingWatchpoints
     DIM vw_start!, vw_temp$, vw_cmd$, vw_value$, vw_k&, vw_buf$, vw_scope$, vw_varType$
     DIM vw_getBytes&, vw_getBytesPosition&, vw_valueBytes$, vw_dummy%&, vw_dummy##
-    DIM vw_arrayIndexes$, vw_wpExpression$, vw_wpTemp$, vw_v1$, vw_v2$
+    DIM vw_arrayIndexes$, vw_wpExpression$, vw_wpTemp$, vw_v1$, vw_v2$, vw_op$
 
     DECLARE LIBRARY
         SUB vwatch_stoptimers ALIAS stop_timers
@@ -777,17 +777,36 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
 
             IF INSTR(vw_varType$, "STRING") THEN
                 IF LEFT$(vw_wpExpression$, 1) = "=" THEN
-                    IF _TRIM$(MID$(vw_wpExpression$, 2)) = _TRIM$(vw_buf$) THEN GOTO WatchPointBreak
-                ELSEIF LEFT$(vw_wpExpression$, 2) = "<=" THEN
-                    IF _TRIM$(MID$(vw_wpExpression$, 2)) <= _TRIM$(vw_buf$) THEN GOTO WatchPointBreak
-                ELSEIF LEFT$(vw_wpExpression$, 2) = ">=" THEN
-                    IF _TRIM$(MID$(vw_wpExpression$, 2)) >= _TRIM$(vw_buf$) THEN GOTO WatchPointBreak
-                ELSEIF LEFT$(vw_wpExpression$, 2) = "<>" THEN
-                    IF _TRIM$(MID$(vw_wpExpression$, 2)) <> _TRIM$(vw_buf$) THEN GOTO WatchPointBreak
-                ELSEIF LEFT$(vw_wpExpression$, 1) = "<" THEN
-                    IF _TRIM$(MID$(vw_wpExpression$, 2)) < _TRIM$(vw_buf$) THEN GOTO WatchPointBreak
-                ELSEIF LEFT$(vw_wpExpression$, 1) = ">" THEN
-                    IF _TRIM$(MID$(vw_wpExpression$, 2)) > _TRIM$(vw_buf$) THEN GOTO WatchPointBreak
+                    vw_op$ = "="
+                    vw_v1$ = _TRIM$(MID$(vw_wpExpression$, 2))
+                ELSEIF INSTR("@<=@>=@<>@", "@" + LEFT$(vw_wpExpression$, 2) + "@") > 0 THEN
+                    vw_op$ = LEFT$(vw_wpExpression$, 2)
+                    vw_v1$ = _TRIM$(MID$(vw_wpExpression$, 3))
+                ELSEIF INSTR("<>", LEFT$(vw_wpExpression$, 1)) > 0 THEN
+                    vw_op$ = LEFT$(vw_wpExpression$, 1)
+                    vw_v1$ = _TRIM$(MID$(vw_wpExpression$, 2))
+                END IF
+
+                IF LEFT$(vw_v1$, 1) = CHR$(34) AND RIGHT$(vw_v1$, 1) = CHR$(34) THEN
+                    vw_v1$ = MID$(vw_v1$, 2, LEN(vw_v1$) - 2) 'remove quotes
+                    vw_v2$ = vw_buf$
+                ELSE
+                    vw_v1$ = _TRIM$(vw_v1$)
+                    vw_v2$ = _TRIM$(vw_buf$)
+                END IF
+
+                IF vw_op$ = "=" THEN
+                    IF vw_v1$ = vw_v2$ THEN GOTO WatchPointBreak
+                ELSEIF vw_op$ = "<=" THEN
+                    IF vw_v1$ <= vw_v2$ THEN GOTO WatchPointBreak
+                ELSEIF vw_op$ = ">=" THEN
+                    IF vw_v1$ >= vw_v2$ THEN GOTO WatchPointBreak
+                ELSEIF vw_op$ = "<>" THEN
+                    IF vw_v1$ <> vw_v2$ THEN GOTO WatchPointBreak
+                ELSEIF vw_op$ = "<" THEN
+                    IF vw_v1$ < vw_v2$ THEN GOTO WatchPointBreak
+                ELSEIF vw_op$ = ">" THEN
+                    IF vw_v1$ > vw_v2$ THEN GOTO WatchPointBreak
                 END IF
             ELSE
                 IF LEFT$(vw_wpExpression$, 1) = "=" THEN
