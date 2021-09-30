@@ -6706,6 +6706,14 @@ SUB DebugMode
         ELSE
             IF mouseDown2 THEN
                 IF mouseDownOnX2 = mX AND mouseDownOnY2 = mY THEN
+                    'right-click on watch panel?
+                    IF (LEN(variableWatchList$) > 0 AND _
+                        (mX >= vWatchPanel.x AND mX <= vWatchPanel.x + vWatchPanel.w) AND _
+                        (mY >= vWatchPanel.y AND mY <= vWatchPanel.y + vWatchPanel.h)) THEN
+                        GOTO requestVariableWatch
+                    END IF
+
+                    'right-click on code area?
                     IF (mX > 1 AND mX <= 1 + maxLineNumberLength AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers) OR _
                        (mX = 1 AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers = 0) OR _
                        (mX > 1 + maxLineNumberLength AND mX < idewx AND mY > 2 AND mY < (idewy - 5)) THEN
@@ -6717,6 +6725,7 @@ SUB DebugMode
                         IF PauseMode = 0 THEN GOSUB requestPause: dummy = DarkenFGBG(0)
                         EXIT SUB
                         returnFromContextMenu:
+                        GOSUB UpdateDisplay
                     END IF
                 END IF
             END IF
@@ -8002,7 +8011,7 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, action as _BYTE)
                     condition$ = " Watchpoint: " + thisName$ + " " + MID$(temp3$, LEN(temp3$) - (2 + k) + 1, k) + " "
 
                     IF LEN(condition$) > idewx - 8 THEN
-                        condition$ = LEFT$(condition$, idewx - 10) + " "
+                        condition$ = LEFT$(condition$, idewx - 13) + STRING$(3, 250) + " "
                     END IF
                     k = this.x + 2
                     IF k + LEN(condition$) > idewx THEN k = idewx - (LEN(condition$) + 2)
@@ -8580,6 +8589,8 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                                     GOTO getNewValueInput
                                 END IF
                             END IF
+
+                            v$ = op$ + " " + actualValue$ 'just to prettify it
                         END IF
 
                         cmd$ = ""
@@ -9229,7 +9240,7 @@ FUNCTION ideelementwatchbox$(currentPath$, elementIndexes$, level, singleElement
     IF dialogWidth > idewx - 8 THEN dialogWidth = idewx - 8
 
     title$ = "Add UDT Elements"
-    IF singleElementSelection THEN title$ = "Change UDT Element"
+    IF singleElementSelection THEN title$ = "Choose UDT Element"
     idepar p, dialogWidth, dialogHeight, title$
 
     i = i + 1: varListBox = i
