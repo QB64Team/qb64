@@ -941,12 +941,24 @@ inline int16 func_abs(int16 d){return abs(d);}
 inline int32 func_abs(int32 d){return abs(d);}
 inline int64 func_abs(int64 d){return llabs(d);}
 
+extern int32 disableEvents;
+
 ptrszint check_lbound(ptrszint *array,int32 index, int32 num_indexes) {
-    return func_lbound((ptrszint*)(*array),index,num_indexes);
+    static ptrszint ret;
+    disableEvents = 1;
+    ret = func_lbound((ptrszint*)(*array),index,num_indexes);
+    new_error=0;
+    disableEvents = 0;
+    return ret;
 }
 
 ptrszint check_ubound(ptrszint *array,int32 index, int32 num_indexes) {
-    return func_ubound((ptrszint*)(*array),index,num_indexes);
+    static ptrszint ret;
+    disableEvents = 1;
+    ret = func_ubound((ptrszint*)(*array),index,num_indexes);
+    new_error=0;
+    disableEvents = 0;
+    return ret;
 }
 
 uint64 call_getubits(uint32 bsize,ptrszint *array,ptrszint i) {
@@ -2076,8 +2088,6 @@ void events(){
 extern int64 display_lock_request;
 extern int64 display_lock_confirmed;
 extern int64 display_lock_released;
-
-extern int32 disableEvents;
 
 uint32 r;
 void evnt(uint32 linenumber, uint32 inclinenumber = 0, const char* incfilename = NULL){
