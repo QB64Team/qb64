@@ -7040,7 +7040,8 @@ SUB DebugMode
         UpdateStatusArea:
         IF _WINDOWHASFOCUS THEN
             IF noFocusMessage THEN
-                UpdateMenuHelpLine "Right-click the code for more options; hit ESC to abort."
+                UpdateMenuHelpLine "Right-click for options; ESC to abort."
+                GOSUB printVersion
                 GOSUB UpdateButtons
                 noFocusMessage = 0
             END IF
@@ -7816,6 +7817,8 @@ SUB DebugMode
     ideshowtext
     UpdateTitleOfMainWindow
 
+    GOSUB printVersion
+
     IF PauseMode <> 0 AND LEN(variableWatchList$) > 0 THEN
         IF WatchListToConsole THEN _CONSOLE ON
         totalVisibleVariables = CVL(MID$(variableWatchList$, 5, 4))
@@ -7878,6 +7881,17 @@ SUB DebugMode
             END IF
             IF LEN(varType$) THEN GOTO checkVarType
     END SELECT
+    RETURN
+
+    printVersion:
+    'print version in the status bar
+    IF LEN(versionStringStatus$) = 0 THEN
+        versionStringStatus$ = " v" + Version$
+        IF LEN(AutoBuildMsg$) THEN versionStringStatus$ = versionStringStatus$ + MID$(AutoBuildMsg$, _INSTRREV(AutoBuildMsg$, " "))
+        versionStringStatus$ = versionStringStatus$ + " "
+    END IF
+    COLOR 2, 3
+    _PRINTSTRING (idewx - 21 - LEN(versionStringStatus$), idewy + idesubwindow), versionStringStatus$
     RETURN
 END SUB
 
