@@ -17250,6 +17250,23 @@ SUB IdeImportBookmarks (f2$)
             END IF
         NEXT
     END IF
+
+    'at the same time, import breakpoint and skip line data
+    x = VAL(ReadSetting$(".\internal\temp\debug.ini", f2$, "total breakpoints"))
+    IF x THEN
+        FOR i = 1 TO x
+            j = VAL(ReadSetting$(".\internal\temp\debug.ini", f2$, "breakpoint" + STR$(i)))
+            IdeBreakpoints(j) = -1
+        NEXT
+    END IF
+
+    x = VAL(ReadSetting$(".\internal\temp\debug.ini", f2$, "total skips"))
+    IF x THEN
+        FOR i = 1 TO x
+            j = VAL(ReadSetting$(".\internal\temp\debug.ini", f2$, "skip" + STR$(i)))
+            IdeSkipLines(j) = -1
+        NEXT
+    END IF
 END SUB
 
 SUB IdeSaveBookmarks (f2$)
@@ -17270,6 +17287,30 @@ SUB IdeSaveBookmarks (f2$)
     a$ = f$ + MKL$(LEN(d$)) + d$ + a$
     fh = FREEFILE: OPEN ".\internal\temp\bookmarks.bin" FOR OUTPUT AS #fh: CLOSE #fh
     fh = FREEFILE: OPEN ".\internal\temp\bookmarks.bin" FOR BINARY AS #fh: PUT #fh, , a$: CLOSE #fh
+
+    'at the same time, save breakpoint and skip line data
+    IF vWatchOn THEN
+        WriteSetting ".\internal\temp\debug.ini", f2$, "total breakpoints", "0"
+        WriteSetting ".\internal\temp\debug.ini", f2$, "total skips", "0"
+
+        x = 0
+        FOR i = 1 TO UBOUND(IdeBreakpoints)
+            IF IdeBreakpoints(i) THEN
+                x = x + 1
+                WriteSetting ".\internal\temp\debug.ini", f2$, "breakpoint" + STR$(x), str2$(i)
+            END IF
+        NEXT
+        WriteSetting ".\internal\temp\debug.ini", f2$, "total breakpoints", str2$(x)
+
+        x = 0
+        FOR i = 1 TO UBOUND(IdeSkipLines)
+            IF IdeSkipLines(i) THEN
+                x = x + 1
+                WriteSetting ".\internal\temp\debug.ini", f2$, "skip" + STR$(x), str2$(i)
+            END IF
+        NEXT
+        WriteSetting ".\internal\temp\debug.ini", f2$, "total skips", str2$(x)
+    END IF
 END SUB
 
 FUNCTION iderecentbox$
