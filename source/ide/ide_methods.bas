@@ -510,6 +510,7 @@ FUNCTION ide2 (ignore)
         REDIM IdeSkipLines(iden) AS _BYTE
         variableWatchList$ = ""
         backupVariableWatchList$ = "": REDIM backupUsedVariableList(1000) AS usedVarList
+        backupTypeDefinitions$ = ""
         watchpointList$ = ""
         callstacklist$ = "": callStackLength = 0
         ideunsaved = -1
@@ -608,6 +609,7 @@ FUNCTION ide2 (ignore)
                 REDIM IdeSkipLines(iden) AS _BYTE
                 variableWatchList$ = ""
                 backupVariableWatchList$ = "": REDIM backupUsedVariableList(1000) AS usedVarList
+                backupTypeDefinitions$ = ""
                 watchpointList$ = ""
                 callstacklist$ = "": callStackLength = 0
                 IF ideStartAtLine > 0 AND ideStartAtLine <= iden THEN
@@ -6019,6 +6021,8 @@ FUNCTION ide2 (ignore)
                 REDIM IdeBreakpoints(1) AS _BYTE
                 REDIM IdeSkipLines(1) AS _BYTE
                 variableWatchList$ = ""
+                backupVariableWatchList$ = "": REDIM backupUsedVariableList(1000) AS usedVarList
+                backupTypeDefinitions$ = ""
                 watchpointList$ = ""
                 callstacklist$ = "": callStackLength = 0
                 idet$ = MKL$(0) + MKL$(0): idel = 1: ideli = 1: iden = 1: IdeBmkN = 0
@@ -6920,6 +6924,7 @@ SUB DebugMode
                 IF result = 2 THEN
                     variableWatchList$ = ""
                     backupVariableWatchList$ = "": REDIM backupUsedVariableList(1000) AS usedVarList
+                    backupTypeDefinitions$ = ""
                     FOR i = 1 TO totalVariablesCreated
                         usedVariableList(i).watch = 0
                     NEXT
@@ -8684,6 +8689,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                             (IdeDebugMode > 0 AND focus = 7 AND info <> 0) THEN
             variableWatchList$ = ""
             backupVariableWatchList$ = "" 'used in case this program is edited in the same session
+            backupTypeDefinitions$ = typeDefinitions$ 'store current TYPE definitions for later comparison
             longestVarName = 0
             nextvWatchDataSlot = 0
             totalVisibleVariables = 0
@@ -11928,6 +11934,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
                 REDIM IdeSkipLines(iden) AS _BYTE
                 variableWatchList$ = ""
                 backupVariableWatchList$ = "": REDIM backupUsedVariableList(1000) AS usedVarList
+                backupTypeDefinitions$ = ""
                 callstacklist$ = "": callStackLength = 0
 
                 ideerror = 1

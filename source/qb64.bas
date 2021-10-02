@@ -121,6 +121,7 @@ TYPE usedVarList
 END TYPE
 
 REDIM SHARED backupUsedVariableList(1000) AS usedVarList
+DIM SHARED typeDefinitions$, backupTypeDefinitions$
 DIM SHARED totalVariablesCreated AS LONG, totalMainVariablesCreated AS LONG
 DIM SHARED bypassNextVariable AS _BYTE
 DIM SHARED totalWarnings AS LONG, warningListItems AS LONG, lastWarningHeader AS STRING
@@ -1464,6 +1465,7 @@ SelectCaseCounter = 0
 ExecCounter = 0
 UserDefineCount = 7
 totalVariablesCreated = 0
+typeDefinitions$ = ""
 totalMainVariablesCreated = 0
 REDIM SHARED usedVariableList(1000) AS usedVarList
 totalWarnings = 0
@@ -1962,9 +1964,9 @@ DO
 
                                 IF validname(n$) = 0 THEN a$ = "Invalid name": GOTO errmes
                                 udtename(i2) = n$
-
                                 udtecname(i2) = getelement$(ca$, 1)
                                 NormalTypeBlock:
+                                typeDefinitions$ = typeDefinitions$ + MKL$(i2) + MKL$(LEN(n$)) + n$
                                 udtetype(i2) = typ
                                 udtetypesize(i2) = typsize
 
@@ -2092,10 +2094,12 @@ DO
                             IF firstelement$ = "TYPE" THEN
                                 IF n <> 2 THEN a$ = "Expected TYPE typename": GOTO errmes
                                 lasttype = lasttype + 1
+                                typeDefinitions$ = typeDefinitions$ + MKL$(-1) + MKL$(lasttype)
                                 definingtype = lasttype
                                 i = definingtype
                                 WHILE i > UBOUND(udtenext): increaseUDTArrays: WEND
                                 IF validname(secondelement$) = 0 THEN a$ = "Invalid name": GOTO errmes
+                                typeDefinitions$ = typeDefinitions$ + MKL$(LEN(secondelement$)) + secondelement$
                                 udtxname(i) = secondelement$
                                 udtxcname(i) = getelement(ca$, 2)
                                 udtxnext(i) = 0
@@ -26155,14 +26159,18 @@ SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
                     'this variable existed in a previous edit of this program
                     'in this same session; let's preselect it.
                     j = CVL(MID$(backupVariableWatchList$, found + LEN(temp$), 4))
-                    usedVariableList(i).watch = backupUsedVariableList(j).watch
-                    usedVariableList(i).watchRange = backupUsedVariableList(j).watchRange
-                    usedVariableList(i).indexes = backupUsedVariableList(j).indexes
-                    usedVariableList(i).elements = backupUsedVariableList(j).elements
-                    usedVariableList(i).elementTypes = backupUsedVariableList(j).elementTypes
-                    usedVariableList(i).elementOffset = backupUsedVariableList(j).elementOffset
-                END IF
 
+                    'if there have been changes in TYPEs, this variable won't be preselected
+                    IF (LEN(backupUsedVariableList(j).elements) > 0 AND backupTypeDefinitions$ = typeDefinitions$) OR _
+                        (LEN(backupUsedVariableList(j).elements) = 0) THEN
+                        usedVariableList(i).watch = backupUsedVariableList(j).watch
+                        usedVariableList(i).watchRange = backupUsedVariableList(j).watchRange
+                        usedVariableList(i).indexes = backupUsedVariableList(j).indexes
+                        usedVariableList(i).elements = backupUsedVariableList(j).elements
+                        usedVariableList(i).elementTypes = backupUsedVariableList(j).elementTypes
+                        usedVariableList(i).elementOffset = backupUsedVariableList(j).elementOffset
+                    END IF
+                END IF
             END IF
         CASE ELSE 'find and mark as used
             IF found THEN
