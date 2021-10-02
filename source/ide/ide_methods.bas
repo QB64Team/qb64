@@ -509,6 +509,7 @@ FUNCTION ide2 (ignore)
         REDIM IdeBreakpoints(iden) AS _BYTE
         REDIM IdeSkipLines(iden) AS _BYTE
         variableWatchList$ = ""
+        backupVariableWatchList$ = "": REDIM backupUsedVariableList(1000) AS usedVarList
         watchpointList$ = ""
         callstacklist$ = "": callStackLength = 0
         ideunsaved = -1
@@ -606,6 +607,7 @@ FUNCTION ide2 (ignore)
                 REDIM IdeBreakpoints(iden) AS _BYTE
                 REDIM IdeSkipLines(iden) AS _BYTE
                 variableWatchList$ = ""
+                backupVariableWatchList$ = "": REDIM backupUsedVariableList(1000) AS usedVarList
                 watchpointList$ = ""
                 callstacklist$ = "": callStackLength = 0
                 IF ideStartAtLine > 0 AND ideStartAtLine <= iden THEN
@@ -1164,7 +1166,6 @@ FUNCTION ide2 (ignore)
 
             IF idelayoutallow THEN idelayoutallow = idelayoutallow - 1
 
-            variableWatchList$ = ""
             watchpointList$ = ""
             idecurrentlinelayouti = 0 'invalidate
             idefocusline = 0
@@ -8682,11 +8683,24 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
         IF K$ = CHR$(27) OR (IdeDebugMode = 0 AND focus = 5 AND info <> 0) OR _
                             (IdeDebugMode > 0 AND focus = 7 AND info <> 0) THEN
             variableWatchList$ = ""
+            backupVariableWatchList$ = "" 'used in case this program is edited in the same session
             longestVarName = 0
             nextvWatchDataSlot = 0
             totalVisibleVariables = 0
+            totalSelectedVariables = 0
             FOR y = 1 TO totalVariablesCreated
                 IF usedVariableList(y).includedLine THEN _CONTINUE 'don't deal with variables in $INCLUDEs
+
+                totalSelectedVariables = totalSelectedVariables + 1
+                backupVariableWatchList$ = backupVariableWatchList$ + MKL$(-1)
+                backupVariableWatchList$ = backupVariableWatchList$ + MKL$(LEN(usedVariableList(y).cname)) + usedVariableList(y).cname
+                backupVariableWatchList$ = backupVariableWatchList$ + MKL$(totalSelectedVariables)
+                WHILE totalSelectedVariables > UBOUND(backupUsedVariableList)
+                    REDIM _PRESERVE backupUsedVariableList(totalSelectedVariables + 999) AS usedVarList
+                WEND
+                backupUsedVariableList(totalSelectedVariables) = usedVariableList(y)
+
+                usedVariableList(y).storage = ""
                 IF usedVariableList(y).watch THEN
                     thisLen = LEN(usedVariableList(y).name)
                     IF usedVariableList(y).isarray THEN
@@ -11913,6 +11927,7 @@ FUNCTION idefiledialog$(programname$, mode AS _BYTE)
                 REDIM IdeBreakpoints(iden) AS _BYTE
                 REDIM IdeSkipLines(iden) AS _BYTE
                 variableWatchList$ = ""
+                backupVariableWatchList$ = "": REDIM backupUsedVariableList(1000) AS usedVarList
                 callstacklist$ = "": callStackLength = 0
 
                 ideerror = 1

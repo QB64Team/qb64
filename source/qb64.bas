@@ -120,6 +120,7 @@ TYPE usedVarList
     AS STRING elementOffset, storage
 END TYPE
 
+REDIM SHARED backupUsedVariableList(1000) AS usedVarList
 DIM SHARED totalVariablesCreated AS LONG, totalMainVariablesCreated AS LONG
 DIM SHARED bypassNextVariable AS _BYTE
 DIM SHARED totalWarnings AS LONG, warningListItems AS LONG, lastWarningHeader AS STRING
@@ -26076,7 +26077,7 @@ SUB dump_udts
 END SUB
 
 SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
-    DIM findItem AS LONG, cname$, i AS LONG, name$
+    DIM findItem AS LONG, cname$, i AS LONG, j AS LONG, name$, temp$
     name$ = RTRIM$(__name$)
     cname$ = RTRIM$(__cname$)
 
@@ -26098,6 +26099,7 @@ SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
                 IF i > UBOUND(usedVariableList) THEN
                     REDIM _PRESERVE usedVariableList(UBOUND(usedVariableList) + 999) AS usedVarList
                 END IF
+
                 usedVariableList(i).id = currentid
                 usedVariableList(i).used = 0
                 usedVariableList(i).watch = 0
@@ -26127,9 +26129,12 @@ SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
 
                 IF LEN(RTRIM$(id.musthave)) > 0 THEN
                     usedVariableList(i).name = name$ + RTRIM$(id.musthave)
+                ELSEIF LEN(RTRIM$(id.mayhave)) > 0 THEN
+                    usedVariableList(i).name = name$ + RTRIM$(id.mayhave)
                 ELSE
                     usedVariableList(i).name = name$
                 END IF
+
                 IF (id.arrayelements > 0) THEN
                     usedVariableList(i).isarray = -1
                     usedVariableList(i).name = usedVariableList(i).name + "()"
@@ -26143,6 +26148,21 @@ SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
                 usedVariableList(i).elementTypes = ""
                 usedVariableList(i).elementOffset = ""
                 totalVariablesCreated = totalVariablesCreated + 1
+
+                temp$ = MKL$(-1) + MKL$(LEN(cname$)) + cname$
+                found = INSTR(backupVariableWatchList$, temp$)
+                IF found THEN
+                    'this variable existed in a previous edit of this program
+                    'in this same session; let's preselect it.
+                    j = CVL(MID$(backupVariableWatchList$, found + LEN(temp$), 4))
+                    usedVariableList(i).watch = backupUsedVariableList(j).watch
+                    usedVariableList(i).watchRange = backupUsedVariableList(j).watchRange
+                    usedVariableList(i).indexes = backupUsedVariableList(j).indexes
+                    usedVariableList(i).elements = backupUsedVariableList(j).elements
+                    usedVariableList(i).elementTypes = backupUsedVariableList(j).elementTypes
+                    usedVariableList(i).elementOffset = backupUsedVariableList(j).elementOffset
+                END IF
+
             END IF
         CASE ELSE 'find and mark as used
             IF found THEN
