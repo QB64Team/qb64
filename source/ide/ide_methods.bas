@@ -7590,7 +7590,7 @@ SUB DebugMode
                     tempArrayIndexes$ = tempArrayIndexes$ + GetBytes$(value$, CVL(tempArrayIndexes$))
                     tempElementOffset$ = GetBytes$(value$, 4)
                     i = CVI(GetBytes$(value$, 2))
-                    temp$ = usedVariableList(tempIndex&).name + GetBytes$(value$, i)
+                    temp$ = usedVariableList(tempIndex&).name + " " + GetBytes$(value$, i)
                     result = idemessagebox("Watchpoint condition met", temp$, "#OK;#Clear Watchpoint")
                     IF result = 2 THEN
                         'find existing watchpoint for the same variable/index/element
