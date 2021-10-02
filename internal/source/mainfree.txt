@@ -75,6 +75,7 @@ qbs_free(__STRING_HELP_PAGELOADED);
 qbs_free(__STRING_IDEINFO);
 qbs_free(__STRING_HOSTPORT);
 qbs_free(__STRING_VARIABLEWATCHLIST);
+qbs_free(__STRING_BACKUPVARIABLEWATCHLIST);
 qbs_free(__STRING_WATCHPOINTLIST);
 if (__ARRAY_STRING_VWATCHRECEIVEDDATA[2]&1){
 tmp_long=__ARRAY_STRING_VWATCHRECEIVEDDATA[5];
@@ -288,6 +289,26 @@ free((void*)(__ARRAY_LONG_DEPENDENCY[0]));
 free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_LONG_DEPENDENCY)[8] );
 qbs_free(__STRING_WINDOWTITLE);
 qbs_free(__STRING_CMDLINEFILE);
+if (__ARRAY_UDT_BACKUPUSEDVARIABLELIST[2]&1){
+tmp_long=__ARRAY_UDT_BACKUPUSEDVARIABLELIST[5];
+while(tmp_long--) {
+
+qbs_free(*(qbs**)(__ARRAY_UDT_BACKUPUSEDVARIABLELIST[0]+(952/8+1-1)*tmp_long+ 31));
+qbs_free(*(qbs**)(__ARRAY_UDT_BACKUPUSEDVARIABLELIST[0]+(952/8+1-1)*tmp_long+ 39));
+qbs_free(*(qbs**)(__ARRAY_UDT_BACKUPUSEDVARIABLELIST[0]+(952/8+1-1)*tmp_long+ 47));
+qbs_free(*(qbs**)(__ARRAY_UDT_BACKUPUSEDVARIABLELIST[0]+(952/8+1-1)*tmp_long+ 55));
+qbs_free(*(qbs**)(__ARRAY_UDT_BACKUPUSEDVARIABLELIST[0]+(952/8+1-1)*tmp_long+ 63));
+qbs_free(*(qbs**)(__ARRAY_UDT_BACKUPUSEDVARIABLELIST[0]+(952/8+1-1)*tmp_long+ 71));
+qbs_free(*(qbs**)(__ARRAY_UDT_BACKUPUSEDVARIABLELIST[0]+(952/8+1-1)*tmp_long+ 79));
+qbs_free(*(qbs**)(__ARRAY_UDT_BACKUPUSEDVARIABLELIST[0]+(952/8+1-1)*tmp_long+ 87));
+qbs_free(*(qbs**)(__ARRAY_UDT_BACKUPUSEDVARIABLELIST[0]+(952/8+1-1)*tmp_long+ 95));
+qbs_free(*(qbs**)(__ARRAY_UDT_BACKUPUSEDVARIABLELIST[0]+(952/8+1-1)*tmp_long+ 103));
+qbs_free(*(qbs**)(__ARRAY_UDT_BACKUPUSEDVARIABLELIST[0]+(952/8+1-1)*tmp_long+ 111));}
+free((void*)(__ARRAY_UDT_BACKUPUSEDVARIABLELIST[0]));
+}
+free_mem_lock( (mem_lock*)((ptrszint*)__ARRAY_UDT_BACKUPUSEDVARIABLELIST)[8] );
+qbs_free(__STRING_TYPEDEFINITIONS);
+qbs_free(__STRING_BACKUPTYPEDEFINITIONS);
 qbs_free(__STRING_LASTWARNINGHEADER);
 qbs_free(__STRING_QB64PREFIX);
 qbs_free(__STRING_VIFILEVERSIONNUM);
