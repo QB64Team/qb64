@@ -6424,6 +6424,7 @@ SUB DebugMode
     STATIC buffer$
     STATIC currentSub$
     STATIC debuggeehwnd AS _OFFSET
+    STATIC panelActive AS _BYTE
 
     DECLARE LIBRARY
         SUB set_foreground_window (BYVAL hwnd AS _OFFSET)
@@ -6481,6 +6482,7 @@ SUB DebugMode
             debugClient& = 0
             debuggeepid = 0
 
+            panelActive = -1
             showvWatchPanel vWatchPanel, "", 1
             IF LEN(variableWatchList$) = 0 THEN
                 totalVisibleVariables = 0
@@ -6912,10 +6914,18 @@ SUB DebugMode
             IF vWatchPanel.closingPanel AND (mX = mouseDownOnX AND mY = mouseDownOnY) THEN
                 vWatchPanel.closingPanel = 0
                 mouseDown = 0
-                variableWatchList$ = ""
-                FOR i = 1 TO totalVariablesCreated
-                    usedVariableList(i).watch = 0
-                NEXT
+                panelActive = 0
+                result = idemessagebox("Close watch list", "Keep variables in list?", "#Yes, just hide the panel;#No, clear the list")
+                IF result = 2 THEN
+                    variableWatchList$ = ""
+                    backupVariableWatchList$ = "": REDIM backupUsedVariableList(1000) AS usedVarList
+                    FOR i = 1 TO totalVariablesCreated
+                        usedVariableList(i).watch = 0
+                    NEXT
+                END IF
+                PCOPY 3, 0: SCREEN , , 3, 0
+                WHILE _MOUSEINPUT: WEND
+
                 GOSUB UpdateDisplay
             END IF
             IF vWatchPanel.draggingVBar THEN
@@ -7370,6 +7380,7 @@ SUB DebugMode
                     WHILE _MOUSEINPUT: WEND
                     GOSUB UpdateDisplay
                     IF LEN(variableWatchList$) THEN
+                        panelActive = -1
                         GOTO requestVariableValues
                     END IF
                 END IF
@@ -7618,7 +7629,7 @@ SUB DebugMode
                 GOSUB UpdateDisplay
 
                 'request variables addresses
-                IF LEN(variableWatchList$) THEN
+                IF LEN(variableWatchList$) > 0 AND panelActive THEN
                     requestVariableValues:
                     temp$ = GetBytes$("", 0) 'reset buffer
                     temp$ = MID$(variableWatchList$, 9) 'skip longest var name and total visible vars
@@ -7822,7 +7833,7 @@ SUB DebugMode
     IF PauseMode <> 0 AND LEN(variableWatchList$) > 0 THEN
         IF WatchListToConsole THEN _CONSOLE ON
         totalVisibleVariables = CVL(MID$(variableWatchList$, 5, 4))
-        IF hidePanel = 0 THEN showvWatchPanel vWatchPanel, currentSub$, 0
+        IF hidePanel = 0 AND panelActive = -1 THEN showvWatchPanel vWatchPanel, currentSub$, 0
         hidePanel = 0
     END IF
 
