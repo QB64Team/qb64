@@ -8217,6 +8217,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
     DO 'main loop
 
         '-------- generic display dialog box & objects --------
+        dlgUpdate:
         idedrawpar p
         f = 1: cx = 0: cy = 0
         FOR i = 1 TO 100
@@ -8245,6 +8246,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
         'update visual page and cursor position
         PCOPY 1, 0
         IF cx THEN SCREEN , , 0, 0: LOCATE cy, cx, 1: SCREEN , , 1, 0
+        IF quickDlgUpdate THEN quickDlgUpdate = 0: RETURN
 
         '-------- read input --------
         change = 0
@@ -8346,6 +8348,8 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
             y = ABS(o(varListBox).sel)
 
             IF y >= 1 AND y <= totalVisibleVariables THEN
+                o(varListBox).sel = y
+                quickDlgUpdate = -1: GOSUB dlgUpdate
                 tempIndex& = varDlgList(y).index
                 IF (focus = 5 AND (usedVariableList(tempIndex&).subfunc = currentScope$ OR usedVariableList(tempIndex&).subfunc = "")) OR focus = 6 THEN
                     'scope is valid (or we're setting a watchpoint)
@@ -8829,6 +8833,8 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
             y = ABS(o(varListBox).sel)
 
             IF y >= 1 AND y <= totalVisibleVariables THEN
+                o(varListBox).sel = y
+                quickDlgUpdate = -1: GOSUB dlgUpdate
                 IF usedVariableList(varDlgList(y).index).watch <> 0 AND usedVariableList(varDlgList(y).index).isarray THEN
                     GOTO setArrayRange
                 END IF
@@ -9062,7 +9068,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
             'rebuild filtered list
             GOSUB buildList
             idetxt(o(varListBox).txt) = l$
-            o(varListBox).v1 = 1 'reset visible list to the first item
+            o(varListBox).sel = 0 'reset visible list to the first item
             IF LEN(searchTerm$) THEN temp$ = ", filtered" ELSE temp$ = ""
             idetxt(p.nam) = "Add Watch - Variable List (" + LTRIM$(STR$(totalVisibleVariables)) + temp$ + ")"
         END IF
