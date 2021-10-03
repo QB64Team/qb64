@@ -16671,7 +16671,7 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
     targetid = currentid
 
     IF RTRIM$(id2.callname) = "func_stub" THEN Give_Error "Command not implemented": EXIT FUNCTION
-    IF RTRIM$(id2.callname) = "func_input" AND inputfunctioncalled = 0 THEN
+    IF RTRIM$(id2.callname) = "func_input" AND args = 1 AND inputfunctioncalled = 0 THEN
         inputfunctioncalled = -1
         IF vWatchOn = 1 THEN
             PRINT #12, "*__LONG_VWATCH_LINENUMBER= -4; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);"
