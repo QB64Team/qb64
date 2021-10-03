@@ -17256,6 +17256,7 @@ SUB IdeImportBookmarks (f2$)
     IF x THEN
         FOR i = 1 TO x
             j = VAL(ReadSetting$(".\internal\temp\debug.ini", f2$, "breakpoint" + STR$(i)))
+            IF j > UBOUND(IdeBreakpoints) THEN EXIT FOR
             IdeBreakpoints(j) = -1
         NEXT
     END IF
@@ -17264,6 +17265,7 @@ SUB IdeImportBookmarks (f2$)
     IF x THEN
         FOR i = 1 TO x
             j = VAL(ReadSetting$(".\internal\temp\debug.ini", f2$, "skip" + STR$(i)))
+            IF j > UBOUND(IdeSkipLines) THEN EXIT FOR
             IdeSkipLines(j) = -1
         NEXT
     END IF
