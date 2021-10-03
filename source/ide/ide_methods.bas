@@ -8159,7 +8159,9 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
     NEXT
 
     searchTerm$ = filter$
+    firstRun = -1
     GOSUB buildList
+    firstRun = 0
     dialogHeight = (totalMainVariablesCreated) + 7
     listBuilt:
     i = 0
@@ -9126,9 +9128,29 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
         IF thisLen > maxVarLen THEN maxVarLen = thisLen
     NEXT
 
+    IF firstRun THEN
+        idepar p, 60, 1, "Building Variable List..."
+    END IF
+
     l$ = ""
     totalVisibleVariables = 0
     FOR x = 1 TO totalVariablesCreated
+
+        IF firstRun THEN
+            idedrawpar p
+            COLOR 0, 7
+            c = totalVariablesCreated
+            n = x
+
+            maxprogresswidth = 52 'arbitrary
+            percentage = INT(n / c * 100)
+            percentagechars = INT(maxprogresswidth * n / c)
+            percentageMsg$ = STRING$(percentagechars, 219) + STRING$(maxprogresswidth - percentagechars, 176) + STR$(percentage) + "%"
+            _PRINTSTRING (p.x + (p.w \ 2 - LEN(percentageMsg$) \ 2) + 1, p.y + 1), percentageMsg$
+
+            PCOPY 1, 0
+        END IF
+
         IF usedVariableList(x).includedLine THEN _CONTINUE 'don't add variables in $INCLUDEs
 
         IF LEN(searchTerm$) THEN
