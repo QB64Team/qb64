@@ -759,6 +759,7 @@ FUNCTION ide2 (ignore)
         GOSUB redrawItAll
         GOTO ExitDebugMode 'IdeDebugMode must be 0 here, if not, DebugMode errored.
     END IF
+
     IF c$ = CHR$(254) THEN
         '$DEBUG mode on
         IdeDebugMode = 1
@@ -5768,46 +5769,51 @@ FUNCTION ide2 (ignore)
             END IF
 
             IF menu$(m, s) = "#Watch List...  F4" THEN
-                PCOPY 2, 0
-                showWatchList:
-                IF vWatchOn = 0 THEN
-                    IF AutoAddDebugCommand = 0 THEN
-                        SCREEN , , 3, 0
-                        clearStatusWindow 2
-                        COLOR 14, 1
-                        x = 2
-                        y = idewy - 2
-                        printWrapStatus x, y, x, "$DEBUG metacommand is required for Watch List functionality."
-                        PCOPY 3, 0
-                        GOTO ideloop
-                    END IF
-                    result = idemessagebox("Watch List", "Insert $DEBUG metacommand?", "#Yes;#No")
-                    IF result = 1 THEN
-                        ideselect = 0
-                        ideinsline 1, SCase$("$Debug")
-                        idecy = idecy + 1
-                        idechangemade = 1
-                        GOTO ideloop
-                    ELSE
-                        GOTO ideloop
-                    END IF
+                IF IdeDebugMode = 2 THEN
+                    IdeDebugMode = 16
+                    GOTO EnterDebugMode
                 ELSE
-                    IF idecompiling = 1 THEN
-                        SCREEN , , 3, 0
-                        COLOR 14, 1
-                        x = 2
-                        y = idewy - 2
-                        printWrapStatus x, y, x, "Variable List will be available after syntax checking is done..."
-                        PCOPY 3, 0
-                        GOTO ideloop
+                    PCOPY 2, 0
+                    showWatchList:
+                    IF vWatchOn = 0 THEN
+                        IF AutoAddDebugCommand = 0 THEN
+                            SCREEN , , 3, 0
+                            clearStatusWindow 2
+                            COLOR 14, 1
+                            x = 2
+                            y = idewy - 2
+                            printWrapStatus x, y, x, "$DEBUG metacommand is required for Watch List functionality."
+                            PCOPY 3, 0
+                            GOTO ideloop
+                        END IF
+                        result = idemessagebox("Watch List", "Insert $DEBUG metacommand?", "#Yes;#No")
+                        IF result = 1 THEN
+                            ideselect = 0
+                            ideinsline 1, SCase$("$Debug")
+                            idecy = idecy + 1
+                            idechangemade = 1
+                            GOTO ideloop
+                        ELSE
+                            GOTO ideloop
+                        END IF
                     ELSE
-                        result$ = idevariablewatchbox$("", "", 0, 0)
-                        PCOPY 3, 0: SCREEN , , 3, 0
-                        GOTO ideloop
+                        IF idecompiling = 1 THEN
+                            SCREEN , , 3, 0
+                            COLOR 14, 1
+                            x = 2
+                            y = idewy - 2
+                            printWrapStatus x, y, x, "Variable List will be available after syntax checking is done..."
+                            PCOPY 3, 0
+                            GOTO ideloop
+                        ELSE
+                            result$ = idevariablewatchbox$("", "", 0, 0)
+                            PCOPY 3, 0: SCREEN , , 3, 0
+                            GOTO ideloop
+                        END IF
                     END IF
+                    PCOPY 3, 0: SCREEN , , 3, 0
+                    GOTO ideloop
                 END IF
-                PCOPY 3, 0: SCREEN , , 3, 0
-                GOTO ideloop
             END IF
 
             IF menu$(m, s) = "Call #Stack...  F12" OR menu$(m, s) = "Call Stack...  F12" THEN
@@ -6440,6 +6446,10 @@ SUB DebugMode
 
     SCREEN , , 3, 0
 
+    COLOR 15, 3: _PRINTSTRING (1, 1), SPACE$(LEN(menubar$))
+    m$ = "$DEBUG MODE ACTIVE"
+    _PRINTSTRING ((idewx - LEN(m$)) \ 2, 1), m$
+
     TYPE vWatchPanelType
         AS INTEGER x, y, w, h, firstVisible, hPos, vBarThumb, hBarThumb
         AS INTEGER draggingVBar, draggingHBar, mX, mY
@@ -6509,7 +6519,7 @@ SUB DebugMode
         CASE 4: IdeDebugMode = 1: GOTO requestContinue
         CASE 5: IdeDebugMode = 1: GOTO requestStepOut
         CASE 6: IdeDebugMode = 1: GOTO requestStepOver
-        CASE 7: IdeDebugMode = 1: GOTO requestPause
+        CASE 7: IdeDebugMode = 1: GOTO requestStepInto
         CASE 8
             IdeDebugMode = 1
             result = idecy
@@ -6527,11 +6537,8 @@ SUB DebugMode
             GOTO requestSetNextLine
         CASE 14: IdeDebugMode = 1: GOTO requestSubsDialog
         CASE 15: IdeDebugMode = 1: GOTO requestUnskipAllLines
+        CASE 16: IdeDebugMode = 1: GOTO requestVariableWatch
     END SELECT
-
-    COLOR 15, 3: _PRINTSTRING (1, 1), SPACE$(LEN(menubar$))
-    m$ = "$DEBUG MODE ACTIVE"
-    _PRINTSTRING ((idewx - LEN(m$)) \ 2, 1), m$
 
     dummy = DarkenFGBG(1)
     clearStatusWindow 0
@@ -7422,6 +7429,7 @@ SUB DebugMode
                 END IF
             CASE 16640 'F7
                 F7:
+                requestStepInto:
                 IF PauseMode = 0 THEN
                     cmd$ = "break"
                     PauseMode = -1
