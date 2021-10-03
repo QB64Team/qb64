@@ -9060,6 +9060,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
             'rebuild filtered list
             GOSUB buildList
             idetxt(o(varListBox).txt) = l$
+            o(varListBox).v1 = 1 'reset visible list to the first item
             IF LEN(searchTerm$) THEN temp$ = ", filtered" ELSE temp$ = ""
             idetxt(p.nam) = "Add Watch - Variable List (" + LTRIM$(STR$(totalVisibleVariables)) + temp$ + ")"
         END IF
