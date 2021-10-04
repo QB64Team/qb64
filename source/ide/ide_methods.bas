@@ -19288,12 +19288,13 @@ FUNCTION isnumber (__a$)
     a$ = LEFT$(a$, i - 1)
 
     proceedWithoutSymbol:
+    ff = 0
     ee = 0
     dd = 0
     FOR i = 1 TO LEN(a$)
         a = ASC(a$, i)
         IF a = 45 THEN
-            IF (i = 1 AND LEN(a$) > 1) OR (i > 1 AND ((dd > 0 AND dd = i - 1) OR (ee > 0 AND ee = i - 1))) THEN _CONTINUE
+            IF (i = 1 AND LEN(a$) > 1) OR (i > 1 AND ((dd > 0 AND dd = i - 1) OR (ee > 0 AND ee = i - 1) OR (ff > 0 AND ff = i - 1))) THEN _CONTINUE
             EXIT FUNCTION
         END IF
         IF a = 46 THEN
@@ -19301,20 +19302,23 @@ FUNCTION isnumber (__a$)
             dp = 1
             _CONTINUE
         END IF
-        IF a = 68 THEN 'dd
-            IF dd > 0 OR ee > 0 THEN EXIT FUNCTION
-            IF i < 3 THEN EXIT FUNCTION
+        IF a = 68 THEN 'dD
+            IF dd > 0 OR ee > 0 OR ff > 0 THEN EXIT FUNCTION
             dd = i
             _CONTINUE
         END IF
         IF a = 69 THEN 'eE
-            IF dd > 0 OR ee > 0 THEN EXIT FUNCTION
-            IF i < 3 THEN EXIT FUNCTION
+            IF dd > 0 OR ee > 0 OR ff > 0 THEN EXIT FUNCTION
             ee = i
             _CONTINUE
         END IF
+        IF a = 70 THEN 'fF
+            IF dd > 0 OR ee > 0 OR ff > 0 THEN EXIT FUNCTION
+            ff = i
+            _CONTINUE
+        END IF
         IF a = 43 THEN '+
-            IF (dd > 0 AND dd = i - 1) OR (ee > 0 AND ee = i - 1) THEN _CONTINUE
+            IF (dd > 0 AND dd = i - 1) OR (ee > 0 AND ee = i - 1) OR (ff > 0 AND ff = i - 1) THEN _CONTINUE
             EXIT FUNCTION
         END IF
 
