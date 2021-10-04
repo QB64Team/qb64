@@ -43,20 +43,18 @@
 - Fixes evaluation of valid var/flag names for `$Let`/`$If` - same rules for variable names now apply.
 - Fixes incorrect parsing of `Type` blocks with multiple elements using the `AS type element-list` syntax.
 - Fixes issue with `Put #` and variable-length strings in UDTs (`Binary` files).
+- Fixes issue with recursive functions without parameters.
 
 ### Windows
 - Allows `$Console:Only` programs to return `_WindowHandle`.
 - Saving a file to the root of a drive would display double backslashes in the Recent Files list.
 
-<!---
 ### macOS
---->
+- Flushes the console output so `Print` can properly display text even while retaining the cursor.
 
 ### Linux
 - `xmessage` added to dependency list (setup script).
 - Fixes `InKey$` acting too slow.
-- Fixes compilation error with DATA statements on gcc 11.
+- Fixes compilation error with `Data` statements on gcc 11.
 - Detects non-x86 based architectures.
-<!---
-- Patches condition that would leave zombie processes behind when using `Shell _DontWait`.
---->
+- Flushes the console output so `Print` can properly display text even while retaining the cursor.
