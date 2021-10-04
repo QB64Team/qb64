@@ -10653,6 +10653,9 @@ void qbs_print(qbs* str,int32 finish_on_new_line){
         static qbs* strz; if (!strz) strz=qbs_new(0,0);
         qbs_set(strz,qbs_add(str,qbs_new_txt_len("\0",1)));
         if (finish_on_new_line) cout<<(char*)strz->chr<<endl; else cout<<(char*)strz->chr;
+        #ifndef QB64_WINDOWS
+            std::cout.flush();
+        #endif
         return;
     }
     
