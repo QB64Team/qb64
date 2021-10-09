@@ -1,0 +1,48 @@
+{{DISPLAYTITLE:_GL}}
+In order to use OpenGL drawing commands, you must do so from inside a [[SUB]] procedure called '''_GL''', which enables the commands to be rendered.
+
+
+{{PageSyntax}}
+:[[SUB]] _GL
+:: ''REM Your OpenGL code here
+: [[END]] [[SUB]]
+
+{{PageDescription}}
+* OpenGL commands are valid outside of '''SUB _GL''', as long as the sub procedure exists in your code.
+* Attempting to use OpenGL commands without having '''SUB _GL''' in a program will result in a '''Syntax error''', even if the syntax is valid.
+* SUB '''_GL''' cannot be invoked manually. The code inside it will be called automatically at approximately 60 frames per second.
+* Using [[INPUT]] inside SUB '''_GL''' will crash your program.
+* If your program needs to perform any operations before SUB _GL must be run, it is recommended to use a shared variable as a flag to allow SUB _GL's contents to be run. See example below.
+
+
+==Example==
+
+{{CodeStart}} '' ''
+{{Cl|DIM}} allowGL {{Cl|AS}} {{Cl|_BYTE}}
+
+'perform startup routines like loading assets
+
+allowGL = -1 'sets allowGL to true so SUB _GL can run
+
+{{Cl|DO}}
+    {{Cl|_LIMIT}} 1 'runs the main loop at 1 cycle per second
+    'notice how the main loop doesn't do anything, as SUB _GL will be running
+    'continuously.
+{{Cl|LOOP}}
+
+{{Cl|SUB}} {{Cl|_GL}}
+    {{Cl|IF}} NOT allowGL {{Cl|THEN}} {{Cl|EXIT}} {{Cl|SUB}} 'used to bypass running the code below until
+    '                             startup routines are done in the main module
+
+    'OpenGL code starts here
+    'The code in this area will be run automatically at ~60fps
+{{Cl|END}} {{Cl|SUB}} '' ''
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[_GLRENDER]]
+* [[SUB]]
+
+
+{{PageNavigation}}
