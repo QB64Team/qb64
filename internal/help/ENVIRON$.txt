@@ -1,4 +1,4 @@
-The [[ENVIRON$]] function returns a [[STRING]] environmental value from '''Windows'''' environmental settings list.
+The [[ENVIRON$]] function returns a [[STRING]] environmental value from the Operating System's environmental settings list.
 
 
 {{PageSyntax}} 
@@ -8,7 +8,7 @@ The [[ENVIRON$]] function returns a [[STRING]] environmental value from '''Windo
 {{PageDescription}}
 * The function can use an [[INTEGER]] {{Parameter|listIndex%}} value or [[STRING]] {{Parameter|systemID$}} parameter.
 * {{Parameter|listIndex%}} refers to the number order of the environmental list. Returns are not in any particular numerical order.
-* {{Parameter|systemID$}} is the specific [[STRING]] parameter requested. Returns only the specified environmental [[STRING]] setting:
+* {{Parameter|systemID$}} is the specific [[STRING]] parameter requested. Returns only the specified environmental [[STRING]] setting (examples based on Windows):
 ** "BLASTER" = current Sound Blaster settings if installed. 
 ** "COMPUTERNAME" or "USERDOMAIN" = OEM PC serial number or the computer name assigned by owner.
 ** "HOMEDRIVE" or "SystemDrive" = Windows root drive, normally C: on single partition drives.
@@ -117,7 +117,7 @@ Q$ = {{Cl|CHR$}}(34)                       '=== Write URL Shortcut file info.
 
 
 ''See also:'' 
-* [[ENVIRON]] (statement)
+* [[ENVIRON]] (statement), [[_ENVIRONCOUNT]]
 * [[_DEVICES]], [[_DEVICE$]]
 * [[_LASTBUTTON]], [[_OS$]]
 * [[Windows Environment]]

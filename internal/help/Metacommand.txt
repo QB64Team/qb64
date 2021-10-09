@@ -29,6 +29,8 @@
 
 :[[$CONSOLE]][:ONLY] 'creates a QB64 console window throughout the program
 
+:[[$DEBUG]] 'enables debugging features
+
 :[[$ERROR]] message 'triggers a compilation error, useful inside $IF blocks
 
 :[[$EXEICON]]:'iconfile.ico' 'embeds an .ICO file into the final executable (Windows only)
@@ -56,6 +58,7 @@
 * [[$CHECKING]] '''OFF''' should only be used with '''errorless''' code where every CPU cycle counts! Use '''ON''' to re-enable event checking. Event checking can be turned OFF or ON throughout a program.
 * [[$COLOR]] includes named color constants in a program.
 * [[$CONSOLE]] creates a console window which can be turned off later with [[_CONSOLE]] OFF.
+* [[$DEBUG]] enables debugging features allowing you to step through your code running line by line and to inspect variables and change their values in real time.
 * [[$EXEICON]] embeds a designated icon file into the compiled EXE file. (Windows ONLY)
 * [[$ERROR]] MESSAGE causes a compilation error whenever QB64 attempts to compile it, displaying MESSAGE to the user. This is useful if inside a $IF block, as the error can be conditional.
 * [[$IF]]...[[$END IF]] allows selective inclusion of code in the final program.

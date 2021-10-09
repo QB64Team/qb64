@@ -112,6 +112,7 @@ __NOTOC__
 * [[_D2R]] (function) {{text|converts degrees to radian angle values.}}
 * [[DECLARE LIBRARY|DECLARE LIBRARY (QB64 statement block)]] {{text|declares a C++, SDL or Operating System [[SUB]] or [[FUNCTION]] to be used.}}
 * [[DECLARE DYNAMIC LIBRARY|DECLARE DYNAMIC LIBRARY (QB64 statement)]] {{text|declares DYNAMIC, CUSTOMTYPE or STATIC library (DLL) [[SUB]] or [[FUNCTION]].}}
+* [[$DEBUG]] (precompiler [[metacommand]]) {{text|enables debugging features allowing you to step through your code running line by line and to inspect variables and change their values in real time.}}
 * [[_DEFAULTCOLOR]] (function) {{text|returns the current default text color for an image handle or page.}}
 * [[_DEFINE]] (statement) {{text|defines a range of variable names according to their first character as a data type.}}
 * [[_DEFLATE$]] (function) {{text|compresses a string}}
@@ -142,6 +143,7 @@ __NOTOC__
 * [[$ELSE]] (precompiler [[metacommand]]) {{text|used in conjunction with $IF for the precompiler.}}
 * [[$ELSEIF]] (precompiler [[metacommand]]) {{text|used in conjunction with $IF for the precompiler.}}
 * [[$END IF]] (precompiler [[metacommand]]) {{text|used in conjunction with $IF for the precompiler.}}
+* [[_ENVIRONCOUNT]] (function) {{text|returns the number of key/value pairs currently exist in the environment table.}}
 * [[$ERROR]]  (precompiler [[metacommand]]) {{text|used to trigger compiler errors.}}
 * [[_ERRORLINE]] (function) {{text|returns the source code line number that caused the most recent runtime error.}}
 * [[_ERRORMESSAGE$]] (function) {{text|returns a human-readable message describing the most recent runtime error.}}
@@ -207,8 +209,8 @@ __NOTOC__
 
 &lt;div id = "uK">_K&lt;/div>
 *[[_KEYCLEAR]] (statement) {{text|clears the keyboard buffers for INKEY$, _KEYHIT, and INP.}}
-*[[_KEYHIT]] (function) {{text|returns [[ASCII]] one and two byte, SDL Virtual Key and [[Unicode]] keyboard key press codes.}}
 *[[_KEYDOWN]] (function) {{text|returns whether CTRL, ALT, SHIFT, combinations and other keys are pressed.}}
+*[[_KEYHIT]] (function) {{text|returns [[ASCII]] one and two byte, Virtual Key and [[Unicode]] keyboard key press codes.}}
 
 
 ----
@@ -521,7 +523,7 @@ __NOTOC__
 * [[ELSEIF]] ([[IF...THEN]] statement) {{text|is used with [[THEN]] to set alternate conditional evaluations.}}
 * [[END]] (statement) {{text|sets the end of a program, sub-procedure, statement block, [[DECLARE LIBRARY]] or [[TYPE]] definition.}}
 * [[IF...THEN|END IF]] (statement) {{text|[[END]]s an IF...THEN conditional block statement using more than one line of code.}}
-* [[ENVIRON]] (statement) {{text|temporarily sets an environmental key/pair value.}}
+* [[ENVIRON]] (statement) {{text|temporarily sets an environmental key/value pair.}}
 * [[ENVIRON$]] (function) {{text|returns a specified string setting or numerical position as an environmental [[STRING]] value.}}
 * [[EOF]] (file function) {{text|returns -1 when a file [[INPUT (file statement)|INPUT]] or [[GET]] has reached the end of a file.}}
 * [[EQV]] (logic operator) {{text|is used to compare two numerical values bitwise.}}

@@ -186,8 +186,9 @@
 
 * [[CHDIR]] (statement) {{text|changes the program path to a new path.}}
 * [[COMMAND$]] (function) {{text|returns command line parameters sent when a program is started.}}
-* [[ENVIRON]] (statement) {{text|temporarily sets an environmental key/pair value.}}
+* [[ENVIRON]] (statement) {{text|temporarily sets an environmental key/value pairs.}}
 * [[ENVIRON$]] (function) {{text|returns the environmental settings of the computer.}}
+* [[_ENVIRONCOUNT]] (function) {{text|returns the number of key/value pairs currently exist in the environment table.}}
 * [[FILES]] (statement) {{text|displays a specified list of files.}}
 * [[MKDIR]] (statement) {{text|creates a new directory folder in the designated path.}}
 * [[NAME]] (statement) {{text|renames a file.}}
@@ -333,12 +334,13 @@ The following table describes the error codes that are reported by the '''QB64''
 
 &lt;p style="text-align: center">([[#toc|Return to Table of Contents]])&lt;/p>
 
-== Error Trapping ==
+== Error Trapping/Debugging ==
 
 
 * [[_ASSERT]] (statement) {{text|performs debug tests.}}
 * [[$ASSERTS]] ([[Metacommand]]) {{text|enables the [[_ASSERT]] macro.}}
 * [[$CHECKING]] ([[Metacommand]]) {{text|turns off or on error event checking and strips error code from compiled programs.}}
+* [[$DEBUG]] (precompiler [[metacommand]]) {{text|enables debugging features allowing you to step through your code running line by line and to inspect variables and change their values in real time.}}
 * [[_ERRORLINE]] (function) {{text|returns the actual text code line where a program error occurred.}} 
 * [[_INCLERRORFILE$]] (function) {{text|returns the name of the original source code $INCLUDE module that caused the most recent error.}}
 * [[_INCLERRORLINE]] (function) {{text|returns the line number in an included file that caused the most recent error.}}

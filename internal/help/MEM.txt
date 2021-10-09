@@ -1,0 +1,145 @@
+{{DISPLAYTITLE:_MEM}}
+The [[_MEM]] variable type can be used when working with memory blocks. It has no variable [[Variable Types|type]] suffix.
+
+
+{{PageSyntax}}
+:  [[DIM]] m [[AS]] [[_MEM]]
+
+
+{{PageDescription}}
+''Variable TYPE:''
+* Memory DOT values are actually part of the built in memory variable [[Variable Types|type]] in QB64. The following [[TYPE]] is built in:
+{{WhiteStart}}TYPE memory_type
+  OFFSET AS _OFFSET       'start location of block(changes with byte position)
+  SIZE AS _OFFSET         'size of block remaining at offset(changes with position)
+  TYPE AS _OFFSET         'type description of variable used(never changes)
+  ELEMENTSIZE AS _OFFSET  'byte size of values inside the block(never changes)
+  IMAGE AS LONG           'the image handle used when _MEMIMAGE(handle) is used
+  SOUND AS LONG           'the sound handle used when _MEMSOUND(handle) is used
+END TYPE
+
+{{text|The above [[TYPE]] is for clarification purposes only. It '''doesn't need''' to be pasted in a program to use _MEM.|red}}
+{{WhiteEnd}}
+
+===Usage===
+* The _MEM type contains the following '''read-only''' elements where ''name'' is the _MEM variable name:
+:: ''name'''''.OFFSET''' is the current start position in the memory block AS [[_OFFSET]]. Add bytes to change position.
+:: ''name'''''.SIZE''' is the remaining size of the block at current position in bytes AS [[_OFFSET]]
+:: ''name'''''.TYPE''' is the type (represented as bits combined to form a value) AS [[_OFFSET]]:
+
+==.TYPE values ==
+:::* [bit 0] 1* byte types (_BYTE)
+:::* [bit 1] 2* byte types (INTEGER)
+:::* [bit 2] 4* byte types (LONG or SINGLE)
+:::* [bit 3] 8* byte types (DOUBLE or _INTEGER64)
+:::* [bit 4] 16* byte types (reserved for future use)
+:::* [bit 5] 32* byte types (_FLOAT)
+:::* [bit 6] 64* byte types (reserved for future use)
+:::* [bit 7] 128 = integer types (_BYTE, INTEGER, LONG, _INTEGER64) (added to *)
+:::* [bit 8] 256 = floating point types (SINGLE, DOUBLE, _FLOAT) (added to *)
+:::* [bit 9] 512 = STRING types (fixed length or variable length)
+:::* [bit 10] 1024 = _UNSIGNED types (added to *+128)
+:::* [bit 11] 2048 = pixel data usually from _MEMIMAGE (added to 1+128+1024 for 256 color screens, or 2+128+1024 for text screens, or 4+128+1024 for 32-bit color screens)
+:::* [bit 12] 4096 = _MEM TYPE structure (NOT added to 32768)
+:::* [bit 13] 8192 = _OFFSET type (added to 4+128+[1024] or 8+128+[1024] or future_size+128+[1024])
+:::* [bit 14] 16384 = data created/defined by _MEMNEW(size) or _MEMNEW(offset,size)
+:::* [bit 15] 32768 = a custom, user defined type (ie. created with TYPE name ... END TYPE)
+:::* [bit 16] 65536 = an array of data (added to other type values defining the array's data type)
+''Note: If a future integer, float or other type doesn't have a size that is 1,2,4,8,16,32,64,128 or 256 it won't have a size-bit set.''
+
+* '''Note: [[_OFFSET]] values cannot be cast to other variable [[Variable Types|type]]s reliably. _MEM is a reserved custom variable [[Variable Types|type]].'''
+* '''[[_MEM (function)|_MEM]] cannot reference variable length [[STRING]] variable values. String values must be designated as a fixed-[[LEN|length]] string.'''
+
+
+{{PageExamples}}
+''Example 1:'' Demonstration of .IMAGE to determine an image's dimensions, .TYPE to verify the type and [[_MEMEXISTS]] to check image has not been freed
+{{CodeStart}}
+{{Cl|SCREEN}} {{Cl|_NEWIMAGE}}(500, 500, 32)
+i = {{Cl|_LOADIMAGE}}("qb64_trans.png", 32)
+{{Cl|_PUTIMAGE}} (0, 0), i
+{{Cl|DIM}} m {{Cl|AS}} {{Cl|_MEM}}
+m = {{Cl|_MEMIMAGE}}(i)
+'try uncommenting the following line and see what happens
+'{{Cl|_MEMFREE}} m
+t = m.{{Cl|TYPE}}
+{{Cl|IF...THEN|IF}} t {{Cl|AND (boolean)|AND}} 2048 {{Cl|THEN}}
+  {{Cl|PRINT}} "this is/was an image"
+  {{Cl|IF...THEN|IF}} {{Cl|_MEMEXISTS}}(m) {{Cl|THEN}} 'check if memory m is still available
+    {{Cl|PRINT}} t {{Cl|AND (boolean)|AND}} 7; "bytes per pixel"
+    {{Cl|PRINT}} "image handle "; m.IMAGE
+    {{Cl|PRINT}} "image width"; {{Cl|_WIDTH (function)|_WIDTH}}(m.IMAGE)
+    {{Cl|PRINT}} "image height"; {{Cl|_HEIGHT}}(m.IMAGE)
+  {{Cl|ELSE}} {{Cl|PRINT}} "Memory already freed!"
+  {{Cl|END IF}}
+{{Cl|END IF}} '' ''
+{{CodeEnd}}
+
+
+''Example 2:'' Converts the current [[_DEST|destination]] [[SCREEN]] 13 image memory altered by [[PSET]] to a [[STRING]] value. SCREEN 13 only.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 13
+{{Cl|PSET}} (0, 0), {{Cl|ASC}}("H") 'top left corner of screen
+{{Cl|PSET}} (1, 0), {{Cl|ASC}}("E")
+{{Cl|PSET}} (2, 0), {{Cl|ASC}}("L")
+{{Cl|PSET}} (3, 0), {{Cl|ASC}}("L")
+{{Cl|PSET}} (4, 0), {{Cl|ASC}}("O")
+
+{{Cl|DIM}} m {{Cl|AS}} {{Cl|_MEM}}
+m = {{Cl|_MEMIMAGE}}(0)  'copy the screen memory to m
+x1$ = {{Cl|_MEMGET (function)|_MEMGET}}(m, m.OFFSET, {{Cl|STRING}} * 5) 'get at block start position
+{{Cl|LOCATE}} 2, 1:{{Cl|PRINT}} {{Cl|LEN}}(x1$) 'prints 5 bytes as size is STRING * 5
+{{Cl|PRINT}} x1$ 'prints HELLO as ASCII character values
+{{Cl|PRINT}} m.OFFSET; m.SIZE; m.ELEMENTSIZE
+{{Cl|_MEMFREE}} m '' ''
+{{CodeEnd}}
+{{OutputStart}}
+ 5
+HELLO
+ 5448320  6400  1
+{{OutputEnd}}
+: ''Explanation:'' When a numerical [[_BYTE]] value is converted to a [[STRING]], each byte is converted to an [[ASCII]] character. The QB64 IDE will capitalize _MEM dot values.
+{{WhiteStart}}                                        m.SIZE = 320 * 200 = 6400 bytes
+                                        m.ELEMENTSIZE = 1 byte
+{{WhiteEnd}}
+
+''Example 3:'' Using _MEM to convert _OFFSET to _INTEGER64.
+{{CodeStart}} '' ''
+DIM x AS INTEGER
+DIM m AS _MEM
+m = _MEM(x)
+PRINT m.OFFSET
+PRINT ConvertOffset(m.OFFSET)
+
+
+FUNCTION ConvertOffset&amp;&amp; (value AS _OFFSET)
+$CHECKING:OFF
+DIM m AS _MEM 'Define a memblock
+m = _MEM(value) 'Point it to use value
+$IF 64BIT THEN
+    'On 64 bit OSes, an OFFSET is 8 bytes in size.  We can put it directly into an Integer64
+    _MEMGET m, m.OFFSET, ConvertOffset&amp;&amp; 'Get the contents of the memblock and put the values there directly into ConvertOffset&amp;&amp;
+$ELSE
+    'However, on 32 bit OSes, an OFFSET is only 4 bytes.  We need to put it into a LONG variable first
+    _MEMGET m, m.OFFSET, temp&amp; 'Like this
+    ConvertOffset&amp;&amp; = temp&amp; 'And then assign that long value to ConvertOffset&amp;&amp;
+$END IF
+_MEMFREE m 'Free the memblock
+$CHECKING:ON
+END FUNCTION
+
+{{CodeEnd}}
+
+''Explanation:'' The above will print two numbers which should match.  These numbers will vary, as they're representations of where X is stored in memory, and that position is going to vary every time the program is run.  What it should illustrate, however, is a way to convert _OFFSET to _INTEGER64 values, which can sometimes be useful when trying to run calculations involving mem.SIZE, mem.TYPE, or mem.ELEMENTSIZE.
+
+
+
+{{PageSeeAlso}}
+* [[_MEM (function)]]
+* [[_MEMELEMENT]], [[_MEMCOPY]]
+* [[_MEMIMAGE]], [[_MEMNEW]]
+* [[_MEMSOUND]]
+* [[_MEMGET]], [[_MEMPUT]]
+* [[_MEMFILL]], [[_MEMFREE]]
+
+
+{{PageNavigation}}

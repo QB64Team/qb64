@@ -1,0 +1,52 @@
+{{DISPLAYTITLE:_MEMGET}}
+The [[_MEMGET]] statement reads a portion of a memory block at an OFFSET position into a variable, array or user defined type.
+
+
+{{PageSyntax}}
+: [[_MEMGET]] {{Parameter|memoryBlock}}, {{Parameter|bytePosition}}, {{Parameter|destinationVariable}}
+
+
+* {{Parameter|memoryBlock}} is a [[_MEM]] variable type memory block name created by [[_MEMNEW]] or the [[_MEM (function)|_MEM]] function.
+* {{Parameter|bytePosition}} is the {{Parameter|memoryBlock}}.[[OFFSET]] memory start position plus any bytes to move into the block. 
+* {{Parameter|destinationVariable}} is the variable assigned to hold the data. The number of bytes read is determined by the variable [[Variable Types|type]] used.
+
+
+{{PageDescription}}
+* The [[_MEMGET]] statement is similar to the [[GET]] statement used in files, but the position is required.
+* The memory block name.[[OFFSET]] returns the starting byte position of the block. Add bytes to move into the block.
+* The variable type held in the memory block can determine the next {{Parameter|bytePosition}} to read. 
+* [[LEN]] can be used to determine the byte size of numerical or user defined variable [[Variable Types|type]]s regardless of the value held.
+* [[STRING]] values should be of a defined length. Variable length strings can actually move around in memory and not be found.
+
+
+{{PageExamples}}
+''Example:'' Shows how to read the PSET color values from a program's [[SCREEN]] memory to an array.
+{{CodeStart}} '' ''
+{{Cl|SCREEN}} 13
+{{Cl|PSET}} (0, 0), 123
+{{Cl|PSET}} (1, 0), 222 'create screen image
+
+'here is an array
+{{Cl|DIM}} screen_array(319, 199) {{Cl|AS}} {{Cl|_UNSIGNED}} {{Cl|_BYTE}} 'use screen dimensions from 0
+
+'here's how we can copy the screen to our array
+{{Cl|DIM}} m {{Cl|AS}} {{Cl|_MEM}}
+m = {{Cl|_MEMIMAGE}}  '0 or no handle necessary when accessing the current program screen
+{{Cl|_MEMGET}} m, m.OFFSET, screen_array()
+
+'here's the proof
+{{Cl|PRINT}} screen_array(0, 0) 'print 123
+{{Cl|PRINT}} screen_array(1, 0) 'print 222 
+{{Cl|END}} '' ''
+{{CodeEnd}}
+
+
+{{PageSeeAlso}}
+* [[_MEMGET (function)]]
+* [[_MEMPUT]]
+* [[_MEM]]
+* [[_MEMIMAGE]]
+* [[_MEMFREE]]
+
+
+{{PageNavigation}}
