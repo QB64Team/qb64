@@ -1,0 +1,92 @@
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  linux-build:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'ci-skip')"
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: sudo apt update && sudo apt install libglu1-mesa-dev libncurses-dev
+    - name: Bootstrap compiler
+      run: .ci/bootstrap.sh lnx
+    - name: Compile
+      run: .ci/compile.sh
+    - name: Setup aws
+      if: github.event_name == 'push'
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-2
+    - name: Publish to S3
+      if: github.event_name == 'push'
+      run: .ci/deploy.sh lnx
+
+  macos-build:
+    runs-on: macos-latest
+    if: "!contains(github.event.head_commit.message, 'ci-skip')"
+    steps:
+    - uses: actions/checkout@v2
+    - name: Bootstrap compiler
+      run: .ci/bootstrap.sh osx
+    - name: Compile
+      run: .ci/compile.sh
+    - name: Setup aws
+      if: github.event_name == 'push'
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-2
+    - name: Publish to S3
+      if: github.event_name == 'push'
+      run: .ci/deploy.sh osx
+
+  windows-x86-build:
+    runs-on: windows-latest
+    if: "!contains(github.event.head_commit.message, 'ci-skip')"
+    env:
+      PLATFORM: x86
+    steps:
+    - uses: actions/checkout@v2
+    - name: Bootstrap compiler
+      run: .ci/bootstrap.bat
+    - name: Compile
+      run: .ci/compile.bat
+    - name: Setup aws
+      if: github.event_name == 'push'
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-2
+    - name: Publish to S3
+      if: github.event_name == 'push'
+      run: .ci/deploy.ps1
+
+  windows-x64-build:
+    runs-on: windows-latest
+    if: "!contains(github.event.head_commit.message, 'ci-skip')"
+    env:
+      PLATFORM: x64
+    steps:
+    - uses: actions/checkout@v2
+    - name: Bootstrap compiler
+      run: .ci/bootstrap.bat
+    - name: Compile
+      run: .ci/compile.bat
+    - name: Setup aws
+      if: github.event_name == 'push'
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-2
+    - name: Publish to S3
+      if: github.event_name == 'push'
+      run: .ci/deploy.ps1
+
