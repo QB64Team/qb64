@@ -14,7 +14,7 @@
 
 ## Fixes
 ### All platforms
-- 
+- Fix "Duplicate definition" error with `Static` arrays in Subs/Functions with active `On Error` trapping.
 
 <!---
 ### Windows
