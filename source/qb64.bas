@@ -13923,7 +13923,7 @@ FUNCTION allocarray (n2$, elements$, elementsize, udt)
             'REDIM (not DIM) must be used to redefine an array
             IF redimoption = 0 THEN
                 f12$ = f12$ + CRLF + "if (" + n$ + "[2]&1){" 'array is defined
-                f12$ = f12$ + CRLF + "error(10);" 'cannot redefine an array without using REDIM!
+                f12$ = f12$ + CRLF + "if (!error_occurred) error(10);" 'cannot redefine an array without using REDIM!
                 f12$ = f12$ + CRLF + "}else{"
             ELSE
                 '--------ERASE EXISTING ARRAY IF NECESSARY--------
