@@ -103,6 +103,17 @@ FUNCTION ide (ignore)
                                 status.progress$ = STRING$(3 - LEN(status.progress$), 32) + status.progress$ + "%"
                             END IF
                             IdeInfo = CHR$(0) + status.progress$
+                        'ELSE
+                        '    STATIC p AS _BYTE, lastUpdateDots AS SINGLE
+                        '    IF TIMER - lastUpdateDots > .5 THEN
+                        '        lastUpdateDots = TIMER
+                        '        p = p + 1
+                        '        temp$ = STRING$(3, 250) '"..."
+                        '        IF p > 3 THEN p = 1
+                        '        ASC(temp$, p) = 254
+                        '        COLOR 7, 1
+                        '        _PRINTSTRING (2, idewy - 3), temp$ 'compilation progress indicator
+                        '    END IF
                         END IF
                         UpdateIdeInfo
 
@@ -1085,7 +1096,7 @@ FUNCTION ide2 (ignore)
                 IF IDEShowErrorsImmediately OR IDECompilationRequested THEN
                     clearStatusWindow 0
                     IdeInfo = ""
-                    _PRINTSTRING (2, idewy - 3), "..." 'assume new compilation will begin
+                    _PRINTSTRING (2, idewy - 3), STRING$(3, 250) 'assume new compilation will begin "..."
                 END IF
             END IF
 
@@ -2975,7 +2986,7 @@ FUNCTION ide2 (ignore)
                             IF tempInclude1$ = tempInclude2$ THEN
                                 IF IDEShowErrorsImmediately THEN
                                     IF idecompiling = 1 THEN
-                                        _PRINTSTRING (2, idewy - 3), "..."
+                                        _PRINTSTRING (2, idewy - 3), STRING$(3, 250) '"..."
                                     ELSE
                                         _PRINTSTRING (2, idewy - 3),  "OK" 'report OK status
                                         statusarealink = 0
@@ -6350,10 +6361,10 @@ FUNCTION ide2 (ignore)
         IdeInfo = ""
 
         IF idecompiling = 1 THEN
-            _PRINTSTRING (2, idewy - 3), "..."
+            _PRINTSTRING (2, idewy - 3), STRING$(3, 250) '"..."
         ELSE
             IF idefocusline THEN
-                _PRINTSTRING (2, idewy - 3), "..."
+                _PRINTSTRING (2, idewy - 3), STRING$(3, 250) '"..."
             ELSE
                 _PRINTSTRING (2, idewy - 3), "OK" 'report OK status
             END IF
