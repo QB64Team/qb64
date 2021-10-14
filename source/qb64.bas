@@ -16980,6 +16980,35 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                     GOTO evalfuncspecial
                 END IF
 
+
+                '*special case*
+                IF n$ = "_BIN" OR (n$ = "BIN" AND qb64prefix_set = 1) THEN
+                    IF RTRIM$(id2.musthave) = "$" THEN
+                        bits = sourcetyp AND 511
+
+                        IF (sourcetyp AND ISSTRING) THEN Give_Error "Expected numeric value": EXIT FUNCTION
+                        wasref = 0
+                        IF (sourcetyp AND ISREFERENCE) THEN e$ = refer(e$, sourcetyp, 0): wasref = 1
+                        IF Error_Happened THEN EXIT FUNCTION
+                        bits = sourcetyp AND 511
+                        IF (sourcetyp AND ISOFFSETINBITS) THEN
+                            e$ = "func__bin(" + e$ + "," + str2$(bits) + ")"
+                        ELSE
+                            IF (sourcetyp AND ISFLOAT) THEN
+                                e$ = "func__bin_float(" + e$ + ")"
+                            ELSE
+                                IF bits = 64 THEN
+                                    IF wasref = 0 THEN bits = 0
+                                END IF
+                                e$ = "func__bin(" + e$ + "," + str2$(bits) + ")"
+                            END IF
+                        END IF
+                        typ& = STRINGTYPE - ISPOINTER
+                        r$ = e$
+                        GOTO evalfuncspecial
+                    END IF
+                END IF
+
                 '*special case*
                 IF n$ = "OCT" THEN
                     IF RTRIM$(id2.musthave) = "$" THEN
@@ -17007,8 +17036,6 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                         GOTO evalfuncspecial
                     END IF
                 END IF
-
-
 
                 '*special case*
                 IF n$ = "HEX" THEN
@@ -17040,13 +17067,6 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                         GOTO evalfuncspecial
                     END IF
                 END IF
-
-
-
-
-
-
-
 
 
                 '*special case*
