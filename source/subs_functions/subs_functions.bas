@@ -2238,6 +2238,16 @@ id.hr_syntax = "UBOUND(arrayName[, dimension%])"
 regid
 
 clearid
+id.n = qb64prefix$ + "Bin"
+id.musthave = "$"
+id.subfunc = 1
+id.args = 1
+id.arg = MKL$(-1)
+id.ret = STRINGTYPE - ISPOINTER
+id.hr_syntax = "_BIN$(number)"
+regid
+
+clearid
 id.n = "Oct"
 id.musthave = "$"
 id.subfunc = 1

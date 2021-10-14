@@ -15527,6 +15527,79 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         return;
     }
     
+        qbs *func__bin(int64 value,int32 neg_bits){
+        
+        static int32 i,i2,i3,neg;
+        static int64 value2;
+        static qbs *str;
+        
+        str=qbs_new(64,1);
+        
+        //negative?
+        if ((value>>63)&1) neg=1; else neg=0;
+        
+        //calc. most significant bit
+        i2=0;
+        value2=value;
+        if (neg){
+            for (i=1;i<=64;i++){
+                if (!(value2&1)) i2=i;
+                value2>>=1;
+            }
+            if (i2>=neg_bits){
+                //doesn't fit in neg_bits, so expand to next 16/32/64 boundary
+                i3=64;
+                if (i2<32) i3=32;
+                if (i2<16) i3=16;
+                i2=i3;
+            }else i2=neg_bits;
+            }else{
+            for (i=1;i<=64;i++){
+                if (value2&1) i2=i;
+                value2>>=1;
+            }
+        }
+        
+        if (!i2){str->chr[0]=48; str->len=1; return str;}//"0"
+        
+        //calc. number of characters required in i3
+        i3=i2; // equal for BIN$ because one bit = one char
+        
+        //build string
+        str->len=i3; i3--;
+        for (i=1;i<=i2;i++){
+            str->chr[i3--]=(value&1)+48;
+            value>>=1;
+        }
+        
+        return str;
+        
+    }
+    
+    //note: QBASIC doesn't have a BIN$ function
+    //      QB64   uses 32 bin digits for SINGLE/DOUBLE/FLOAT but if this range is exceeded
+    //      it uses up to 64 bin digits before generating an "OVERFLOW" error
+    //performs overflow check before calling func__bin
+    qbs *func__bin_float(long double value){
+        static qbs *str;
+        static int64 ivalue;
+        static int64 uivalue;
+        //ref: uint64 0-18446744073709551615
+        //      int64 \969223372036854775808 to 9223372036854775807
+        if ((value>=9.223372036854776E18)||(value<=-9.223372036854776E18)){
+            //note: ideally, the following line would be used, however, qbr_longdouble_to_uint64 just does the same as qbr
+            //if ((value>=1.844674407370956E19)||(value<=-9.223372036854776E18)){
+            str=qbs_new(0,1); error(6);//Overflow
+            return str;
+        }
+        if (value>=0){
+            uivalue=qbr_longdouble_to_uint64(value);
+            ivalue=uivalue;
+            }else{
+            ivalue=qbr(value);
+        }
+        return func__bin(ivalue,32);
+    }
     
     qbs *func_oct(int64 value,int32 neg_bits){
         
@@ -15582,10 +15655,10 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         
     }
     
-    //note: QBASIC uses 8 characters for SINGLE/DOUBLE or generates "OVERFLOW" if this range is exceeded
-    //      QB64   uses 8 characters for SINGLE/DOUBLE/FLOAT but if this range is exceeded
-    //      it uses up to 16 characters before generating an "OVERFLOW" error
-    //performs overflow check before calling func_hex
+    //note: QBASIC uses 11 oct digits for SINGLE/DOUBLE or generates "OVERFLOW" if this range is exceeded
+    //      QB64   uses 11 oct digits for SINGLE/DOUBLE/FLOAT but if this range is exceeded
+    //      it uses up to 22 oct digits before generating an "OVERFLOW" error
+    //performs overflow check before calling func_oct
     qbs *func_oct_float(long double value){
         static qbs *str;
         static int64 ivalue;
@@ -15654,9 +15727,9 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         
     }
     
-    //note: QBASIC uses 8 characters for SINGLE/DOUBLE or generates "OVERFLOW" if this range is exceeded
-    //      QB64   uses 8 characters for SINGLE/DOUBLE/FLOAT but if this range is exceeded
-    //      it uses up to 16 characters before generating an "OVERFLOW" error
+    //note: QBASIC uses 8 hex digits for SINGLE/DOUBLE or generates "OVERFLOW" if this range is exceeded
+    //      QB64   uses 8 hex digits for SINGLE/DOUBLE/FLOAT but if this range is exceeded
+    //      it uses up to 16 hex digits before generating an "OVERFLOW" error
     //performs overflow check before calling func_hex
     qbs *func_hex_float(long double value){
         static qbs *str;

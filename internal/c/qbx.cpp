@@ -489,6 +489,8 @@ extern long double func_fix_float(long double value);
 extern double func_exp_single(double value);
 extern long double func_exp_float(long double value);
 extern void sub_sleep(int32 seconds,int32 passed);
+extern qbs *func__bin(int64 value,int32 neg_bits);
+extern qbs *func__bin_float(long double value);
 extern qbs *func_oct(int64 value,int32 neg_bits);
 extern qbs *func_oct_float(long double value);
 extern qbs *func_hex(int64 value,int32 neg_size);
