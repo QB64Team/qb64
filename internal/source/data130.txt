@@ -1,19 +1,19 @@
-qbs*oldstr3943=NULL;
+qbs*oldstr3944=NULL;
 if(_SUB_INILOAD_STRING_FILE->tmp||_SUB_INILOAD_STRING_FILE->fixed||_SUB_INILOAD_STRING_FILE->readonly){
-oldstr3943=_SUB_INILOAD_STRING_FILE;
-if (oldstr3943->cmem_descriptor){
-_SUB_INILOAD_STRING_FILE=qbs_new_cmem(oldstr3943->len,0);
+oldstr3944=_SUB_INILOAD_STRING_FILE;
+if (oldstr3944->cmem_descriptor){
+_SUB_INILOAD_STRING_FILE=qbs_new_cmem(oldstr3944->len,0);
 }else{
-_SUB_INILOAD_STRING_FILE=qbs_new(oldstr3943->len,0);
+_SUB_INILOAD_STRING_FILE=qbs_new(oldstr3944->len,0);
 }
-memcpy(_SUB_INILOAD_STRING_FILE->chr,oldstr3943->chr,oldstr3943->len);
+memcpy(_SUB_INILOAD_STRING_FILE->chr,oldstr3944->chr,oldstr3944->len);
 }
 int16 *_SUB_INILOAD_INTEGER_FILENUM=NULL;
 if(_SUB_INILOAD_INTEGER_FILENUM==NULL){
 _SUB_INILOAD_INTEGER_FILENUM=(int16*)mem_static_malloc(2);
 *_SUB_INILOAD_INTEGER_FILENUM=0;
 }
-byte_element_struct *byte_element_3944=NULL;
-if (!byte_element_3944){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3944=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3944=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_3945=NULL;
+if (!byte_element_3945){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3945=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3945=(byte_element_struct*)mem_static_malloc(12);
 }
