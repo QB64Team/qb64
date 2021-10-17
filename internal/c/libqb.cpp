@@ -18500,8 +18500,9 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         //Creating/destroying an image surface:
         
         int32 func__newimage(int32 x,int32 y,int32 bpp,int32 passed){
-            #ifdef QB64_WINDOWS && WINVER >= 0x0600 //this block is not compatible with XP
-            static bool j;
+            #ifdef QB64_WINDOWS
+            #if WINVER >= 0x0600 //this block is not compatible with XP
+			static bool j;
             if(j != 1){
                 FARPROC dpiaware;
                 HMODULE user32 = LoadLibrary(TEXT("user32.dll"));
@@ -18515,6 +18516,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
 					FreeLibrary(user32);
                 }
             }
+			#endif
             #endif
             static int32 i;
             if (new_error) return 0;
@@ -21483,7 +21485,12 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             }
             else {
 				#ifdef QB64_WINDOWS
+					#if WINVER >= 0x0600
 					_putenv_s(buf, separator + 1);
+					#else
+					*separator = '=';
+					_putenv(buf);
+					#endif
 				#else
 					setenv(buf, separator + 1, 1);
 				#endif
@@ -29938,7 +29945,8 @@ void sub__numlock(int32 options){
 }
 
 void sub__consolefont(qbs* FontName, int FontSize){
-    #ifdef QB64_WINDOWS && WINVER >= 0x0600 //this block is not compatible with XP
+    #ifdef QB64_WINDOWS
+	#if WINVER >= 0x0600 //this block is not compatible with XP
     SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
     HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
     static int OneTimePause;
@@ -29960,6 +29968,7 @@ void sub__consolefont(qbs* FontName, int FontSize){
 
     SetCurrentConsoleFontEx(cl_conout, NULL, &info);
     #endif
+	#endif
 }
 
 
