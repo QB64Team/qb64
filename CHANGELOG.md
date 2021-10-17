@@ -2,7 +2,7 @@
 
 ## New features
 ### All platforms
-- Implemented the `_Bin$` function as counterpart to `&B` prefixed number strings. Usage is analog to the legacy OCT$ and HEX$ functions.
+- Implement the `_Bin$` function as counterpart to `&B` prefixed number strings. Usage is analog to the legacy OCT$ and HEX$ functions.
 
 <!--- 
 ### Windows
