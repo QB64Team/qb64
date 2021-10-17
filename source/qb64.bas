@@ -640,22 +640,7 @@ REDIM SHARED constdefined(constmax) AS LONG
 'UDT
 'names
 DIM SHARED lasttype AS LONG
-REDIM SHARED udtxname(1000) AS STRING * 256
-REDIM SHARED udtxcname(1000) AS STRING * 256
-REDIM SHARED udtxsize(1000) AS LONG
-REDIM SHARED udtxbytealign(1000) AS INTEGER 'first element MUST be on a byte alignment & size is a multiple of 8
-REDIM SHARED udtxnext(1000) AS LONG
-REDIM SHARED udtxvariable(1000) AS INTEGER 'true if the udt contains variable length elements
-'elements
-REDIM SHARED lasttypeelement AS LONG
-REDIM SHARED udtename(1000) AS STRING * 256
-REDIM SHARED udtecname(1000) AS STRING * 256
-REDIM SHARED udtebytealign(1000) AS INTEGER
-REDIM SHARED udtesize(1000) AS LONG
-REDIM SHARED udtetype(1000) AS LONG
-REDIM SHARED udtetypesize(1000) AS LONG
-REDIM SHARED udtearrayelements(1000) AS LONG
-REDIM SHARED udtenext(1000) AS LONG
+DIM SHARED lasttypeelement AS LONG
 
 TYPE idstruct
 
@@ -1427,6 +1412,21 @@ addmetainclude$ = ""
 nextrunlineindex = 1
 lasttype = 0
 lasttypeelement = 0
+REDIM SHARED udtxname(1000) AS STRING * 256
+REDIM SHARED udtxcname(1000) AS STRING * 256
+REDIM SHARED udtxsize(1000) AS LONG
+REDIM SHARED udtxbytealign(1000) AS INTEGER 'first element MUST be on a byte alignment & size is a multiple of 8
+REDIM SHARED udtxnext(1000) AS LONG
+REDIM SHARED udtxvariable(1000) AS INTEGER 'true if the udt contains variable length elements
+'elements
+REDIM SHARED udtename(1000) AS STRING * 256
+REDIM SHARED udtecname(1000) AS STRING * 256
+REDIM SHARED udtebytealign(1000) AS INTEGER
+REDIM SHARED udtesize(1000) AS LONG
+REDIM SHARED udtetype(1000) AS LONG
+REDIM SHARED udtetypesize(1000) AS LONG
+REDIM SHARED udtearrayelements(1000) AS LONG
+REDIM SHARED udtenext(1000) AS LONG
 definingtype = 0
 definingtypeerror = 0
 constlast = -1
@@ -13923,7 +13923,7 @@ FUNCTION allocarray (n2$, elements$, elementsize, udt)
             'REDIM (not DIM) must be used to redefine an array
             IF redimoption = 0 THEN
                 f12$ = f12$ + CRLF + "if (" + n$ + "[2]&1){" 'array is defined
-                f12$ = f12$ + CRLF + "error(10);" 'cannot redefine an array without using REDIM!
+                f12$ = f12$ + CRLF + "if (!error_occurred) error(10);" 'cannot redefine an array without using REDIM!
                 f12$ = f12$ + CRLF + "}else{"
             ELSE
                 '--------ERASE EXISTING ARRAY IF NECESSARY--------
