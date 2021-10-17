@@ -24,18 +24,13 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
         SUB unlockvWatchHandle
         SUB set_qbs_size (target AS _OFFSET, BYVAL length&)
         SUB call_setbits (BYVAL bsize AS _UNSIGNED LONG, array AS _OFFSET, BYVAL index AS _OFFSET, BYVAL value AS _INTEGER64)
+        SUB set_foreground_window (BYVAL hwnd AS _OFFSET)
         FUNCTION stop_program_state&
         FUNCTION check_lbound%& (array AS _OFFSET, BYVAL index AS LONG, BYVAL num_indexes AS LONG)
         FUNCTION check_ubound%& (array AS _OFFSET, BYVAL index AS LONG, BYVAL num_indexes AS LONG)
         FUNCTION call_getubits~&& (BYVAL bsize AS _UNSIGNED LONG, array AS _OFFSET, BYVAL index AS _OFFSET)
         FUNCTION call_getbits&& (BYVAL bsize AS _UNSIGNED LONG, array AS _OFFSET, BYVAL index AS _OFFSET)
     END DECLARE
-
-    $IF WIN THEN
-        DECLARE CUSTOMTYPE LIBRARY
-            FUNCTION vwSetForegroundWindow& ALIAS "SetForegroundWindow" (BYVAL hWnd AS _OFFSET)
-        END DECLARE
-    $END IF
 
     IF vw_bypass THEN EXIT SUB
 
@@ -130,9 +125,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
         GOSUB SendCallStack
         vw_cmd$ = "error:" + MKL$(vw_lastLine)
         GOSUB SendCommand
-        $IF WIN THEN
-            vw_i = vwSetForegroundWindow&(vw_ideHwnd)
-        $END IF
+        set_foreground_window vw_ideHwnd
         EXIT SUB
     ELSEIF vwatch_linenumber = -2 THEN
         'report a new sub/function has been "entered"
@@ -228,9 +221,7 @@ SUB vwatch (globalVariables AS _OFFSET, localVariables AS _OFFSET)
     vw_cmd$ = "current sub:" + LEFT$(vwatch_stack(vwatch_sublevel), INSTR(vwatch_stack(vwatch_sublevel), ",") - 1)
     GOSUB SendCommand
 
-    $IF WIN THEN
-        vw_i = vwSetForegroundWindow&(vw_ideHwnd)
-    $END IF
+    set_foreground_window vw_ideHwnd
 
     DO 'main loop
         IF stop_program_state& THEN vw_bypass = -1: EXIT DO
