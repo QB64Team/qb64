@@ -476,6 +476,8 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "View Current Page On #Wiki": i = i + 1
         menuDesc$(m, i - 1) = "Launches the default browser and navigates to the current article on the wiki"
         menu$(m, i) = "-": i = i + 1
+        menu$(m, i) = "Check for #Newer Version...": i = i + 1
+        menuDesc$(m, i - 1) = "Displays the current version of QB64"
         menu$(m, i) = "#About...": i = i + 1
         menuDesc$(m, i - 1) = "Displays the current version of QB64"
         menusize(m) = i - 1
@@ -5135,6 +5137,14 @@ FUNCTION ide2 (ignore)
                 PCOPY 3, 0: SCREEN , , 3, 0
                 GOTO ideloop
             END IF
+
+            IF menu$(m, s) = "Check for #Newer Version..." THEN
+                PCOPY 2, 0
+                idecheckupdates
+                PCOPY 3, 0: SCREEN , , 3, 0
+                GOTO ideloop
+            END IF
+
 
             IF menu$(m, s) = "#About..." THEN
                 helpabout:
@@ -15173,6 +15183,307 @@ FUNCTION ideyesnobox$ (titlestr$, messagestr$) 'returns "Y" or "N"
 END FUNCTION 'yes/no box
 
 
+SUB idecheckupdates
+    FOR i = 1 TO 3
+        SELECT CASE i
+            CASE 1
+                remoteFile$ = "www.qb64.org/getver.php"
+                lookFor$ = "Version$ = "
+                m$ = "Connecting to qb64.org...\n" + STRING$(10, 219) + STRING$(20, 176) + "\n"
+                m$ = m$ + "Checking stable version (1/3)"
+                temp$ = ideactivitybox$("setup", "Check for Newer Version", m$, "#Cancel", "")
+            CASE 2
+                remoteFile$ = "www.qb64.org/getdevver.php"
+                lookFor$ = "Version$ = "
+                m$ = "Connecting to qb64.org...\n" + STRING$(20, 219) + STRING$(10, 176) + "\n"
+                m$ = m$ + "Checking development version (2/3)"
+                temp$ = ideactivitybox$("setup", "Check for Newer Version", m$, "#Cancel", "")
+            CASE 3
+                remoteFile$ = "www.qb64.org/devbuilds2.php"
+                lookFor$ = "document.getElementById('gitlink').innerHTML = "
+                m$ = "Connecting to qb64.org...\n" + STRING$(30, 219) + "\n"
+                m$ = m$ + "Checking development build (3/3)"
+                temp$ = ideactivitybox$("setup", "Check for Newer Version", m$, "#Cancel", "")
+        END SELECT
+
+        DO
+            temp$ = ideactivitybox$("update", "", "", "", "")
+            IF LEN(temp$) THEN
+                'either ESC or click means "cancel" for this dialog in particular
+                Result$ = Download$("", "", "", 0)
+                EXIT SUB
+            END IF
+
+            Result$ = Download$(remoteFile$, contents$, lookFor$, 30)
+            SELECT CASE CVI(LEFT$(Result$, 2))
+                CASE 1 'Success
+                    found = CVL(MID$(Result$, 3, 4))
+                    SELECT CASE i
+                        CASE 1
+                            remoteVersion$ = MID$(contents$, found + LEN(lookFor$) + 1)
+                            remoteVersion$ = LEFT$(remoteVersion$, INSTR(remoteVersion$, CHR$(34)) - 1)
+                        CASE 2
+                            remoteDevVersion$ = MID$(contents$, found + LEN(lookFor$) + 1)
+                            remoteDevVersion$ = LEFT$(remoteDevVersion$, INSTR(remoteDevVersion$, CHR$(34)) - 1)
+                        CASE 3
+                            remoteDevBuild$ = MID$(contents$, found + LEN(lookFor$) + 1)
+                            remoteDevBuild$ = LEFT$(remoteDevBuild$, INSTR(remoteDevBuild$, CHR$(34)) - 1)
+                    END SELECT
+                    EXIT DO
+                CASE 2, 3 'Can't reach server; Timeout
+                    EXIT DO
+            END SELECT
+
+            _LIMIT 100
+        LOOP
+        Result$ = Download$("", "", "", 0)
+    NEXT
+
+    m$ = "Current version: " + Version$ + " " + DevChannel$
+    IF LEN(AutoBuildMsg$) THEN m$ = m$ + ", " + AutoBuildMsg$
+    m$ = m$ + ".\n"
+
+    DIM button$(1 TO 3)
+    button$(3) = "#Close"
+    IF LEN(remoteVersion$) THEN
+        button$(1) = "Get #Stable Release"
+        IF INSTR(remoteVersion$, "Cannot") = 0 THEN
+            IF remoteVersion$ > Version$ THEN
+                'higher version number in the stable release is newer than current version
+                'regardless of this being a dev build
+                m$ = m$ + "\n- A new stable version is available: v" + remoteVersion$ + ";"
+            ELSE
+                IF INSTR(DevChannel$, "Development") = 0 THEN
+                    'if remoteVersion$ is not higher than current and this is not
+                    'a dev build, we're all good.
+                    m$ = m$ + "\n- You have the latest stable version: v" + Version$ + ";"
+                    button$(1) = "#OK"
+                ELSE
+                    IF remoteVersion$ = Version$ THEN
+                        'if this is a dev build and version numbers match, that probably means
+                        'a stable version based on this dev build was released
+                        m$ = m$ + "\n- A new stable version is available: v" + remoteVersion$ + ";"
+                    ELSE
+                        'if remoteVersion$ is not higher than current and this is not
+                        'a dev build, we're all good.
+                        m$ = m$ + "\n- No new stable version available;"
+                        button$(1) = "#OK"
+                    END IF
+                END IF
+            END IF
+        END IF
+    ELSE
+        m$ = m$ + "\n- Failed to check for updates. Try again later."
+        button$(1) = "#OK"
+    END IF
+
+    IF LEN(remoteDevVersion$) THEN
+        button$(2) = "Get #Dev Build"
+        IF INSTR(remoteDevVersion$, "error: ") = 0 THEN
+            IF INSTR(DevChannel$, "Development") = 0 THEN
+                'if this is not a dev build, it'll be offered
+                m$ = m$ + "\n- Development build available: v" + remoteDevVersion$
+                IF LEN(remoteDevBuild$) THEN m$ = m$ + ", " + remoteDevBuild$
+                m$ = m$ + ";"
+            ELSE
+                IF remoteDevVersion$ >= Version$ THEN
+                    'this is a dev build and remote version is same or higher
+                    m$ = m$ + "\n- Latest dev build available: v" + remoteDevVersion$
+                    IF LEN(remoteDevBuild$) THEN m$ = m$ + ", " + remoteDevBuild$
+                    m$ = m$ + ";"
+                END IF
+            END IF
+        END IF
+    ELSE
+        m$ = m$ + "\n- Failed to check for dev builds. Try again later."
+        button$(2) = "#Close"
+        IF button$(1) = "#OK" THEN button$(2) = ""
+        button$(3) = ""
+    END IF
+
+    buttons$ = ""
+    FOR i = 1 TO 3
+        IF LEN(button$(i)) THEN
+            IF LEN(buttons$) THEN buttons$ = buttons$ + ";"
+            buttons$ = buttons$ + button$(i)
+        END IF
+    NEXT
+
+    result = idemessagebox("Check for Newer Version", m$, buttons$)
+    IF result = 0 THEN EXIT SUB
+
+    url$ = ""
+    SELECT CASE button$(result)
+        CASE "Get #Dev Build"
+            url$ = "https://www.qb64.org/portal/development-build/"
+        CASE "Get #Stable Release"
+            url$ = "https://github.com/QB64Team/qb64/releases/latest"
+    END SELECT
+
+    IF LEN(url$) = 0 THEN EXIT SUB
+
+    IF INSTR(_OS$, "WIN") THEN
+        SHELL _HIDE _DONTWAIT "start " + url$
+    ELSEIF INSTR(_OS$, "MAC") THEN
+        SHELL _HIDE _DONTWAIT "open " + url$
+    ELSE
+        SHELL _HIDE _DONTWAIT "xdg-open " + url$
+    END IF
+END SUB
+
+
+FUNCTION ideactivitybox$ (action$, titlestr$, messagestr$, buttons$, extras$) STATIC
+
+    SELECT CASE LCASE$(action$)
+        CASE "setup"
+            '-------- generic dialog box header --------
+            PCOPY 0, 2
+            PCOPY 0, 1
+            SCREEN , , 1, 0
+            focus = 1
+            REDIM p AS idedbptype
+            REDIM o(1 TO 100) AS idedbotype
+            REDIM sep AS STRING * 1
+            sep = CHR$(0)
+            '-------- end of generic dialog box header --------
+
+            '-------- init --------
+            messagestr$ = StrReplace$(messagestr$, "\n", CHR$(10))
+            MessageLines = 1
+            REDIM FullMessage$(1 TO 8)
+            PrevScan = 1
+            DO
+                NextScan = INSTR(NextScan + 1, messagestr$, CHR$(10))
+                IF NextScan > 0 THEN
+                    FullMessage$(MessageLines) = MID$(messagestr$, PrevScan, NextScan - PrevScan)
+                    tw = LEN(FullMessage$(MessageLines)) + 2
+                    IF tw > w THEN w = tw
+                    PrevScan = NextScan + 1
+                    MessageLines = MessageLines + 1
+                    IF MessageLines > UBOUND(FullMessage$) THEN EXIT DO
+                ELSE
+                    FullMessage$(MessageLines) = MID$(messagestr$, PrevScan)
+                    tw = LEN(FullMessage$(MessageLines)) + 2
+                    IF tw > w THEN w = tw
+                    EXIT DO
+                END IF
+            LOOP
+
+            IF buttons$ = "" THEN buttons$ = "#OK"
+            totalButtons = 1
+            FOR i = 1 TO LEN(buttons$)
+                IF ASC(buttons$, i) = 59 THEN totalButtons = totalButtons + 1
+            NEXT
+            buttonsLen = LEN(buttons$) + totalButtons * 6
+
+            i = 0
+            w2 = LEN(titlestr$) + 4
+            IF w < w2 THEN w = w2
+            IF w < buttonsLen THEN w = buttonsLen
+            IF w > idewx - 4 THEN w = idewx - 4
+            idepar p, w, 3 + MessageLines, titlestr$
+
+            i = i + 1
+            o(i).typ = 3
+            o(i).y = 3 + MessageLines
+            o(i).txt = idenewtxt(StrReplace$(buttons$, ";", sep))
+            o(i).dft = 1
+            '-------- end of init --------
+
+            '-------- generic init --------
+            FOR i = 1 TO 100: o(i).par = p: NEXT 'set parent info of objects
+            '-------- end of generic init --------
+        CASE "update"
+            '-------- generic display dialog box & objects --------
+            idedrawpar p
+            f = 1: cx = 0: cy = 0
+            FOR i = 1 TO 100
+                IF o(i).typ THEN
+
+                    'prepare object
+                    o(i).foc = focus - f 'focus offset
+                    o(i).cx = 0: o(i).cy = 0
+                    idedrawobj o(i), f 'display object
+                    IF o(i).cx THEN cx = o(i).cx: cy = o(i).cy
+                END IF
+            NEXT i
+            lastfocus = f - 1
+            '-------- end of generic display dialog box & objects --------
+
+            '-------- custom display changes --------
+            COLOR 0, 7
+            FOR i = 1 TO MessageLines
+                IF LEN(FullMessage$(i)) > p.w - 2 THEN
+                    FullMessage$(i) = LEFT$(FullMessage$(i), p.w - 5) + STRING$(3, 250)
+                END IF
+                _PRINTSTRING (p.x + (w \ 2 - LEN(FullMessage$(i)) \ 2) + 1, p.y + 1 + i), FullMessage$(i)
+            NEXT i
+            '-------- end of custom display changes --------
+
+            'update visual page and cursor position
+            PCOPY 1, 0
+            IF cx THEN SCREEN , , 0, 0: LOCATE cy, cx, 1: SCREEN , , 1, 0
+
+            '-------- read input --------
+            change = 0
+            GetInput
+            IF mWHEEL THEN change = 1
+            IF KB THEN change = 1
+            IF mCLICK THEN mousedown = 1: change = 1
+            IF mRELEASE THEN mouseup = 1: change = 1
+            IF mB THEN change = 1
+            alt = KALT: IF alt <> oldalt THEN change = 1
+            oldalt = alt
+            _LIMIT 100
+
+            IF change THEN
+                IF alt AND NOT KCTRL THEN idehl = 1 ELSE idehl = 0
+                'convert "alt+letter" scancode to letter's ASCII character
+                altletter$ = ""
+                IF alt AND NOT KCTRL THEN
+                    IF LEN(K$) = 1 THEN
+                        k = ASC(UCASE$(K$))
+                        IF k >= 65 AND k <= 90 THEN altletter$ = CHR$(k)
+                    END IF
+                END IF
+                SCREEN , , 0, 0: LOCATE , , 0: SCREEN , , 1, 0
+                '-------- end of read input --------
+
+                '-------- generic input response --------
+                info = 0
+
+                IF UCASE$(K$) >= "A" AND UCASE$(K$) <= "Z" THEN altletter$ = UCASE$(K$)
+
+                IF K$ = "" THEN K$ = CHR$(255)
+                IF KSHIFT = 0 AND K$ = CHR$(9) THEN focus = focus + 1
+                IF (KSHIFT AND K$ = CHR$(9)) OR (INSTR(_OS$, "MAC") AND K$ = CHR$(25)) THEN focus = focus - 1: K$ = ""
+                IF focus < 1 THEN focus = lastfocus
+                IF focus > lastfocus THEN focus = 1
+                f = 1
+                FOR i = 1 TO 100
+                    t = o(i).typ
+                    IF t THEN
+                        focusoffset = focus - f
+                        ideobjupdate o(i), focus, f, focusoffset, K$, altletter$, mB, mousedown, mouseup, mX, mY, info, mWHEEL
+                    END IF
+                NEXT
+                '-------- end of generic input response --------
+
+                'specific post controls
+                IF K$ = CHR$(27) THEN ideactivitybox$ = MKI$(0)
+
+                IF K$ = CHR$(13) OR (info <> 0) THEN
+                    ideactivitybox$ = MKI$(1) + MKL$(focus)
+                    ClearMouse
+                END IF
+                'end of custom controls
+
+                mousedown = 0
+                mouseup = 0
+            END IF
+    END SELECT
+END FUNCTION
+
 
 FUNCTION idedisplaybox
 
@@ -19438,3 +19749,55 @@ FUNCTION GetBytes$(__value$, numberOfBytes&)
     GetBytes$ = MID$(value$, getBytesPosition&, numberOfBytes&)
     getBytesPosition& = getBytesPosition& + numberOfBytes&
 END FUNCTION
+
+FUNCTION Download$ (url$, outputVar$, lookFor$, timelimit) STATIC
+    'as seen on http://www.qb64.org/wiki/Downloading_Files
+    'adapted for use in the IDE
+
+    DIM theClient AS LONG, l AS LONG
+    DIM prevUrl$, prevUrl2$, url2$, x AS LONG
+    DIM e$, url3$, x$, t!, a2$, a$, i AS LONG
+    DIM i2 AS LONG, i3 AS LONG, d$, fh AS LONG
+
+    IF url$ <> prevUrl$ OR url$ = "" THEN
+        prevUrl$ = url$
+        IF url$ = "" THEN
+            prevUrl2$ = ""
+            IF theClient THEN CLOSE theClient: theClient = 0
+            EXIT FUNCTION
+        END IF
+        url2$ = url$
+        x = INSTR(url2$, "/")
+        IF x THEN url2$ = LEFT$(url$, x - 1)
+        IF url2$ <> prevUrl2$ THEN
+            prevUrl2$ = url2$
+            IF theClient THEN CLOSE theClient: theClient = 0
+            theClient = _OPENCLIENT("TCP/IP:80:" + url2$)
+            IF theClient = 0 THEN Download = MKI$(2): prevUrl$ = "": EXIT FUNCTION
+        END IF
+        e$ = CHR$(13) + CHR$(10) ' end of line characters
+        url3$ = RIGHT$(url$, LEN(url$) - x + 1)
+        x$ = "GET " + url3$ + " HTTP/1.1" + e$
+        x$ = x$ + "Host: " + url2$ + e$ + e$
+        PUT #theClient, , x$
+        t! = TIMER ' start time
+    END IF
+
+    GET #theClient, , a2$
+    a$ = a$ + a2$
+    i = INSTR(a$, lookFor$)
+    IF i THEN
+        outputVar$ = a$
+        Download = MKI$(1) + MKL$(i) 'indicates download was successful
+        prevUrl$ = ""
+        prevUrl2$ = ""
+        a$ = ""
+        CLOSE theClient
+        theClient = 0
+        EXIT FUNCTION
+    END IF ' i
+    IF TIMER > t! + timelimit THEN CLOSE theClient: theClient = 0: Download = MKI$(3): prevUrl$ = "": EXIT FUNCTION
+    Download = MKI$(0) 'still working
+END FUNCTION
+
+
