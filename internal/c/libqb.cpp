@@ -12671,19 +12671,22 @@ int32 func__blink(){
 }
 
 int64 func__handle(){
-    //#ifdef QB64_GUI
-        #ifdef QB64_WINDOWS
-            #ifdef DEPENDENCY_CONSOLE_ONLY
+    #ifdef QB64_WINDOWS
+        #ifdef DEPENDENCY_CONSOLE_ONLY
+            if (!window_handle) {
                 char pszConsoleTitle[1024];
                 GetConsoleTitle(pszConsoleTitle,1024);
                 window_handle = FindWindow(NULL, pszConsoleTitle);
-            #else
-                if (!window_exists) return 0;
-            #endif
-            while (!window_handle){Sleep(100);}
+            }
             return (ptrszint)window_handle;
         #endif
-    //#endif
+
+        if (!screen_hide){
+            while (!window_exists){Sleep(100);}
+            while (!window_handle){Sleep(100);}
+            return (ptrszint)window_handle;
+        }
+    #endif
     
     return 0;
 }
