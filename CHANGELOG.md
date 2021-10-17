@@ -45,6 +45,11 @@
 - Fixes issue with `Put #` and variable-length strings in UDTs (`Binary` files).
 - Fixes issue with recursive functions without parameters.
 
+### Fixed in 2.0.1
+- Fix "Duplicate definition" error with Static arrays in Subs/Functions with active On Error trapping.
+- Fix internal UDT arrays not resetting when a new file is loaded.
+- Fix issue preventing `$Debug` from working in Windows versions prior to Windows 10.
+
 ### Windows
 - Allows `$Console:Only` programs to return `_WindowHandle`.
 - Saving a file to the root of a drive would display double backslashes in the Recent Files list.
