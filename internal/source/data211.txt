@@ -1,63 +1,73 @@
-int32 *_SUB_IDEMAKEFILEMENU_LONG_M=NULL;
-if(_SUB_IDEMAKEFILEMENU_LONG_M==NULL){
-_SUB_IDEMAKEFILEMENU_LONG_M=(int32*)mem_static_malloc(4);
-*_SUB_IDEMAKEFILEMENU_LONG_M=0;
+qbs*oldstr6116=NULL;
+if(_SUB_IDESAVEBOOKMARKS_STRING_F2->tmp||_SUB_IDESAVEBOOKMARKS_STRING_F2->fixed||_SUB_IDESAVEBOOKMARKS_STRING_F2->readonly){
+oldstr6116=_SUB_IDESAVEBOOKMARKS_STRING_F2;
+if (oldstr6116->cmem_descriptor){
+_SUB_IDESAVEBOOKMARKS_STRING_F2=qbs_new_cmem(oldstr6116->len,0);
+}else{
+_SUB_IDESAVEBOOKMARKS_STRING_F2=qbs_new(oldstr6116->len,0);
 }
-int32 *_SUB_IDEMAKEFILEMENU_LONG_I=NULL;
-if(_SUB_IDEMAKEFILEMENU_LONG_I==NULL){
-_SUB_IDEMAKEFILEMENU_LONG_I=(int32*)mem_static_malloc(4);
-*_SUB_IDEMAKEFILEMENU_LONG_I=0;
+memcpy(_SUB_IDESAVEBOOKMARKS_STRING_F2->chr,oldstr6116->chr,oldstr6116->len);
 }
-int32 *_SUB_IDEMAKEFILEMENU_LONG_FH=NULL;
-if(_SUB_IDEMAKEFILEMENU_LONG_FH==NULL){
-_SUB_IDEMAKEFILEMENU_LONG_FH=(int32*)mem_static_malloc(4);
-*_SUB_IDEMAKEFILEMENU_LONG_FH=0;
+qbs *_SUB_IDESAVEBOOKMARKS_STRING_F=NULL;
+if (!_SUB_IDESAVEBOOKMARKS_STRING_F)_SUB_IDESAVEBOOKMARKS_STRING_F=qbs_new(0,0);
+int32 *_SUB_IDESAVEBOOKMARKS_LONG_FH=NULL;
+if(_SUB_IDESAVEBOOKMARKS_LONG_FH==NULL){
+_SUB_IDESAVEBOOKMARKS_LONG_FH=(int32*)mem_static_malloc(4);
+*_SUB_IDESAVEBOOKMARKS_LONG_FH=0;
 }
-qbs *_SUB_IDEMAKEFILEMENU_STRING_A=NULL;
-if (!_SUB_IDEMAKEFILEMENU_STRING_A)_SUB_IDEMAKEFILEMENU_STRING_A=qbs_new(0,0);
-byte_element_struct *byte_element_6091=NULL;
-if (!byte_element_6091){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6091=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6091=(byte_element_struct*)mem_static_malloc(12);
+qbs *_SUB_IDESAVEBOOKMARKS_STRING_A=NULL;
+if (!_SUB_IDESAVEBOOKMARKS_STRING_A)_SUB_IDESAVEBOOKMARKS_STRING_A=qbs_new(0,0);
+int32 *_SUB_IDESAVEBOOKMARKS_LONG_X=NULL;
+if(_SUB_IDESAVEBOOKMARKS_LONG_X==NULL){
+_SUB_IDESAVEBOOKMARKS_LONG_X=(int32*)mem_static_malloc(4);
+*_SUB_IDESAVEBOOKMARKS_LONG_X=0;
 }
-int32 *_SUB_IDEMAKEFILEMENU_LONG_MAXRECENTINFILEMENU=NULL;
-if(_SUB_IDEMAKEFILEMENU_LONG_MAXRECENTINFILEMENU==NULL){
-_SUB_IDEMAKEFILEMENU_LONG_MAXRECENTINFILEMENU=(int32*)mem_static_malloc(4);
-*_SUB_IDEMAKEFILEMENU_LONG_MAXRECENTINFILEMENU=0;
+int32 *_SUB_IDESAVEBOOKMARKS_LONG_L=NULL;
+if(_SUB_IDESAVEBOOKMARKS_LONG_L==NULL){
+_SUB_IDESAVEBOOKMARKS_LONG_L=(int32*)mem_static_malloc(4);
+*_SUB_IDESAVEBOOKMARKS_LONG_L=0;
 }
-int32 *_SUB_IDEMAKEFILEMENU_LONG_MAXLENGTHRECENTFILES=NULL;
-if(_SUB_IDEMAKEFILEMENU_LONG_MAXLENGTHRECENTFILES==NULL){
-_SUB_IDEMAKEFILEMENU_LONG_MAXLENGTHRECENTFILES=(int32*)mem_static_malloc(4);
-*_SUB_IDEMAKEFILEMENU_LONG_MAXLENGTHRECENTFILES=0;
+byte_element_struct *byte_element_6117=NULL;
+if (!byte_element_6117){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6117=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6117=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_SUB_IDEMAKEFILEMENU_LONG_R=NULL;
-if(_SUB_IDEMAKEFILEMENU_LONG_R==NULL){
-_SUB_IDEMAKEFILEMENU_LONG_R=(int32*)mem_static_malloc(4);
-*_SUB_IDEMAKEFILEMENU_LONG_R=0;
+int32 *_SUB_IDESAVEBOOKMARKS_LONG_X2=NULL;
+if(_SUB_IDESAVEBOOKMARKS_LONG_X2==NULL){
+_SUB_IDESAVEBOOKMARKS_LONG_X2=(int32*)mem_static_malloc(4);
+*_SUB_IDESAVEBOOKMARKS_LONG_X2=0;
 }
-int64 fornext_value6093;
-int64 fornext_finalvalue6093;
-int64 fornext_step6093;
-uint8 fornext_step_negative6093;
-int32 *_SUB_IDEMAKEFILEMENU_LONG_AI=NULL;
-if(_SUB_IDEMAKEFILEMENU_LONG_AI==NULL){
-_SUB_IDEMAKEFILEMENU_LONG_AI=(int32*)mem_static_malloc(4);
-*_SUB_IDEMAKEFILEMENU_LONG_AI=0;
+byte_element_struct *byte_element_6118=NULL;
+if (!byte_element_6118){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6118=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6118=(byte_element_struct*)mem_static_malloc(12);
 }
-qbs *_SUB_IDEMAKEFILEMENU_STRING_F=NULL;
-if (!_SUB_IDEMAKEFILEMENU_STRING_F)_SUB_IDEMAKEFILEMENU_STRING_F=qbs_new(0,0);
-byte_element_struct *byte_element_6094=NULL;
-if (!byte_element_6094){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6094=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6094=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_6119=NULL;
+if (!byte_element_6119){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6119=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6119=(byte_element_struct*)mem_static_malloc(12);
 }
-byte_element_struct *byte_element_6095=NULL;
-if (!byte_element_6095){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6095=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6095=(byte_element_struct*)mem_static_malloc(12);
+qbs *_SUB_IDESAVEBOOKMARKS_STRING_D=NULL;
+if (!_SUB_IDESAVEBOOKMARKS_STRING_D)_SUB_IDESAVEBOOKMARKS_STRING_D=qbs_new(0,0);
+int32 *_SUB_IDESAVEBOOKMARKS_LONG_I=NULL;
+if(_SUB_IDESAVEBOOKMARKS_LONG_I==NULL){
+_SUB_IDESAVEBOOKMARKS_LONG_I=(int32*)mem_static_malloc(4);
+*_SUB_IDESAVEBOOKMARKS_LONG_I=0;
 }
-byte_element_struct *byte_element_6096=NULL;
-if (!byte_element_6096){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6096=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6096=(byte_element_struct*)mem_static_malloc(12);
+int64 fornext_value6121;
+int64 fornext_finalvalue6121;
+int64 fornext_step6121;
+uint8 fornext_step_negative6121;
+byte_element_struct *byte_element_6122=NULL;
+if (!byte_element_6122){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6122=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6122=(byte_element_struct*)mem_static_malloc(12);
 }
-byte_element_struct *byte_element_6097=NULL;
-if (!byte_element_6097){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6097=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6097=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_6123=NULL;
+if (!byte_element_6123){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_6123=(byte_element_struct*)(mem_static_pointer-12); else byte_element_6123=(byte_element_struct*)mem_static_malloc(12);
 }
+int64 fornext_value6125;
+int64 fornext_finalvalue6125;
+int64 fornext_step6125;
+uint8 fornext_step_negative6125;
+int64 fornext_value6127;
+int64 fornext_finalvalue6127;
+int64 fornext_step6127;
+uint8 fornext_step_negative6127;
