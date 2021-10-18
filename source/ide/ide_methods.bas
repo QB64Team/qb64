@@ -6530,6 +6530,20 @@ SUB DebugMode
             vWatchPanel.x = idewx - vWatchPanel.w - 6
             vWatchPanel.y = 4
             vWatchPanel.firstVisible = 1
+
+            x = VAL(ReadSetting$(".\internal\temp\debug.ini", "settings", "vWatchPanel.w"))
+            IF x THEN vWatchPanel.w = x
+
+            x = VAL(ReadSetting$(".\internal\temp\debug.ini", "settings", "vWatchPanel.h"))
+            IF x THEN vWatchPanel.h = x
+
+            x = VAL(ReadSetting$(".\internal\temp\debug.ini", "settings", "vWatchPanel.x"))
+            IF x THEN vWatchPanel.x = x
+
+            x = VAL(ReadSetting$(".\internal\temp\debug.ini", "settings", "vWatchPanel.y"))
+            IF x THEN vWatchPanel.y = x
+
+            GOSUB checkvWatchPanelSize
         CASE IS > 1
             noFocusMessage = NOT noFocusMessage
             GOSUB UpdateStatusArea
@@ -6897,6 +6911,7 @@ SUB DebugMode
                     IF vWatchPanel.x + vWatchPanel.w > idewx - 1 THEN vWatchPanel.x = idewx - vWatchPanel.w - 1
                     IF vWatchPanel.y < 3 THEN vWatchPanel.y = 3
                     IF vWatchPanel.y > vWatchPanelLimit - (vWatchPanel.h - 1) THEN vWatchPanel.y = vWatchPanelLimit - (vWatchPanel.h - 1)
+
                     mouseDownOnX = mX
                     mouseDownOnY = mY
                     GOSUB UpdateDisplay
@@ -6904,16 +6919,7 @@ SUB DebugMode
                     vWatchPanel.w = vWatchPanel.w + (mX - mouseDownOnX)
                     vWatchPanel.h = vWatchPanel.h + (mY - mouseDownOnY)
 
-                    IF vWatchPanel.w < 40 THEN vWatchPanel.w = 40
-                    IF vWatchPanel.w > idewx - 12 THEN vWatchPanel.w = idewx - 12
-                    IF vWatchPanel.x + vWatchPanel.w > idewx - 1 THEN
-                        vWatchPanel.w = (idewx - 1) - vWatchPanel.x
-                    END IF
-                    IF vWatchPanel.y + vWatchPanel.h > vWatchPanelLimit THEN
-                        vWatchPanel.h = vWatchPanelLimit - (vWatchPanel.y - 1)
-                    END IF
-                    IF vWatchPanel.h < 5 THEN vWatchPanel.h = 5
-                    IF vWatchPanel.h > idewy - 10 THEN vWatchPanel.h = idewy - 10
+                    GOSUB checkvWatchPanelSize
 
                     IF vWatchPanel.vBarThumb > 0 AND vWatchPanel.firstVisible > totalVisibleVariables - (vWatchPanel.h - 2) + 1 THEN
                         vWatchPanel.firstVisible = totalVisibleVariables - (vWatchPanel.h - 2) + 1
@@ -6942,13 +6948,21 @@ SUB DebugMode
                 END IF
             END IF
         ELSE 'mouse button released
-            IF vWatchPanel.draggingPanel THEN vWatchPanel.draggingPanel = 0: mouseDown = 0
-            IF vWatchPanel.resizingPanel THEN vWatchPanel.resizingPanel = 0: mouseDown = 0
+            IF vWatchPanel.draggingPanel THEN
+                vWatchPanel.draggingPanel = 0: mouseDown = 0
+                WriteSetting ".\internal\temp\debug.ini", "settings", "vWatchPanel.x", str2$(vWatchPanel.x)
+                WriteSetting ".\internal\temp\debug.ini", "settings", "vWatchPanel.y", str2$(vWatchPanel.y)
+            END IF
+            IF vWatchPanel.resizingPanel THEN
+                vWatchPanel.resizingPanel = 0: mouseDown = 0
+                WriteSetting ".\internal\temp\debug.ini", "settings", "vWatchPanel.w", str2$(vWatchPanel.w)
+                WriteSetting ".\internal\temp\debug.ini", "settings", "vWatchPanel.h", str2$(vWatchPanel.h)
+            END IF
             IF vWatchPanel.closingPanel AND (mX = mouseDownOnX AND mY = mouseDownOnY) THEN
                 vWatchPanel.closingPanel = 0
                 mouseDown = 0
                 panelActive = 0
-                result = idemessagebox("Close watch list", "Keep variables in list?", "#Yes, just hide the panel;#No, clear the list")
+                result = idemessagebox("$DEBUG MODE", "Close Watch Panel", "#Keep Variables;#Clear List")
                 IF result = 2 THEN
                     variableWatchList$ = ""
                     backupVariableWatchList$ = "": REDIM backupUsedVariableList(1000) AS usedVarList
@@ -6956,6 +6970,12 @@ SUB DebugMode
                     FOR i = 1 TO totalVariablesCreated
                         usedVariableList(i).watch = 0
                     NEXT
+
+                    'Reset panel position in debug settings
+                    WriteSetting ".\internal\temp\debug.ini", "settings", "vWatchPanel.x", "0"
+                    WriteSetting ".\internal\temp\debug.ini", "settings", "vWatchPanel.y", "0"
+                    WriteSetting ".\internal\temp\debug.ini", "settings", "vWatchPanel.w", "0"
+                    WriteSetting ".\internal\temp\debug.ini", "settings", "vWatchPanel.h", "0"
                 END IF
                 PCOPY 3, 0: SCREEN , , 3, 0
                 WHILE _MOUSEINPUT: WEND
@@ -7939,6 +7959,19 @@ SUB DebugMode
     COLOR 2, 3
     _PRINTSTRING (idewx - 21 - LEN(versionStringStatus$), idewy + idesubwindow), versionStringStatus$
     RETURN
+
+    checkvWatchPanelSize:
+    IF vWatchPanel.w < 40 THEN vWatchPanel.w = 40
+    IF vWatchPanel.w > idewx - 12 THEN vWatchPanel.w = idewx - 12
+    IF vWatchPanel.x + vWatchPanel.w > idewx - 1 THEN
+        vWatchPanel.w = (idewx - 1) - vWatchPanel.x
+    END IF
+    IF vWatchPanel.y + vWatchPanel.h > vWatchPanelLimit THEN
+        vWatchPanel.h = vWatchPanelLimit - (vWatchPanel.y - 1)
+    END IF
+    IF vWatchPanel.h < 5 THEN vWatchPanel.h = 5
+    IF vWatchPanel.h > idewy - 10 THEN vWatchPanel.h = idewy - 10
+    RETURN
 END SUB
 
 Function map! (value!, minRange!, maxRange!, newMinRange!, newMaxRange!)
@@ -7971,6 +8004,24 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, action as _BYTE)
     END IF
 
     IF WatchListToConsole = 0 THEN
+        vWatchPanelLimit = idewy - 6
+
+        IF this.x < 2 THEN this.x = 2
+        IF this.x + this.w > idewx - 1 THEN this.x = idewx - this.w - 1
+        IF this.y < 3 THEN this.y = 3
+        IF this.y > vWatchPanelLimit - (this.h - 1) THEN this.y = vWatchPanelLimit - (this.h - 1)
+
+        IF this.w < 40 THEN this.w = 40
+        IF this.w > idewx - 12 THEN this.w = idewx - 12
+        IF this.x + this.w > idewx - 1 THEN
+            this.w = (idewx - 1) - this.x
+        END IF
+        IF this.y + this.h > vWatchPanelLimit THEN
+            this.h = vWatchPanelLimit - (this.y - 1)
+        END IF
+        IF this.h < 5 THEN this.h = 5
+        IF this.h > idewy - 10 THEN this.h = idewy - 10
+
         COLOR fg, bg
         ideboxshadow this.x, this.y, this.w, this.h
         COLOR 15, bg
