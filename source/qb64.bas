@@ -1710,12 +1710,20 @@ DO
         temp$ = LTRIM$(RTRIM$(UCASE$(wholestv$)))
 
         IF temp$ = "$COLOR:0" THEN
-            addmetainclude$ = getfilepath$(COMMAND$(0)) + "internal" + pathsep$ + "support" + pathsep$ + "color" + pathsep$ + "color0.bi"
+            IF qb64prefix_set THEN
+                addmetainclude$ = getfilepath$(COMMAND$(0)) + "internal" + pathsep$ + "support" + pathsep$ + "color" + pathsep$ + "color0_noprefix.bi"
+            ELSE
+                addmetainclude$ = getfilepath$(COMMAND$(0)) + "internal" + pathsep$ + "support" + pathsep$ + "color" + pathsep$ + "color0.bi"
+            END IF
             GOTO finishedlinepp
         END IF
 
         IF temp$ = "$COLOR:32" THEN
-            addmetainclude$ = getfilepath$(COMMAND$(0)) + "internal" + pathsep$ + "support" + pathsep$ + "color" + pathsep$ + "color32.bi"
+            IF qb64prefix_set THEN
+                addmetainclude$ = getfilepath$(COMMAND$(0)) + "internal" + pathsep$ + "support" + pathsep$ + "color" + pathsep$ + "color32_noprefix.bi"
+            ELSE
+                addmetainclude$ = getfilepath$(COMMAND$(0)) + "internal" + pathsep$ + "support" + pathsep$ + "color" + pathsep$ + "color32.bi"
+            END IF
             GOTO finishedlinepp
         END IF
 
@@ -26324,4 +26332,5 @@ DEFLNG A-Z
 
 '-------- Optional IDE Component (2/2) --------
 '$INCLUDE:'ide\ide_methods.bas'
+
 
