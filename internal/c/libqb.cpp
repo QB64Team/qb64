@@ -16325,19 +16325,13 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         }
         
         if (gfs->type==1){//RANDOM
-            return gfs_getpos(i)/gfs->record_length+1;
+            return gfs_getpos(i)/gfs->record_length;
         }
         if (gfs->type==2){//BINARY
             return gfs_getpos(i);
         }
         //APPEND/OUTPUT/INPUT
-        int64 pos;
-        pos=gfs_getpos(i);
-        if (!pos) return 1;
-        pos--;
-        pos/=128;
-        pos++;
-        return pos;
+        return gfs_getpos(i)/128;
     }
     
     qbs *func_input(int32 n,int32 i,int32 passed){

@@ -14,10 +14,11 @@
 ### Linux
 --->
 
-<!---
 ## Fixes
 ### All platforms
+- Function `LOC` used on physical files will correctly return zero (0) now for just opened but yet untouched files.
 
+<!---
 ### Windows
 
 ### macOS
