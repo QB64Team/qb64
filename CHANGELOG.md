@@ -16,7 +16,7 @@
 
 ## Fixes
 ### All platforms
-- Function `LOC` used on physical files will correctly return zero (0) now for just opened but yet untouched files.
+- Fix function `LOC` returning wrong values when used on physical files.
 
 <!---
 ### Windows
