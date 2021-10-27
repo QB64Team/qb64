@@ -15,10 +15,11 @@
 ### Linux
 --->
 
-<!---
 ## Fixes
 ### All platforms
+- Fix function `LOC` returning wrong values when used on physical files.
 
+<!---
 ### Windows
 
 ### macOS
