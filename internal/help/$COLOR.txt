@@ -10,7 +10,7 @@
 * [[$COLOR]]:0 adds [[CONST|constants]] for colors 0-15. The actual constant names can be found in the file '''source/utilities/color0.bi'''.
 * [[$COLOR]]:32 adds [[CONST|constants]] for 32-bit colors, similar to HTML color names. The actual constant names can be found in the file '''source/utilities/color32.bi'''.
 * [[$COLOR]] is a shorthand to manually using [[$INCLUDE]] pointing to the files listed above.
-* Not compatible with [[$NOPREFIX]].
+* ''NOTE'': When using [[$NOPREFIX]], the color constants change to '''C_<old name>''' (ex: '''Blue''' becomes '''C_Blue''').
 
 
 {{PageExamples}}
@@ -18,7 +18,7 @@
 {{CodeStart}}
 {{Cl|$COLOR}}:0
 {{Cl|COLOR}} BrightWhite, Red
-{{Cl|PRINT}} "Bright white on red."
+{{Cl|PRINT}} "BrightWhite on red."
  {{CodeEnd}}
 
 
@@ -31,9 +31,19 @@
  {{CodeEnd}}
 
 
+''Example 3:'' Using [[$COLOR]] with [[$NOPREFIX]]:
+{{CodeStart}}
+{{Cl|$NOPREFIX}}
+{{Cl|$COLOR}}:0
+{{Cl|COLOR}} C_BrightWhite, C_Red
+{{Cl|PRINT}} "BrightWhite on Red."
+ {{CodeEnd}}
+
+
 {{PageSeeAlso}}
 * [[COLOR]], [[SCREEN]] 
 * [[_NEWIMAGE]], [[$INCLUDE]]
+* [[$NOPREFIX]]
 * [[Metacommand]]
 
 
