@@ -21672,7 +21672,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                     sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
                     if (sockfd == -1) continue;
                     setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
-                    if (bind(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
+                    if (::bind(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
                         close(sockfd);
                         continue;
                     }
