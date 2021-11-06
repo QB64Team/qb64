@@ -19499,6 +19499,8 @@ FUNCTION fixoperationorder$ (savea$)
 
                             IF nextc = 40 OR uboundlbound <> 0 THEN '(
 
+                                uboundlbound = 0
+
                                 'function or array?
                                 IF id.arraytype <> 0 OR id.subfunc = 1 THEN
                                     'note: even if it's an array of UDTs, the bracketted index will follow immediately
@@ -19716,6 +19718,7 @@ FUNCTION fixoperationorder$ (savea$)
         END IF
 
         IF c = 41 OR c = 125 THEN ')}
+            uboundlbound = 0
             b = b - 1
 
             IF b = 0 THEN
