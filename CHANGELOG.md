@@ -45,10 +45,13 @@
 - Fixes issue with `Put #` and variable-length strings in UDTs (`Binary` files).
 - Fixes issue with recursive functions without parameters.
 
-### Fixed in 2.0.1
+#### Fixed in 2.0.1
 - Fix "Duplicate definition" error with Static arrays in Subs/Functions with active On Error trapping.
 - Fix internal UDT arrays not resetting when a new file is loaded.
 - Fix issue preventing `$Debug` from working in Windows versions prior to Windows 10.
+
+#### Fixed in 2.0.2
+- Fix issue with `LBound`/`UBound` calls in complex expressions.
 
 ### Windows
 - Allows `$Console:Only` programs to return `_WindowHandle`.
@@ -56,6 +59,9 @@
 
 ### macOS
 - Flushes the console output so `Print` can properly display text even while retaining the cursor.
+
+#### Fixed in 2.0.2
+- Fix issue preventing compilation in macOS versions prior to Catalina.
 
 ### Linux
 - `xmessage` added to dependency list (setup script).
