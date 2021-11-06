@@ -1,4 +1,4 @@
-# QB64 development build - Changelog
+# QB64 v2.0.x - What's new?
 
 ## New features
 ### All platforms
