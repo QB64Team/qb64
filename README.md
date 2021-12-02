@@ -31,11 +31,11 @@ Before using QB64 make sure to install the Xcode command line tools with:
 xcode-select --install
 ```
 
-The package comes with a precompiled `qb64` binary that will run as is in macOS Catalina. For older versions of macOS, run ```./setup_osx.command``` to compile QB64 for your OS version.
+Run ```./setup_osx.command``` to compile QB64 for your OS version.
 
 <a name="Linux"></a>
 ## Linux
-The package comes with a precompiled `qb64` binary that will run as is in most Debian-based distributions. For other distributions, compile QB64 with ```./setup_lnx.sh```.
+Compile QB64 with ```./setup_lnx.sh```.
 
 Dependencies should be automatically installed. Required packages include OpenGL, ALSA and the GNU C++ Compiler.
 
