@@ -8,7 +8,7 @@ cd ..
 tar --create --auto-compress --file ${filename} --exclude-from=qb64/.ci/common-exclusion.list --exclude-from=qb64/.ci/$OS-exclusion.list qb64
 
 current_files=$(aws --output text --query 'Contents[].Key' s3api list-objects --bucket ${BUCKET} --prefix ${OS})
-aws s3 cp ${filename} s3://${BUCKET}/${OS}/
+aws s3 ${S3_ENDPOINT} cp ${filename} s3://${BUCKET}/${OS}/
 echo -n $(basename "${filename}") > latest.txt
 for f in $current_files; do
     aws s3 rm s3://${BUCKET}/$f
