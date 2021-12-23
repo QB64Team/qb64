@@ -28,9 +28,12 @@ jobs:
       if: github.event_name == 'push'
       run: .ci/deploy.sh lnx
       env:
+        # We are using Digital Ocean Spaces but they are API compatible with S3
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        # AWS_REGION is useless but aws-cli gives errors if its not set
         AWS_REGION: us-east-2
+        S3_ENDPOINT: https://nyc3.digitaloceanspaces.com
 
   macos-build:
     runs-on: macos-latest
@@ -48,6 +51,7 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: us-east-2
+        S3_ENDPOINT: https://nyc3.digitaloceanspaces.com
 
   windows-x86-build:
     runs-on: windows-latest
@@ -67,6 +71,7 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: us-east-2
+        S3_ENDPOINT: https://nyc3.digitaloceanspaces.com
 
   windows-x64-build:
     runs-on: windows-latest
@@ -86,3 +91,4 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: us-east-2
+        S3_ENDPOINT: https://nyc3.digitaloceanspaces.com
