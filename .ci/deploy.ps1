@@ -6,7 +6,7 @@ $Filename = "qb64_development_win-${Env:PLATFORM}.7z"
 # is disabled until someone can work out a better way.
 # $Dirname = "qb64_${Timestamp}_$($Env:GITHUB_SHA.substring(0,7))_win-${Env:PLATFORM}"
 # Rename-Item qb64 $Dirname
-$Dirname = qb64
+$Dirname = "qb64"
 Set-Location ..
 7z a "-xr@${Dirname}\.ci\common-exclusion.list" "-xr@${Dirname}\.ci\win-exclusion.list" $Filename $Dirname 
 aws --endpoint-url ${S3_ENDPOINT} s3api put-object --bucket ${Bucket} --body $Filename --acl public-read --key development-builds/$Filename
