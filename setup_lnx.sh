@@ -19,8 +19,6 @@ pkg_install() {
 
 }
 
-
-
 #Make sure we're not running as root
 if [ $EUID == "0" ]; then
   echo "You are trying to run this script as root. This is highly unrecommended."
@@ -52,6 +50,7 @@ fi
 #LUbuntu     = ubuntu
 #Linux Mint  = linuxmint
 #Ubuntu      = ubuntu
+#Raspian     = raspian
 #Slackware   = slackware
 #VoidLinux   = voidlinux
 #XUbuntu     = ubuntu
@@ -68,6 +67,8 @@ elif [ -e /etc/redhat-release ]; then
   DISTRO=redhat
 elif [ -e /etc/centos-release ]; then
   DISTRO=centos
+elif $(arch | grep arm > /dev/null); then
+  DISTRO=raspian
 fi
 
 #Find and install packages
@@ -77,8 +78,8 @@ if [ "$DISTRO" == "arch" ]; then
   installed_packages=`pacman -Q`
   installer_command="sudo pacman -S "
   pkg_install
-elif [ "$DISTRO" == "linuxmint" ] || [ "$DISTRO" == "ubuntu" ] || [ "$DISTRO" == "debian" ] || [ "$DISTRO" == "zorin" ]; then
-  echo "Debian based distro detected."
+elif [ "$DISTRO" == "linuxmint" ] || [ "$DISTRO" == "ubuntu" ] || [ "$DISTRO" == "debian" ] || [ "$DISTRO" == "zorin" ] || [ "$DISTRO" == "raspian" ]; then
+  echo "Debian/Raspian based distro detected."
   pkg_list="g++ x11-utils mesa-common-dev libglu1-mesa-dev libasound2-dev zlib1g-dev $GET_WGET"
   installed_packages=`dpkg -l`
   installer_command="sudo apt-get -y install "
@@ -95,7 +96,6 @@ elif [ "$DISTRO" == "voidlinux" ]; then
    installed_packages=`xbps-query -l |grep -v libgcc`
    installer_command="sudo xbps-install -Sy "
    pkg_install
-
 elif [ -z "$DISTRO" ]; then
   echo "Unable to detect distro, skipping package installation"
   echo "Please be aware that for QB64 to compile, you will need the following installed:"
@@ -114,6 +114,21 @@ find internal/c/parts -type f -iname "*.a" -exec rm -f {} \;
 find internal/c/parts -type f -iname "*.o" -exec rm -f {} \;
 find internal/c/libqb -type f -iname "*.o" -exec rm -f {} \;
 rm ./internal/temp/*
+
+if [ "$DISTRO" == "raspian" ]; then 
+  echo "Updating files for the Raspian ARM processors..."
+  echo ""
+  echo "updating makedat_lnx32.txt file..."
+  pushd internal/c
+  cat > makedat_lnx32.txt <<EOF
+objcopy -Ibinary -Oelf32-littlearm -Barm
+EOF
+  echo "updating makedat_lnx64.txt file..."
+  cat > makedat_lnx64.txt <<EOF
+objcopy -Ibinary -Oelf64-littlearm -Barm
+EOF
+  popd >/dev/null
+fi
 
 echo "Building library 'LibQB'"
 pushd internal/c/libqb/os/lnx >/dev/null
