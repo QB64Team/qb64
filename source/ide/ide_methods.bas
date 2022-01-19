@@ -8381,7 +8381,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
 
         IF (focus = 3 AND info <> 0) THEN 'add all
             FOR y = 1 TO totalVisibleVariables
-                varType$ = usedVariableList(y).varType
+                varType$ = usedVariableList(varDlgList(y).index).varType
                 IF INSTR(varType$, "STRING *") THEN varType$ = "STRING"
                 IF INSTR(varType$, "BIT *") THEN varType$ = "_BIT"
                 IF (usedVariableList(varDlgList(y).index).isarray AND LEN(usedVariableList(varDlgList(y).index).watchRange) = 0) OR _
