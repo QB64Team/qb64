@@ -144,6 +144,7 @@ FUNCTION ide2 (ignore)
     STATIC ForceResize, IDECompilationRequested AS _BYTE
     STATIC QuickNavHover AS _BYTE, FindFieldHover AS _BYTE
     STATIC VersionInfoHover AS _BYTE, LineNumberHover AS _BYTE
+    STATIC waitingForVarList AS _BYTE
 
     ignore = ignore 'just to clear warnings of unused variables
 
@@ -864,6 +865,7 @@ FUNCTION ide2 (ignore)
                         _PRINTSTRING (4, idewy - 3), msg$
                         statusarealink = 4
                     END IF
+                    IF waitingForVarList THEN GOSUB showVarListReady
                 END IF
             END IF
             IF showexecreated THEN
@@ -3000,6 +3002,7 @@ FUNCTION ide2 (ignore)
                                             _PRINTSTRING (4, idewy - 3), msg$
                                             statusarealink = 4
                                         END IF
+                                        IF waitingForVarList THEN GOSUB showVarListReady
                                     END IF
                                 END IF
                             ELSE
@@ -5824,6 +5827,7 @@ FUNCTION ide2 (ignore)
                             x = 2
                             y = idewy - 2
                             printWrapStatus x, y, x, "Variable List will be available after syntax checking is done..."
+                            waitingForVarList = 1
                             PCOPY 3, 0
                             GOTO ideloop
                         ELSE
@@ -6387,6 +6391,7 @@ FUNCTION ide2 (ignore)
                 _PRINTSTRING (4, idewy - 3), msg$
                 statusarealink = 4
             END IF
+            IF waitingForVarList THEN GOSUB showVarListReady
         END IF
     END IF
     RETURN
@@ -6435,6 +6440,11 @@ FUNCTION ide2 (ignore)
     COLOR 15, 3: _PRINTSTRING (idewx - 17, idewy), " View on Wiki "
     RETURN
 
+    showVarListReady:
+    waitingForVarList = 0
+    COLOR 14, 1
+    _PRINTSTRING (2, idewy - 2), "Variable List is now available (F4 to see it)"
+    RETURN
 END FUNCTION
 
 SUB UpdateTitleOfMainWindow
