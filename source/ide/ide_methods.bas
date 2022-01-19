@@ -477,8 +477,8 @@ FUNCTION ide2 (ignore)
         menu$(m, i) = "View Current Page On #Wiki": i = i + 1
         menuDesc$(m, i - 1) = "Launches the default browser and navigates to the current article on the wiki"
         menu$(m, i) = "-": i = i + 1
-        menu$(m, i) = "Check for #Newer Version...": i = i + 1
-        menuDesc$(m, i - 1) = "Displays the current version of QB64"
+        'menu$(m, i) = "Check for #Newer Version...": i = i + 1
+        'menuDesc$(m, i - 1) = "Displays the current version of QB64"
         menu$(m, i) = "#About...": i = i + 1
         menuDesc$(m, i - 1) = "Displays the current version of QB64"
         menusize(m) = i - 1
@@ -5141,12 +5141,12 @@ FUNCTION ide2 (ignore)
                 GOTO ideloop
             END IF
 
-            IF menu$(m, s) = "Check for #Newer Version..." THEN
-                PCOPY 2, 0
-                idecheckupdates
-                PCOPY 3, 0: SCREEN , , 3, 0
-                GOTO ideloop
-            END IF
+            'IF menu$(m, s) = "Check for #Newer Version..." THEN
+            '    PCOPY 2, 0
+            '    idecheckupdates
+            '    PCOPY 3, 0: SCREEN , , 3, 0
+            '    GOTO ideloop
+            'END IF
 
 
             IF menu$(m, s) = "#About..." THEN
@@ -15244,153 +15244,153 @@ FUNCTION ideyesnobox$ (titlestr$, messagestr$) 'returns "Y" or "N"
 END FUNCTION 'yes/no box
 
 
-SUB idecheckupdates
-    FOR i = 1 TO 3
-        SELECT CASE i
-            CASE 1
-                remoteFile$ = "www.qb64.org/getver.php"
-                lookFor$ = "Version$ = "
-                m$ = "Connecting to qb64.org...\n" + STRING$(10, 219) + STRING$(20, 176) + "\n"
-                m$ = m$ + "Checking stable version (1/3)"
-                temp$ = ideactivitybox$("setup", "Check for Newer Version", m$, "#Cancel", "")
-            CASE 2
-                remoteFile$ = "www.qb64.org/getdevver.php"
-                lookFor$ = "Version$ = "
-                m$ = "Connecting to qb64.org...\n" + STRING$(20, 219) + STRING$(10, 176) + "\n"
-                m$ = m$ + "Checking development version (2/3)"
-                temp$ = ideactivitybox$("setup", "Check for Newer Version", m$, "#Cancel", "")
-            CASE 3
-                remoteFile$ = "www.qb64.org/devbuilds2.php"
-                lookFor$ = "document.getElementById('gitlink').innerHTML = "
-                m$ = "Connecting to qb64.org...\n" + STRING$(30, 219) + "\n"
-                m$ = m$ + "Checking development build (3/3)"
-                temp$ = ideactivitybox$("setup", "Check for Newer Version", m$, "#Cancel", "")
-        END SELECT
+'SUB idecheckupdates
+'    FOR i = 1 TO 3
+'        SELECT CASE i
+'            CASE 1
+'                remoteFile$ = "www.qb64.org/getver.php"
+'                lookFor$ = "Version$ = "
+'                m$ = "Connecting to qb64.org...\n" + STRING$(10, 219) + STRING$(20, 176) + "\n"
+'                m$ = m$ + "Checking stable version (1/3)"
+'                temp$ = ideactivitybox$("setup", "Check for Newer Version", m$, "#Cancel", "")
+'            CASE 2
+'                remoteFile$ = "www.qb64.org/getdevver.php"
+'                lookFor$ = "Version$ = "
+'                m$ = "Connecting to qb64.org...\n" + STRING$(20, 219) + STRING$(10, 176) + "\n"
+'                m$ = m$ + "Checking development version (2/3)"
+'                temp$ = ideactivitybox$("setup", "Check for Newer Version", m$, "#Cancel", "")
+'            CASE 3
+'                remoteFile$ = "www.qb64.org/devbuilds2.php"
+'                lookFor$ = "document.getElementById('gitlink').innerHTML = "
+'                m$ = "Connecting to qb64.org...\n" + STRING$(30, 219) + "\n"
+'                m$ = m$ + "Checking development build (3/3)"
+'                temp$ = ideactivitybox$("setup", "Check for Newer Version", m$, "#Cancel", "")
+'        END SELECT
 
-        DO
-            temp$ = ideactivitybox$("update", "", "", "", "")
-            IF LEN(temp$) THEN
-                'either ESC or click means "cancel" for this dialog in particular
-                Result$ = Download$("", "", "", 0)
-                EXIT SUB
-            END IF
+'        DO
+'            temp$ = ideactivitybox$("update", "", "", "", "")
+'            IF LEN(temp$) THEN
+'                'either ESC or click means "cancel" for this dialog in particular
+'                Result$ = Download$("", "", "", 0)
+'                EXIT SUB
+'            END IF
 
-            Result$ = Download$(remoteFile$, contents$, lookFor$, 30)
-            SELECT CASE CVI(LEFT$(Result$, 2))
-                CASE 1 'Success
-                    found = CVL(MID$(Result$, 3, 4))
-                    SELECT CASE i
-                        CASE 1
-                            remoteVersion$ = MID$(contents$, found + LEN(lookFor$) + 1)
-                            remoteVersion$ = LEFT$(remoteVersion$, INSTR(remoteVersion$, CHR$(34)) - 1)
-                        CASE 2
-                            remoteDevVersion$ = MID$(contents$, found + LEN(lookFor$) + 1)
-                            remoteDevVersion$ = LEFT$(remoteDevVersion$, INSTR(remoteDevVersion$, CHR$(34)) - 1)
-                        CASE 3
-                            remoteDevBuild$ = MID$(contents$, found + LEN(lookFor$) + 1)
-                            remoteDevBuild$ = LEFT$(remoteDevBuild$, INSTR(remoteDevBuild$, CHR$(34)) - 1)
-                    END SELECT
-                    EXIT DO
-                CASE 2, 3 'Can't reach server; Timeout
-                    EXIT DO
-            END SELECT
+'            Result$ = Download$(remoteFile$, contents$, lookFor$, 30)
+'            SELECT CASE CVI(LEFT$(Result$, 2))
+'                CASE 1 'Success
+'                    found = CVL(MID$(Result$, 3, 4))
+'                    SELECT CASE i
+'                        CASE 1
+'                            remoteVersion$ = MID$(contents$, found + LEN(lookFor$) + 1)
+'                            remoteVersion$ = LEFT$(remoteVersion$, INSTR(remoteVersion$, CHR$(34)) - 1)
+'                        CASE 2
+'                            remoteDevVersion$ = MID$(contents$, found + LEN(lookFor$) + 1)
+'                            remoteDevVersion$ = LEFT$(remoteDevVersion$, INSTR(remoteDevVersion$, CHR$(34)) - 1)
+'                        CASE 3
+'                            remoteDevBuild$ = MID$(contents$, found + LEN(lookFor$) + 1)
+'                            remoteDevBuild$ = LEFT$(remoteDevBuild$, INSTR(remoteDevBuild$, CHR$(34)) - 1)
+'                    END SELECT
+'                    EXIT DO
+'                CASE 2, 3 'Can't reach server; Timeout
+'                    EXIT DO
+'            END SELECT
 
-            _LIMIT 100
-        LOOP
-        Result$ = Download$("", "", "", 0)
-    NEXT
+'            _LIMIT 100
+'        LOOP
+'        Result$ = Download$("", "", "", 0)
+'    NEXT
 
-    m$ = "Current version: " + Version$ + " " + DevChannel$
-    IF LEN(AutoBuildMsg$) THEN m$ = m$ + ", " + AutoBuildMsg$
-    m$ = m$ + ".\n"
+'    m$ = "Current version: " + Version$ + " " + DevChannel$
+'    IF LEN(AutoBuildMsg$) THEN m$ = m$ + ", " + AutoBuildMsg$
+'    m$ = m$ + ".\n"
 
-    DIM button$(1 TO 3)
-    button$(3) = "#Close"
-    IF LEN(remoteVersion$) THEN
-        button$(1) = "Get #Stable Release"
-        IF INSTR(remoteVersion$, "Cannot") = 0 THEN
-            IF remoteVersion$ > Version$ THEN
-                'higher version number in the stable release is newer than current version
-                'regardless of this being a dev build
-                m$ = m$ + "\n- A new stable version is available: v" + remoteVersion$ + ";"
-            ELSE
-                IF INSTR(DevChannel$, "Development") = 0 THEN
-                    'if remoteVersion$ is not higher than current and this is not
-                    'a dev build, we're all good.
-                    m$ = m$ + "\n- You have the latest stable version: v" + Version$ + ";"
-                    button$(1) = "#OK"
-                ELSE
-                    IF remoteVersion$ = Version$ THEN
-                        'if this is a dev build and version numbers match, that probably means
-                        'a stable version based on this dev build was released
-                        m$ = m$ + "\n- A new stable version is available: v" + remoteVersion$ + ";"
-                    ELSE
-                        'if remoteVersion$ is not higher than current and this is not
-                        'a dev build, we're all good.
-                        m$ = m$ + "\n- No new stable version available;"
-                        button$(1) = "#OK"
-                    END IF
-                END IF
-            END IF
-        END IF
-    ELSE
-        m$ = m$ + "\n- Failed to check for updates. Try again later."
-        button$(1) = "#OK"
-    END IF
+'    DIM button$(1 TO 3)
+'    button$(3) = "#Close"
+'    IF LEN(remoteVersion$) THEN
+'        button$(1) = "Get #Stable Release"
+'        IF INSTR(remoteVersion$, "Cannot") = 0 THEN
+'            IF remoteVersion$ > Version$ THEN
+'                'higher version number in the stable release is newer than current version
+'                'regardless of this being a dev build
+'                m$ = m$ + "\n- A new stable version is available: v" + remoteVersion$ + ";"
+'            ELSE
+'                IF INSTR(DevChannel$, "Development") = 0 THEN
+'                    'if remoteVersion$ is not higher than current and this is not
+'                    'a dev build, we're all good.
+'                    m$ = m$ + "\n- You have the latest stable version: v" + Version$ + ";"
+'                    button$(1) = "#OK"
+'                ELSE
+'                    IF remoteVersion$ = Version$ THEN
+'                        'if this is a dev build and version numbers match, that probably means
+'                        'a stable version based on this dev build was released
+'                        m$ = m$ + "\n- A new stable version is available: v" + remoteVersion$ + ";"
+'                    ELSE
+'                        'if remoteVersion$ is not higher than current and this is not
+'                        'a dev build, we're all good.
+'                        m$ = m$ + "\n- No new stable version available;"
+'                        button$(1) = "#OK"
+'                    END IF
+'                END IF
+'            END IF
+'        END IF
+'    ELSE
+'        m$ = m$ + "\n- Failed to check for updates. Try again later."
+'        button$(1) = "#OK"
+'    END IF
 
-    IF LEN(remoteDevVersion$) THEN
-        button$(2) = "Get #Dev Build"
-        IF INSTR(remoteDevVersion$, "error: ") = 0 THEN
-            IF INSTR(DevChannel$, "Development") = 0 THEN
-                'if this is not a dev build, it'll be offered
-                m$ = m$ + "\n- Development build available: v" + remoteDevVersion$
-                IF LEN(remoteDevBuild$) THEN m$ = m$ + ", " + remoteDevBuild$
-                m$ = m$ + ";"
-            ELSE
-                IF remoteDevVersion$ >= Version$ THEN
-                    'this is a dev build and remote version is same or higher
-                    m$ = m$ + "\n- Latest dev build available: v" + remoteDevVersion$
-                    IF LEN(remoteDevBuild$) THEN m$ = m$ + ", " + remoteDevBuild$
-                    m$ = m$ + ";"
-                END IF
-            END IF
-        END IF
-    ELSE
-        m$ = m$ + "\n- Failed to check for dev builds. Try again later."
-        button$(2) = "#Close"
-        IF button$(1) = "#OK" THEN button$(2) = ""
-        button$(3) = ""
-    END IF
+'    IF LEN(remoteDevVersion$) THEN
+'        button$(2) = "Get #Dev Build"
+'        IF INSTR(remoteDevVersion$, "error: ") = 0 THEN
+'            IF INSTR(DevChannel$, "Development") = 0 THEN
+'                'if this is not a dev build, it'll be offered
+'                m$ = m$ + "\n- Development build available: v" + remoteDevVersion$
+'                IF LEN(remoteDevBuild$) THEN m$ = m$ + ", " + remoteDevBuild$
+'                m$ = m$ + ";"
+'            ELSE
+'                IF remoteDevVersion$ >= Version$ THEN
+'                    'this is a dev build and remote version is same or higher
+'                    m$ = m$ + "\n- Latest dev build available: v" + remoteDevVersion$
+'                    IF LEN(remoteDevBuild$) THEN m$ = m$ + ", " + remoteDevBuild$
+'                    m$ = m$ + ";"
+'                END IF
+'            END IF
+'        END IF
+'    ELSE
+'        m$ = m$ + "\n- Failed to check for dev builds. Try again later."
+'        button$(2) = "#Close"
+'        IF button$(1) = "#OK" THEN button$(2) = ""
+'        button$(3) = ""
+'    END IF
 
-    buttons$ = ""
-    FOR i = 1 TO 3
-        IF LEN(button$(i)) THEN
-            IF LEN(buttons$) THEN buttons$ = buttons$ + ";"
-            buttons$ = buttons$ + button$(i)
-        END IF
-    NEXT
+'    buttons$ = ""
+'    FOR i = 1 TO 3
+'        IF LEN(button$(i)) THEN
+'            IF LEN(buttons$) THEN buttons$ = buttons$ + ";"
+'            buttons$ = buttons$ + button$(i)
+'        END IF
+'    NEXT
 
-    result = idemessagebox("Check for Newer Version", m$, buttons$)
-    IF result = 0 THEN EXIT SUB
+'    result = idemessagebox("Check for Newer Version", m$, buttons$)
+'    IF result = 0 THEN EXIT SUB
 
-    url$ = ""
-    SELECT CASE button$(result)
-        CASE "Get #Dev Build"
-            url$ = "https://www.qb64.org/portal/development-build/"
-        CASE "Get #Stable Release"
-            url$ = "https://github.com/QB64Team/qb64/releases/latest"
-    END SELECT
+'    url$ = ""
+'    SELECT CASE button$(result)
+'        CASE "Get #Dev Build"
+'            url$ = "https://www.qb64.org/portal/development-build/"
+'        CASE "Get #Stable Release"
+'            url$ = "https://github.com/QB64Team/qb64/releases/latest"
+'    END SELECT
 
-    IF LEN(url$) = 0 THEN EXIT SUB
+'    IF LEN(url$) = 0 THEN EXIT SUB
 
-    IF INSTR(_OS$, "WIN") THEN
-        SHELL _HIDE _DONTWAIT "start " + url$
-    ELSEIF INSTR(_OS$, "MAC") THEN
-        SHELL _HIDE _DONTWAIT "open " + url$
-    ELSE
-        SHELL _HIDE _DONTWAIT "xdg-open " + url$
-    END IF
-END SUB
+'    IF INSTR(_OS$, "WIN") THEN
+'        SHELL _HIDE _DONTWAIT "start " + url$
+'    ELSEIF INSTR(_OS$, "MAC") THEN
+'        SHELL _HIDE _DONTWAIT "open " + url$
+'    ELSE
+'        SHELL _HIDE _DONTWAIT "xdg-open " + url$
+'    END IF
+'END SUB
 
 
 FUNCTION ideactivitybox$ (action$, titlestr$, messagestr$, buttons$, extras$) STATIC
