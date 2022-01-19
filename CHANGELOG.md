@@ -3,9 +3,10 @@
 ## New features
 ### All platforms
 - Implement the `_Bin$` function as counterpart to `&B` prefixed number strings. Usage is analog to the legacy OCT$ and HEX$ functions.
-- Add "Check For Newer Version" option in the Help menu.
 - Save Watch Panel position and size.
 - Add `$NOPREFIX` support for `$COLOR`.
+- Fix glitch in syntax highlighter mistaking variable names with scientific notation.
+- Fix Variable List dialog's "Add All" button not properly considering the active filter.
 
 <!--- 
 ### Windows
