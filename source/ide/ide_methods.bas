@@ -2269,7 +2269,7 @@ FUNCTION ide2 (ignore)
             IF mCLICK THEN
                 IF (mY = idewy AND (mX >= idewx - 17 AND mX <= idewx - 4)) THEN 'view on wiki
                     launchWiki:
-                    url$ = StrReplace$("http://www.qb64.org/wiki/index.php?title=" + Back$(Help_Back_Pos), " ", "%20")
+                    url$ = StrReplace$(wikiBaseAddress$ + "/index.php?title=" + Back$(Help_Back_Pos), " ", "%20")
                     IF INSTR(_OS$, "WIN") = 0 THEN
                         url$ = StrReplace$(url$, "$", "\$")
                         url$ = StrReplace$(url$, "&", "\&")
