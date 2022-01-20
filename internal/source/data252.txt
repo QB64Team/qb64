@@ -1,14 +1,14 @@
 qbs *_FUNC_GETBYTES_STRING_GETBYTES=NULL;
 if (!_FUNC_GETBYTES_STRING_GETBYTES)_FUNC_GETBYTES_STRING_GETBYTES=qbs_new(0,0);
-qbs*oldstr6509=NULL;
+qbs*oldstr6505=NULL;
 if(_FUNC_GETBYTES_STRING___VALUE->tmp||_FUNC_GETBYTES_STRING___VALUE->fixed||_FUNC_GETBYTES_STRING___VALUE->readonly){
-oldstr6509=_FUNC_GETBYTES_STRING___VALUE;
-if (oldstr6509->cmem_descriptor){
-_FUNC_GETBYTES_STRING___VALUE=qbs_new_cmem(oldstr6509->len,0);
+oldstr6505=_FUNC_GETBYTES_STRING___VALUE;
+if (oldstr6505->cmem_descriptor){
+_FUNC_GETBYTES_STRING___VALUE=qbs_new_cmem(oldstr6505->len,0);
 }else{
-_FUNC_GETBYTES_STRING___VALUE=qbs_new(oldstr6509->len,0);
+_FUNC_GETBYTES_STRING___VALUE=qbs_new(oldstr6505->len,0);
 }
-memcpy(_FUNC_GETBYTES_STRING___VALUE->chr,oldstr6509->chr,oldstr6509->len);
+memcpy(_FUNC_GETBYTES_STRING___VALUE->chr,oldstr6505->chr,oldstr6505->len);
 }
 qbs *_FUNC_GETBYTES_STRING_VALUE=NULL;
 if (!_FUNC_GETBYTES_STRING_VALUE)_FUNC_GETBYTES_STRING_VALUE=qbs_new(0,0);
