@@ -1,5 +1,6 @@
 DIM SHARED Cache_Folder AS STRING
 Cache_Folder$ = "internal\help"
+IF INSTR(_OS$, "WIN") = 0 THEN Cache_Folder$ = "internal/help"
 IF _DIREXISTS("internal") = 0 THEN GOTO NoInternalFolder
 IF _DIREXISTS(Cache_Folder$) = 0 THEN MKDIR Cache_Folder$
 DIM SHARED Help_sx, Help_sy, Help_cx, Help_cy
