@@ -7,6 +7,7 @@
 - Add `$NOPREFIX` support for `$COLOR`.
 - Fix glitch in syntax highlighter mistaking variable names with scientific notation.
 - Fix Variable List dialog's "Add All" button not properly considering the active filter.
+- Fix wiki update feature.
 
 <!--- 
 ### Windows
