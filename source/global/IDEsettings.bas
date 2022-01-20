@@ -19,6 +19,7 @@ DIM SHARED windowSettingsSection$, colorSettingsSection$, customDictionarySectio
 DIM SHARED mouseSettingsSection$, generalSettingsSection$, displaySettingsSection$
 DIM SHARED colorSchemesSection$, debugSettingsSection$, iniFolderIndex$, DebugInfoIniWarning$, ConfigFile$
 DIM SHARED idebaseTcpPort AS LONG, AutoAddDebugCommand AS _BYTE
+DIM SHARED wikiBaseAddress$
 
 ConfigFile$ = "internal/config.ini"
 iniFolderIndex$ = STR$(tempfolderindex)
@@ -216,6 +217,13 @@ IF result = 0 OR idedebuginfo <> 1 THEN
     idedebuginfo = 0
 END IF
 Include_GDB_Debugging_Info = idedebuginfo
+
+wikiBaseAddress$ = "https://wiki.qb64.org"
+IF ReadConfigSetting(generalSettingsSection$, "WikiBaseAddress", value$) THEN
+    wikiBaseAddress$ = value$
+ELSE WriteConfigSetting generalSettingsSection$, "WikiBaseAddress", wikiBaseAddress$
+END IF
+
 
 'Mouse settings ---------------------------------------------------------------
 result = ReadConfigSetting(mouseSettingsSection$, "SwapMouseButton", value$)
