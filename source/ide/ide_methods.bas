@@ -1821,8 +1821,10 @@ FUNCTION ide2 (ignore)
             GOTO ideQuickKeycode
         END IF
 
-
-        IF KCTRL AND KB = KEY_F3 THEN
+        'Alt+F3 
+		'Control+H 
+		'Find and replace
+        IF (KALT AND KB = KEY_F3) or (KCTRL AND ucase$(k$)="H") THEN
             IF IdeSystem = 3 THEN IdeSystem = 1
             GOTO idefindjmp
         END IF
@@ -3436,6 +3438,14 @@ FUNCTION ide2 (ignore)
 
         END IF
 
+		if KCONTROL AND UCASE$(K$) = "L" THEN 'delete line
+			if iden > 1  then 
+				idedelline idecy
+			else
+				idesetline idecy, ""
+			endif
+			if idecy > iden then idecy = iden 
+		endif
 
         IF KCONTROL AND UCASE$(K$) = "Y" THEN 'redo (CTRL+Y)
             idemredo:
