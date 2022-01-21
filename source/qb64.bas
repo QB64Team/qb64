@@ -2549,6 +2549,7 @@ DO
                                         argnelereq = 0
 
                                         IF symbol2$ <> "" AND t2$ <> "" THEN a$ = "Syntax error - check parameter types": GOTO errmes
+                                        IF t2$ = "" AND e$ = "AS" THEN a$ = "Expected AS type": GOTO errmes
                                         IF t2$ = "" THEN t2$ = symbol2$
                                         IF t2$ = "" THEN
                                             IF LEFT$(n2$, 1) = "_" THEN v = 27 ELSE v = ASC(UCASE$(n2$)) - 64
