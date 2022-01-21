@@ -1821,15 +1821,17 @@ FUNCTION ide2 (ignore)
             GOTO ideQuickKeycode
         END IF
 
-        'Alt+F3 
-		'Control+H 
-		'Find and replace
-        IF (KALT AND KB = KEY_F3) or (KCTRL AND ucase$(k$)="H") THEN
+        'Control+F3
+        'Find dialog
+        IF KCTRL and KB = KEY_F3 THEN
             IF IdeSystem = 3 THEN IdeSystem = 1
             GOTO idefindjmp
         END IF
 
-        IF KALT AND KB = KEY_F3 THEN
+        'Alt+F3
+        'Control+H
+        'Find and replace
+        IF (KALT AND KB = KEY_F3) OR (KCTRL AND UCASE$(K$)="H") THEN
             IF IdeSystem = 3 THEN IdeSystem = 1
             GOTO idefindchangejmp
         END IF
@@ -3438,14 +3440,49 @@ FUNCTION ide2 (ignore)
 
         END IF
 
-		if KCONTROL AND UCASE$(K$) = "L" THEN 'delete line
-			if iden > 1  then 
-				idedelline idecy
-			else
-				idesetline idecy, ""
-			endif
-			if idecy > iden then idecy = iden 
-		endif
+        'Control+L
+        'Delete Line
+        if KCONTROL AND UCASE$(K$) = "L" THEN
+
+			' DEBUG 
+			' _console on
+            ' _echo "ideselect=" + str$(ideselect)
+            ' _echo "idecx=" + str$(idecx)
+            ' _echo "idecy=" + str$(idecy)
+            ' _echo "idesx=" + str$(idesx)
+            ' _echo "idesy=" + str$(idesy)
+            ' _echo "ideselectx1=" + str$(ideselectx1)
+            ' _echo "ideselecty1=" + str$(ideselecty1)
+            ' _echo "idel=" + str$(idel)
+            ' _echo "ideli=" + str$(ideli)
+            ' _echo "iden=" + str$(iden)
+			' _echo ""
+			'
+			if ideselect then 
+				' get total number of lines to delete 
+				del_count = abs(idecy - ideselecty1) + 1
+				' make sure we get the top line selected in case user selected bottom-up
+				if idecy < ideselecty1 then 
+					del_y = idecy 
+				else 
+					del_y = ideselecty1
+				end if 
+			else 
+				del_count= 1
+				del_y = idecy 
+			end if
+
+			' delete all selected lines 
+			for del_n = 1 to del_count 
+				if iden > 1  then 
+					idedelline del_y 
+				else
+					idesetline del_y, ""
+				endif
+				if idecy > iden then idecy = iden 
+				ideselect = 0
+			next 
+        endif
 
         IF KCONTROL AND UCASE$(K$) = "Y" THEN 'redo (CTRL+Y)
             idemredo:
