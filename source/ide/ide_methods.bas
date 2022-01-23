@@ -896,34 +896,6 @@ FUNCTION ide2 (ignore)
 
     idefocusline = 0
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     'main loop
     DO
         ideloop:
@@ -3479,6 +3451,7 @@ FUNCTION ide2 (ignore)
 				else
 					idesetline del_y, ""
 				endif
+				idecy = del_y
 				if idecy > iden then idecy = iden 
 				ideselect = 0
 			next 
