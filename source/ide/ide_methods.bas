@@ -19801,11 +19801,11 @@ SUB printWrapStatus (x AS INTEGER, y AS INTEGER, initialX AS INTEGER, __text$)
 END SUB
 
 FUNCTION GetBytes$(__value$, numberOfBytes&)
-    STATIC prevValue$, getBytesPosition&
+    STATIC previousValue$, getBytesPosition&
 
     value$ = __value$
-    IF value$ <> prevValue$ THEN
-        prevValue$ = value$
+    IF value$ <> previousValue$ THEN
+        previousValue$ = value$
         getBytesPosition& = 1
     END IF
 
