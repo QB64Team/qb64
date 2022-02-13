@@ -24435,9 +24435,9 @@ SUB Build (path$)
         c$ = GDB_Fix$(c$)
         IF use THEN
             IF os$ = "WIN" THEN
-                SHELL _HIDE "cmd /C " + c$ + " 2>> " + return_path$ + "\" + compilelog$
+                SHELL _HIDE "cmd /C " + c$ + " 2>> " + QuotedFilename$(return_path$ + "\" + compilelog$)
             ELSE
-                SHELL _HIDE c$ + " 2>> " + previous_dir$ + "/" + compilelog$
+                SHELL _HIDE c$ + " 2>> " + QuotedFilename$(previous_dir$ + "/" + compilelog$)
             END IF
         END IF
     LOOP
