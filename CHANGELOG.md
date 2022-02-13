@@ -27,7 +27,7 @@
 ### Windows
 
 ### macOS
+--->
 
 ### Linux
-
---->
+- Fix building static libraries when installation path contains spaces.
