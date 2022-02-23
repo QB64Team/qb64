@@ -861,8 +861,6 @@ DIM SHARED everycasenewcase AS LONG
 
 
 DIM SHARED controllevel AS INTEGER '0=not in a control block
-DIM SHARED softcontrollevel AS INTEGER
-DIM SHARED controllevelLastLine AS INTEGER
 DIM SHARED controltype(1000) AS INTEGER
 '1=IF (awaiting END IF)
 '2=FOR (awaiting NEXT)
@@ -1449,7 +1447,6 @@ everycasenewcase = 0
 qberrorhappened = 0: qberrorcode = 0: qberrorline = 0
 FOR i = 1 TO 27: defineaz(i) = "SINGLE": defineextaz(i) = "!": NEXT
 controllevel = 0
-softcontrollevel = 0: controllevelLastLine = 0
 findidsecondarg$ = "": findanotherid = 0: findidinternal = 0: currentid = 0
 linenumber = 0
 wholeline$ = ""
@@ -2977,8 +2974,7 @@ DO
 
     layoutoriginal$ = a3$
     layoutcomment$ = "" 'clear any previous layout comment
-    IF softcontrollevel < 0 THEN softcontrollevel = 0
-    lhscontrollevel = controllevel - softcontrollevel
+    lhscontrollevel = controllevel
 
     linefragment = "[INFORMATION UNAVAILABLE]"
     IF LEN(a3$) = 0 THEN GOTO finishednonexec
@@ -3002,7 +2998,6 @@ DO
             ExecCounter = ExecCounter - 1
             layout$ = SCase$("$End If")
             controltype(controllevel) = 0
-            softcontrollevel = softcontrollevel - 1
             controllevel = controllevel - 1
             GOTO finishednonexec
         END IF
@@ -3037,10 +3032,6 @@ DO
             END IF
 
             controllevel = controllevel + 1
-            IF linenumber = controllevelLastLine THEN
-                softcontrollevel = softcontrollevel + 1
-            END IF
-            controllevelLastLine = linenumber
             controltype(controllevel) = 6
             IF temp = 0 THEN layout$ = SCase$("$If ") + temp$ + SCase$(" Then"): GOTO finishednonexec 'no = sign in the $IF statement, so we're going to assume the user is doing something like $IF flag
             l$ = RTRIM$(LEFT$(temp$, temp - 1)): r$ = LTRIM$(MID$(temp$, temp + LEN(tempOp$)))
@@ -4808,10 +4799,6 @@ DO
 
             IF ideindentsubs THEN
                 controllevel = controllevel + 1
-                IF linenumber = controllevelLastLine THEN
-                    softcontrollevel = softcontrollevel + 1
-                END IF
-                controllevelLastLine = linenumber
                 controltype(controllevel) = 32
                 controlref(controllevel) = linenumber
             END IF
@@ -5329,7 +5316,6 @@ DO
 
                 IF controltype(controllevel) = 32 AND ideindentsubs THEN
                     controltype(controllevel) = 0
-                    softcontrollevel = softcontrollevel - 1
                     controllevel = controllevel - 1
                 END IF
 
@@ -5620,7 +5606,6 @@ DO
                     END IF
                     PRINT #12, "}"
                     PRINT #12, "fornext_exit_" + str2$(controlid(controllevel)) + ":;"
-                    softcontrollevel = softcontrollevel - 1
                     controllevel = controllevel - 1
                     IF n = 1 THEN EXIT FOR
                     v$ = ""
@@ -5651,10 +5636,6 @@ DO
             END IF
 
             controllevel = controllevel + 1
-            IF linenumber = controllevelLastLine THEN
-                softcontrollevel = softcontrollevel + 1
-            END IF
-            controllevelLastLine = linenumber
             controlref(controllevel) = linenumber
             controltype(controllevel) = 5
             controlid(controllevel) = uniquenumber
@@ -5690,7 +5671,6 @@ DO
             PRINT #12, "ww_continue_" + str2$(controlid(controllevel)) + ":;"
             PRINT #12, "}"
             PRINT #12, "ww_exit_" + str2$(controlid(controllevel)) + ":;"
-            softcontrollevel = softcontrollevel - 1
             controllevel = controllevel - 1
             l$ = SCase$("Wend")
             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
@@ -5712,10 +5692,6 @@ DO
             END IF
 
             controllevel = controllevel + 1
-            IF linenumber = controllevelLastLine THEN
-                softcontrollevel = softcontrollevel + 1
-            END IF
-            controllevelLastLine = linenumber
             controlref(controllevel) = linenumber
             l$ = SCase$("Do")
             IF n >= 2 THEN
@@ -5796,7 +5772,6 @@ DO
                 END IF
             END IF
             PRINT #12, "dl_exit_" + str2$(controlid(controllevel)) + ":;"
-            softcontrollevel = softcontrollevel - 1
             controllevel = controllevel - 1
             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
             IF n = 1 THEN GOTO finishednonexec '***no error causing code, event checking done by DO***
@@ -5824,10 +5799,6 @@ DO
             END IF
 
             controllevel = controllevel + 1
-            IF linenumber = controllevelLastLine THEN
-                softcontrollevel = softcontrollevel + 1
-            END IF
-            controllevelLastLine = linenumber
             controlref(controllevel) = linenumber
             controltype(controllevel) = 2
             controlid(controllevel) = uniquenumber
@@ -6091,10 +6062,6 @@ DO
             IF iftype = 0 THEN a$ = "Expected IF expression THEN/GOTO": GOTO errmes
 
             controllevel = controllevel + 1
-            IF linenumber = controllevelLastLine THEN
-                softcontrollevel = softcontrollevel + 1
-            END IF
-            controllevelLastLine = linenumber
             controlref(controllevel) = linenumber
             controltype(controllevel) = 1
             controlvalue(controllevel) = 0 'number of extra closing } required at END IF
@@ -6143,7 +6110,6 @@ DO
         FOR i = 1 TO controlvalue(controllevel)
             PRINT #12, "}"
         NEXT
-        softcontrollevel = softcontrollevel - 1
         controllevel = controllevel - 1
         GOTO finishednonexec '***no error causing code, event checking done by IF***
     END IF
@@ -6170,7 +6136,6 @@ DO
             FOR i = 1 TO controlvalue(controllevel)
                 PRINT #12, "}"
             NEXT
-            softcontrollevel = softcontrollevel - 1
             controllevel = controllevel - 1
             GOTO finishednonexec '***no error causing code, event checking done by IF***
         END IF
@@ -6219,10 +6184,6 @@ DO
             u = uniquenumber
 
             controllevel = controllevel + 1
-            IF linenumber = controllevelLastLine THEN
-                softcontrollevel = softcontrollevel + 1
-            END IF
-            controllevelLastLine = linenumber
             controlvalue(controllevel) = 0 'id
 
             t$ = ""
@@ -6301,13 +6262,11 @@ DO
             IF controltype(controllevel) = 18 THEN
                 everycasenewcase = everycasenewcase + 1
                 PRINT #12, "sc_ec_" + str2$(everycasenewcase) + "_end:;"
-                softcontrollevel = softcontrollevel - 1
                 controllevel = controllevel - 1
                 IF EveryCaseSet(SelectCaseCounter) = 0 THEN PRINT #12, "goto sc_" + str2$(controlid(controllevel)) + "_end;"
                 PRINT #12, "}"
             END IF
             IF controltype(controllevel) = 19 THEN
-                softcontrollevel = softcontrollevel - 1
                 controllevel = controllevel - 1
                 IF EveryCaseSet(SelectCaseCounter) THEN PRINT #12, "} /* End of SELECT EVERYCASE ELSE */"
             END IF
@@ -6327,7 +6286,6 @@ DO
                 END IF
             END IF
 
-            softcontrollevel = softcontrollevel - 1
             controllevel = controllevel - 1
             SelectCaseCounter = SelectCaseCounter - 1
             l$ = SCase$("End" + sp + "Select")
@@ -6353,7 +6311,6 @@ DO
             IF controltype(controllevel) = 19 THEN a$ = "Expected END SELECT": GOTO errmes
             IF controltype(controllevel) = 18 THEN
                 lhscontrollevel = lhscontrollevel - 1
-                softcontrollevel = softcontrollevel - 1
                 controllevel = controllevel - 1
                 everycasenewcase = everycasenewcase + 1
                 PRINT #12, "sc_ec_" + str2$(everycasenewcase) + "_end:;"
@@ -6427,10 +6384,6 @@ DO
                 IF getelement$(a$, 2) = "C-EL" THEN
                     IF EveryCaseSet(SelectCaseCounter) THEN PRINT #12, "if (sc_" + str2$(controlid(controllevel)) + "_var==0) {"
                     controllevel = controllevel + 1: controltype(controllevel) = 19
-                    IF linenumber = controllevelLastLine THEN
-                        softcontrollevel = softcontrollevel + 1
-                    END IF
-                    controllevelLastLine = linenumber
                     controlref(controllevel) = controlref(controllevel - 1)
                     l$ = l$ + sp + SCase$("Else")
                     layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
@@ -6609,10 +6562,6 @@ DO
 
             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
             controllevel = controllevel + 1
-            IF linenumber = controllevelLastLine THEN
-                softcontrollevel = softcontrollevel + 1
-            END IF
-            controllevelLastLine = linenumber
             controlref(controllevel) = controlref(controllevel - 1)
             controltype(controllevel) = 18
             GOTO finishedline
