@@ -22,6 +22,8 @@
 - Fix wiki update feature.
 - Fix issue with Sub/Function parameters in `Declare` blocks with `$NoPrefix`.
 - Fix issue with Sub/Function parameters without types after `As`.
+- Fix issue with capitalization of array names in `LBound/UBound` calls.
+- Fix capitalization of 'To' in `Case` statements.
 
 <!---
 ### Windows
