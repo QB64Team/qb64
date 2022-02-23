@@ -19548,7 +19548,9 @@ FUNCTION fixoperationorder$ (savea$)
                                     IF Error_Happened THEN EXIT FUNCTION
                                     IF id.internal_subfunc THEN
                                         f2$ = SCase$(RTRIM$(id.cn)) + s$
-                                        uboundlbound = (UCASE$(f2$) = "UBOUND" OR UCASE$(f2$) = "LBOUND")
+                                        IF (UCASE$(f2$) = "UBOUND" OR UCASE$(f2$) = "LBOUND") THEN
+                                            uboundlbound = 2
+                                        END IF
                                     ELSE
                                         f2$ = RTRIM$(id.cn) + s$
                                     END IF
@@ -19755,7 +19757,7 @@ FUNCTION fixoperationorder$ (savea$)
         END IF
 
         IF c = 41 OR c = 125 THEN ')}
-            uboundlbound = 0
+            IF uboundlbound THEN uboundlbound = uboundlbound - 1
             b = b - 1
 
             IF b = 0 THEN
