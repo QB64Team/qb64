@@ -6488,7 +6488,7 @@ DO
                             IF i2 = 1 THEN e$ = el$ ELSE e$ = er$
                             e$ = fixoperationorder(e$)
                             IF Error_Happened THEN GOTO errmes
-                            IF i2 = 1 THEN l$ = l$ + sp + tlayout$ ELSE l$ = l$ + sp + SCase$("TO") + sp + tlayout$
+                            IF i2 = 1 THEN l$ = l$ + sp + tlayout$ ELSE l$ = l$ + sp + SCase$("To") + sp + tlayout$
                             e$ = evaluate(e$, typ)
                             IF Error_Happened THEN GOTO errmes
                             IF (typ AND ISREFERENCE) THEN e$ = refer(e$, typ, 0)
