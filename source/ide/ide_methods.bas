@@ -15393,7 +15393,7 @@ END FUNCTION 'yes/no box
 'END SUB
 
 
-FUNCTION ideactivitybox$ (action$, titlestr$, messagestr$, buttons$, extras$) STATIC
+FUNCTION ideactivitybox$ (action$, titlestr$, messagestr$, buttons$) STATIC
 
     SELECT CASE LCASE$(action$)
         CASE "setup"
