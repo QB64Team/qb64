@@ -2938,7 +2938,7 @@ DO
 
     IF InValidLine(linenumber) THEN
         layoutok = 1
-        layout$ = SPACE$(controllevel) + LTRIM$(RTRIM$(a3$))
+        layout$ = SPACE$(controllevel + 1) + LTRIM$(RTRIM$(a3$))
         IF idemode GOTO ideret4 ELSE GOTO skipide4
     END IF
 
