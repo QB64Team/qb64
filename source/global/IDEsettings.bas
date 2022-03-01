@@ -1,6 +1,6 @@
 DIM SHARED IDECommentColor AS _UNSIGNED LONG, IDEMetaCommandColor AS _UNSIGNED LONG
 DIM SHARED IDEQuoteColor AS _UNSIGNED LONG, IDETextColor AS _UNSIGNED LONG
-DIM SHARED IDEBackgroundColor AS _UNSIGNED LONG
+DIM SHARED IDEBackgroundColor AS _UNSIGNED LONG, IDEChromaColor AS _UNSIGNED LONG
 DIM SHARED IDEBackgroundColor2 AS _UNSIGNED LONG, IDEBracketHighlightColor AS _UNSIGNED LONG
 DIM SHARED IDEKeywordColor AS _UNSIGNED LONG, IDENumbersColor AS _UNSIGNED LONG
 DIM SHARED IDE_AutoPosition AS _BYTE, IDE_TopPosition AS INTEGER, IDE_LeftPosition AS INTEGER
@@ -23,7 +23,7 @@ DIM SHARED wikiBaseAddress$
 
 ConfigFile$ = "internal/config.ini"
 iniFolderIndex$ = STR$(tempfolderindex)
-DebugInfoIniWarning$ = " 'Do not change manually. Use 'qb64 -s', or Options->Advanced in the IDE"
+DebugInfoIniWarning$ = " 'Do not change manually. Use 'qb64 -s', or Debug->Advanced in the IDE"
 
 windowSettingsSection$ = "IDE WINDOW" + iniFolderIndex$
 colorSettingsSection$ = "IDE COLOR SETTINGS" + iniFolderIndex$
@@ -461,6 +461,7 @@ IDENumbersColor = _RGB32(216, 98, 78)
 IDEQuoteColor = _RGB32(255, 167, 0)
 IDEMetaCommandColor = _RGB32(85, 206, 85)
 IDECommentColor = _RGB32(98, 98, 98)
+IDEChromaColor = _RGB32(170, 170, 170)
 IDEBackgroundColor = _RGB32(0, 0, 39)
 IDEBackgroundColor2 = _RGB32(0, 49, 78)
 IDEBracketHighlightColor = _RGB32(0, 88, 108)
@@ -493,6 +494,11 @@ END IF
 IF ReadConfigSetting(colorSettingsSection$, "CommentColor", value$) THEN
     IDECommentColor = VRGBS(value$, IDECommentColor)
 ELSE WriteConfigSetting colorSettingsSection$, "CommentColor", rgbs$(IDECommentColor)
+END IF
+
+IF ReadConfigSetting(colorSettingsSection$, "ChromaColor", value$) THEN
+    IDEChromaColor = VRGBS(value$, IDEChromaColor)
+ELSE WriteConfigSetting colorSettingsSection$, "ChromaColor", rgbs$(IDEChromaColor)
 END IF
 
 IF ReadConfigSetting(colorSettingsSection$, "MetaCommandColor", value$) THEN
