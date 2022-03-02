@@ -1453,7 +1453,6 @@ wholeline$ = ""
 linefragment$ = ""
 idn = 0
 arrayprocessinghappened = 0
-wholearrayreference = 0
 stringprocessinghappened = 0
 inputfunctioncalled = 0
 subfuncn = 0
@@ -3727,7 +3726,6 @@ DO
     END IF
 
     arrayprocessinghappened = 0
-    wholearrayreference = 0
 
     firstelement$ = getelement(a$, 1)
     secondelement$ = getelement(a$, 2)
@@ -11242,7 +11240,7 @@ DO
         END IF
     END IF
 
-    IF arrayprocessinghappened THEN arrayprocessinghappened = 0: wholearrayreference = 0
+    IF arrayprocessinghappened = 1 THEN arrayprocessinghappened = 0
 
     inclinenump$ = ""
     IF inclinenumber(inclevel) THEN
@@ -22453,7 +22451,7 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             IF Error_Happened THEN EXIT SUB
             PRINT #12, "qbs_set(" + r$ + "," + e$ + ");"
             PRINT #12, cleanupstringprocessingcall$ + "0);"
-            IF arrayprocessinghappened THEN arrayprocessinghappened = 0: wholearrayreference = 0
+            IF arrayprocessinghappened THEN arrayprocessinghappened = 0
             tlayout$ = tl$
             IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
             EXIT SUB
@@ -22484,7 +22482,7 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
                 PRINT #12, "}"
             END IF
             IF stringprocessinghappened THEN PRINT #12, cleanupstringprocessingcall$ + "0);": stringprocessinghappened = 0
-            IF arrayprocessinghappened THEN arrayprocessinghappened = 0: wholearrayreference = 0
+            IF arrayprocessinghappened THEN arrayprocessinghappened = 0
             tlayout$ = tl$
             IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
             EXIT SUB
@@ -22511,7 +22509,7 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
         l$ = r$ + "=" + e$ + ";"
         PRINT #12, l$
         IF stringprocessinghappened THEN PRINT #12, cleanupstringprocessingcall$ + "0);": stringprocessinghappened = 0
-        IF arrayprocessinghappened THEN arrayprocessinghappened = 0: wholearrayreference = 0
+        IF arrayprocessinghappened THEN arrayprocessinghappened = 0
         tlayout$ = tl$
 
         IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
