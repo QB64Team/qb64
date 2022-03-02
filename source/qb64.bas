@@ -776,7 +776,7 @@ DIM SHARED linefragment AS STRING
 'COMMON SHARED bitmask() AS _INTEGER64
 'COMMON SHARED bitmaskinv() AS _INTEGER64
 
-DIM SHARED arrayprocessinghappened AS INTEGER
+DIM SHARED arrayprocessinghappened AS INTEGER, wholearrayreference AS INTEGER
 DIM SHARED stringprocessinghappened AS INTEGER
 DIM SHARED cleanupstringprocessingcall AS STRING
 DIM SHARED inputfunctioncalled AS _BYTE
@@ -14165,6 +14165,7 @@ FUNCTION allocarray (n2$, elements$, elementsize, udt)
 END FUNCTION
 
 FUNCTION arrayreference$ (indexes$, typ)
+    wholearrayreference = 0
     arrayprocessinghappened = 1
     '*returns an array reference: idnumber | index$
     '*does not take into consideration the type of the array
@@ -14186,6 +14187,7 @@ FUNCTION arrayreference$ (indexes$, typ)
     n$ = RTRIM$(id2.callname)
 
     IF a$ = "" THEN 'no indexes passed eg. a()
+        wholearrayreference = 1
         r$ = "0"
         GOTO gotarrayindex
     END IF
@@ -14288,6 +14290,10 @@ SUB assign (a$, n)
             a2$ = evaluate$(a2$, typ): IF Error_Happened THEN EXIT SUB
             assignsimplevariable:
             IF (typ AND ISREFERENCE) = 0 THEN Give_Error "Expected variable =": EXIT SUB
+            IF wholearrayreference = 1 THEN
+                wholearrayreference = 0
+                Give_Error "Expected array(index) = ...": EXIT SUB
+            END IF
             setrefer a2$, typ, getelements$(a$, i + 1, n), 0
             IF Error_Happened THEN EXIT SUB
             tlayout$ = l$ + tlayout$
@@ -22339,6 +22345,10 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
                 PRINT #12, "tmp_long=" + a$ + ";"
                 IF method = 0 THEN
                     l$ = "if (!new_error) qbs_set(" + r$ + "," + evaluatetotyp(e$, typ) + ");"
+                    IF wholearrayreference = 1 THEN
+                        wholearrayreference = 0
+                        Give_Error "Expected array(index)": EXIT SUB
+                    END IF
                     IF Error_Happened THEN EXIT SUB
                 ELSE
                     l$ = "if (!new_error) qbs_set(" + r$ + "," + e$ + ");"
@@ -22348,6 +22358,10 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
                 PRINT #12, "tmp_long=" + a$ + ";"
                 IF method = 0 THEN
                     l$ = "if (!new_error) qbs_set( ((qbs*)(((uint64*)(" + n$ + "[0]))[tmp_long]))," + evaluatetotyp(e$, typ) + ");"
+                    IF wholearrayreference = 1 THEN
+                        wholearrayreference = 0
+                        Give_Error "Expected array(index)": EXIT SUB
+                    END IF
                     IF Error_Happened THEN EXIT SUB
                 ELSE
                     l$ = "if (!new_error) qbs_set( ((qbs*)(((uint64*)(" + n$ + "[0]))[tmp_long]))," + e$ + ");"
@@ -22367,6 +22381,10 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             PRINT #12, "tmp_long=" + a$ + ";"
             IF method = 0 THEN
                 l$ = "if (!new_error) " + r$ + evaluatetotyp(e$, typ) + ");"
+                IF wholearrayreference = 1 THEN
+                    wholearrayreference = 0
+                    Give_Error "Expected array(index)": EXIT SUB
+                END IF
                 IF Error_Happened THEN EXIT SUB
             ELSE
                 l$ = "if (!new_error) " + r$ + e$ + ");"
@@ -22400,6 +22418,10 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
         PRINT #12, "tmp_long=" + a$ + ";"
         IF method = 0 THEN
             l$ = "if (!new_error) ((" + t$ + "*)(" + n$ + "[0]))[tmp_long]=" + evaluatetotyp(e$, typ) + ";"
+            IF wholearrayreference = 1 THEN
+                wholearrayreference = 0
+                Give_Error "Expected array(index)": EXIT SUB
+            END IF
             IF Error_Happened THEN EXIT SUB
         ELSE
             l$ = "if (!new_error) ((" + t$ + "*)(" + n$ + "[0]))[tmp_long]=" + e$ + ";"
