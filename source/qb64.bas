@@ -114,7 +114,7 @@ DIM SHARED MonochromeLoggingMode AS _BYTE
 TYPE usedVarList
     AS LONG id, linenumber, includeLevel, includedLine, scope, localIndex
     AS LONG arrayElementSize
-    AS _BYTE used, watch, isarray
+    AS _BYTE used, watch, isarray, displayFormat 'displayFormat: 0=DEC;1=HEX;2=BIN;3=OCT
     AS STRING name, cname, varType, includedFile, subfunc
     AS STRING watchRange, indexes, elements, elementTypes 'for Arrays and UDTs
     AS STRING elementOffset, storage
@@ -26106,6 +26106,7 @@ SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
                 usedVariableList(i).id = currentid
                 usedVariableList(i).used = 0
                 usedVariableList(i).watch = 0
+                usedVariableList(i).displayFormat = 0
                 usedVariableList(i).storage = ""
                 usedVariableList(i).linenumber = linenumber
                 usedVariableList(i).includeLevel = inclevel
@@ -26165,6 +26166,7 @@ SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
                         usedVariableList(i).watch = backupUsedVariableList(j).watch
                         usedVariableList(i).watchRange = backupUsedVariableList(j).watchRange
                         usedVariableList(i).indexes = backupUsedVariableList(j).indexes
+                        usedVariableList(i).displayFormat = backupUsedVariableList(j).displayFormat
                         usedVariableList(i).elements = backupUsedVariableList(j).elements
                         usedVariableList(i).elementTypes = backupUsedVariableList(j).elementTypes
                         usedVariableList(i).elementOffset = backupUsedVariableList(j).elementOffset

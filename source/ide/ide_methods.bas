@@ -6485,9 +6485,8 @@ SUB DebugMode
     TYPE vWatchPanelType
         AS INTEGER x, y, w, h, firstVisible, hPos, vBarThumb, hBarThumb
         AS INTEGER draggingVBar, draggingHBar, mX, mY
-        AS LONG contentWidth
-        AS _BYTE draggingPanel, resizingPanel, closingPanel
-        AS STRING visibleItems
+        AS LONG contentWidth, tempIndex
+        AS _BYTE draggingPanel, resizingPanel, closingPanel, clicked
     END TYPE
     STATIC vWatchPanel AS vWatchPanelType
 
@@ -6833,6 +6832,7 @@ SUB DebugMode
                    (mX >= vWatchPanel.x AND mX <= vWatchPanel.x + vWatchPanel.w) AND _
                    (mY >= vWatchPanel.y AND mY <= vWatchPanel.y + vWatchPanel.h) THEN
                     vWatchPanel.draggingPanel = -1
+                    vWatchPanel.clicked = 1
                     IF timeElapsedSince(lastPanelClick!) < .3 THEN
                         'Double-click on watch list
                         vWatchPanel.draggingPanel = 0
@@ -6846,6 +6846,7 @@ SUB DebugMode
                     vWatchPanel.closingPanel = 0
                     vWatchPanel.draggingVBar = 0
                     vWatchPanel.draggingHBar = 0
+                    vWatchPanel.clicked = 0
                 END IF
 
                 IF mX = idewx THEN
@@ -6923,7 +6924,9 @@ SUB DebugMode
                     IF vWatchPanel.y < 3 THEN vWatchPanel.y = 3
                     IF vWatchPanel.y > vWatchPanelLimit - (vWatchPanel.h - 1) THEN vWatchPanel.y = vWatchPanelLimit - (vWatchPanel.h - 1)
 
+                    IF mouseDownOnX <> mX THEN vWatchPanel.clicked = 0
                     mouseDownOnX = mX
+                    IF mouseDownOnY <> mY THEN vWatchPanel.clicked = 0
                     mouseDownOnY = mY
                     GOSUB UpdateDisplay
                 ELSEIF vWatchPanel.resizingPanel THEN
@@ -6959,6 +6962,11 @@ SUB DebugMode
                 END IF
             END IF
         ELSE 'mouse button released
+            IF vWatchPanel.clicked = 1 THEN
+                vWatchPanel.clicked = 2
+                'panel was clicked but not dragged, so register a click (= 2)
+                'which will be handled by showvWatchPanel()
+            END IF
             IF vWatchPanel.draggingPanel THEN
                 vWatchPanel.draggingPanel = 0: mouseDown = 0
                 WriteSetting ".\internal\temp\debug.ini", "settings", "vWatchPanel.x", str2$(vWatchPanel.x)
@@ -8053,12 +8061,12 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, action as _BYTE)
     shadowX = 0
     shadowY = 0
     shadowLength = 0
-    this.visibleItems = ""
     this.contentWidth = 0
     IF this.hPos = 0 THEN this.hPos = 1
     temp$ = GetBytes$("", 0) 'reset buffer
     temp$ = MID$(variableWatchList$, 9)
     actualLongestVarName = 0
+    displayFormatButton = 0
     DO
         temp2$ = GetBytes$(temp$, 4)
         IF temp2$ <> MKL$(-1) THEN EXIT DO 'no more variables in list
@@ -8097,10 +8105,20 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, action as _BYTE)
                 tempVarType$ = usedVariableList(tempIndex&).varType
             END IF
             thisIsAString = (INSTR(tempVarType$, "STRING *") > 0 OR tempVarType$ = "STRING")
-            tempValue$ = vWatchReceivedData$(tempStorage&)
+            tempValue$ = StrReplace$(vWatchReceivedData$(tempStorage&), CHR$(0), " ")
             IF thisIsAString THEN
                 item$ = item$ + CHR$(34) + tempValue$ + CHR$(34)
+                IF displayFormatButton > 0 THEN displayFormatButton = 0
             ELSE
+                IF displayFormatButton = 0 AND this.mY = this.y + y THEN displayFormatButton = LEN(item$) + 2
+                IF WatchListToConsole THEN displayFormatButton = 0
+
+                SELECT CASE usedVariableList(tempIndex&).displayFormat
+                    'displayFormat: 0=DEC;1=HEX;2=BIN;3=OCT
+                    CASE 1: tempValue$ = "&H" + HEX$(VAL(tempValue$))
+                    CASE 2: tempValue$ = "&B" + _BIN$(VAL(tempValue$))
+                    CASE 3: tempValue$ = "&O" + OCT$(VAL(tempValue$))
+                END SELECT
                 item$ = item$ + tempValue$
             END IF
             COLOR fg
@@ -8111,6 +8129,25 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, action as _BYTE)
         IF LEN(item$) > this.contentWidth THEN this.contentWidth = LEN(item$)
         IF WatchListToConsole = 0 THEN
             _PRINTSTRING (this.x + 2, this.y + y), MID$(item$, this.hPos, this.w - 4)
+
+            'show/highlight .displayFormat button
+            IF displayFormatButton > 0 AND displayFormatButton >= this.hPos AND _
+               this.x + displayFormatButton - this.hPos < this.x + this.w - 4 AND _
+               this.x + displayFormatButton - this.hPos > this.x + 1 THEN
+                COLOR 15
+                IF this.mY = this.y + y AND this.mX = this.x + displayFormatButton - this.hPos THEN
+                    COLOR , 3
+
+                    IF this.clicked = 2 THEN
+                        this.clicked = 0 'indicate we handled the click here
+                        usedVariableList(tempIndex&).displayFormat = usedVariableList(tempIndex&).displayFormat + 1
+                        IF usedVariableList(tempIndex&).displayFormat > 3 THEN usedVariableList(tempIndex&).displayFormat = 0
+                    END IF
+                END IF
+                _PRINTSTRING (this.x + displayFormatButton - this.hPos, this.mY), CHR$(29)
+                COLOR fg, bg
+                displayFormatButton = -1 'mark done
+            END IF
 
             'find existing watchpoint for this variable/index/element
             temp2$ = MKL$(tempIndex&) + MKL$(tempTotalArrayIndexes& * 4) + tempArrayIndexes$ + MKL$(tempElementOffset&)
@@ -8181,6 +8218,7 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, action as _BYTE)
             this.hPos = 1
         END IF
     END IF
+    IF this.clicked = 2 THEN this.clicked = 0 'discard unhandled click
 END SUB
 
 FUNCTION multiSearch (__fullText$, __searchString$)
@@ -8907,10 +8945,27 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
         IF mCLICK AND focus = 2 THEN 'list click
             IF timeElapsedSince(lastClick!) < .3 AND clickedItem = o(varListBox).sel THEN
                 IF doubleClickThreshold > 0 AND mX >= p.x + doubleClickThreshold AND IdeDebugMode > 0 THEN
+                    y = ABS(o(varListBox).sel)
+                    usedVariableList(varDlgList(y).index).displayFormat = usedVariableList(varDlgList(y).index).displayFormat - 1
+                    IF usedVariableList(varDlgList(y).index).displayFormat < 0 THEN
+                        usedVariableList(varDlgList(y).index).displayFormat = 3
+                    END IF
                     focus = 5
                     GOTO sendValue
                 ELSE
                     GOTO toggleWatch
+                END IF
+            ELSEIF clickedItem = o(varListBox).sel THEN
+                IF doubleClickThreshold > 0 AND mX >= p.x + doubleClickThreshold AND IdeDebugMode > 0 THEN
+                    y = ABS(o(varListBox).sel)
+                    IF INSTR(usedVariableList(varDlgList(y).index).varType, "STRING *") = 0 AND usedVariableList(varDlgList(y).index).varType <> "STRING" THEN
+                        usedVariableList(varDlgList(y).index).displayFormat = usedVariableList(varDlgList(y).index).displayFormat + 1
+                        IF usedVariableList(varDlgList(y).index).displayFormat > 3 THEN
+                            usedVariableList(varDlgList(y).index).displayFormat = 0
+                        END IF
+                        GOSUB buildList
+                        idetxt(o(varListBox).txt) = l$
+                    END IF
                 END IF
             END IF
             lastClick! = TIMER
@@ -9338,8 +9393,18 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                         DO WHILE LEN(temp$)
                             storageSlot& = CVL(LEFT$(temp$, 4))
                             temp$ = MID$(temp$, 5)
-                            IF thisIsAString THEN l$ = l$ + CHR$(34)
-                            l$ = l$ + StrReplace$(vWatchReceivedData$(storageSlot&), CHR$(0), " ")
+                            tempValue$ = StrReplace$(vWatchReceivedData$(storageSlot&), CHR$(0), " ")
+                            IF thisIsAString THEN
+                                l$ = l$ + CHR$(34)
+                            ELSE
+                                SELECT CASE usedVariableList(x).displayFormat
+                                    'displayFormat: 0=DEC;1=HEX;2=BIN;3=OCT
+                                    CASE 1: tempValue$ = "&H" + HEX$(VAL(tempValue$))
+                                    CASE 2: tempValue$ = "&B" + _BIN$(VAL(tempValue$))
+                                    CASE 3: tempValue$ = "&O" + OCT$(VAL(tempValue$))
+                                END SELECT
+                            END IF
+                            l$ = l$ + tempValue$
                             IF thisIsAString THEN l$ = l$ + CHR$(34)
                             IF LEN(temp$) THEN l$ = l$ + ","
                         LOOP
@@ -9349,8 +9414,18 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                         IF LEN(usedVariableList(x).storage) = 4 THEN
                             storageSlot& = CVL(usedVariableList(x).storage)
                             l$ = l$ + " = " + CHR$(16) + CHR$(variableNameColor)
-                            IF thisIsAString THEN l$ = l$ + CHR$(34)
-                            l$ = l$ + StrReplace$(vWatchReceivedData$(storageSlot&), CHR$(0), " ")
+                            tempValue$ = StrReplace$(vWatchReceivedData$(storageSlot&), CHR$(0), " ")
+                            IF thisIsAString THEN
+                                l$ = l$ + CHR$(34)
+                            ELSE
+                                SELECT CASE usedVariableList(x).displayFormat
+                                    'displayFormat: 0=DEC;1=HEX;2=BIN;3=OCT
+                                    CASE 1: tempValue$ = "&H" + HEX$(VAL(tempValue$))
+                                    CASE 2: tempValue$ = "&B" + _BIN$(VAL(tempValue$))
+                                    CASE 3: tempValue$ = "&O" + OCT$(VAL(tempValue$))
+                                END SELECT
+                            END IF
+                            l$ = l$ + tempValue$
                             IF thisIsAString THEN l$ = l$ + CHR$(34)
                         END IF
                     ELSE
