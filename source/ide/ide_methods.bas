@@ -3054,15 +3054,35 @@ FUNCTION ide2 (ignore)
                    (mX = 1 AND mY > 2 AND mY < (idewy - 5) AND ShowLineNumbers = 0) THEN
                 'line numbers are visible and have been clicked or
                 'line numbers are hidden and the left border has been clicked
-                ideselect = 0
-                idecytemp = mY - 2 + idesy - 1
-                IF idecytemp =< iden THEN
-                    idecy = idecytemp
-                    IF _KEYDOWN(100304) OR _KEYDOWN(100303) THEN
-                        GOTO toggleSkipLine
-                    ELSE
-                        GOTO toggleBreakpoint
+                IF AutoAddDebugCommand <> 0 OR vWatchOn <> 0 THEN
+                    ideselect = 0
+                    idecytemp = mY - 2 + idesy - 1
+                    IF idecytemp =< iden THEN
+                        idecy = idecytemp
+                        IF _KEYDOWN(100304) OR _KEYDOWN(100303) THEN
+                            GOTO toggleSkipLine
+                        ELSE
+                            GOTO toggleBreakpoint
+                        END IF
                     END IF
+                ELSE
+                    ideselect = 1
+                    idecy = mY - 2 + idesy - 1
+                    IF idecy < iden THEN
+                        IF (NOT KSHIFT) THEN ideselectx1 = 1: ideselecty1 = idecy
+                        idecy = idecy + 1
+                        idecx = 1
+                    ELSEIF idecy = iden THEN
+                        a$ = idegetline$(idecy)
+                        IF (NOT KSHIFT) THEN ideselectx1 = 1: ideselecty1 = idecy
+                        idecx = LEN(a$) + 1
+                    ELSEIF idecy > iden THEN
+                        idecy = iden
+                        ideselect = 0
+                        idecx = 1
+                    END IF
+                    wholeword.select = 0
+                    idemouseselect = 0
                 END IF
             END IF
         END IF
