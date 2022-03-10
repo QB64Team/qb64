@@ -6530,9 +6530,15 @@ SUB DebugMode
 
             panelActive = -1
             showvWatchPanel vWatchPanel, "", 1
+
             IF LEN(variableWatchList$) = 0 THEN
                 totalVisibleVariables = 0
                 vWatchPanel.h = 5
+            ELSE
+                'between edits, variables may have been deleted;
+                'next line assures we don't try to fetch values
+                'for ghost variables
+                result$ = idevariablewatchbox$("", "", -1, 0)
             END IF
 
             watchpointList$ = ""
@@ -8297,6 +8303,8 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
     firstRun = 0
     dialogHeight = (totalMainVariablesCreated) + 7
     listBuilt:
+    IF selectVar = -1 THEN GOTO generateVariableWatchList
+
     i = 0
     IF dialogHeight < lastUsedDialogHeight THEN dialogHeight = lastUsedDialogHeight
     IF dialogHeight > idewy + idesubwindow - 6 THEN
@@ -8843,6 +8851,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
 
         IF K$ = CHR$(27) OR (IdeDebugMode = 0 AND focus = 5 AND info <> 0) OR _
                             (IdeDebugMode > 0 AND focus = 7 AND info <> 0) THEN
+            generateVariableWatchList:
             variableWatchList$ = ""
             backupVariableWatchList$ = "" 'used in case this program is edited in the same session
             backupTypeDefinitions$ = typeDefinitions$ 'store current TYPE definitions for later comparison
@@ -8850,7 +8859,28 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
             nextvWatchDataSlot = 0
             totalVisibleVariables = 0
             totalSelectedVariables = 0
+            msg$ = ""
             FOR y = 1 TO totalVariablesCreated
+                IF selectVar = -1 THEN
+                    IF msg$ = "" THEN
+                        msg$ = "Analyzing Variable List..."
+                        idepar p, 60, 1, msg$
+                    END IF
+
+                    idedrawpar p
+                    COLOR 0, 7
+                    c = totalVariablesCreated
+                    n = y
+
+                    maxprogresswidth = 52 'arbitrary
+                    percentage = INT(n / c * 100)
+                    percentagechars = INT(maxprogresswidth * n / c)
+                    percentageMsg$ = STRING$(percentagechars, 219) + STRING$(maxprogresswidth - percentagechars, 176) + STR$(percentage) + "%"
+                    _PRINTSTRING (p.x + (p.w \ 2 - LEN(percentageMsg$) \ 2) + 1, p.y + 1), percentageMsg$
+
+                    PCOPY 1, 0
+                END IF
+
                 IF usedVariableList(y).includedLine THEN _CONTINUE 'don't deal with variables in $INCLUDEs
 
                 totalSelectedVariables = totalSelectedVariables + 1
@@ -9299,7 +9329,9 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
     NEXT
 
     IF firstRun THEN
-        idepar p, 60, 1, "Building Variable List..."
+        msg$ = "Building Variable List..."
+        IF selectVar = -1 THEN msg$ = "Analyzing Variable List..."
+        idepar p, 60, 1, msg$
     END IF
 
     l$ = ""
