@@ -10894,7 +10894,7 @@ SUB idedrawobj (o AS idedbotype, f)
                     'skip
                 ELSE
                     IF y <= o.h THEN
-                        a3$ = " " + a3$
+                        a3$ = " " + RTRIM$(a3$)
                         IF o.sel = n THEN
                             COLOR 7, 0
                             o.selY = o.par.y + o.y + y
@@ -10948,6 +10948,7 @@ SUB idedrawobj (o AS idedbotype, f)
                                     PRINT LEFT$(a3$, 3);
                                     IF o.sel = n THEN COLOR 7, 0 ELSE COLOR 0, 7
                                     character = 3
+                                    cf = cf + 3
                                     _CONTINUE
                                 END IF
                                 PRINT MID$(a3$, character, 1);
