@@ -8128,7 +8128,11 @@ SUB showvWatchPanel (this AS vWatchPanelType, currentScope$, action as _BYTE)
         END IF
         IF LEN(item$) > this.contentWidth THEN this.contentWidth = LEN(item$)
         IF WatchListToConsole = 0 THEN
-            _PRINTSTRING (this.x + 2, this.y + y), MID$(item$, this.hPos, this.w - 4)
+            temp2$ = MID$(item$, this.hPos)
+            _PRINTSTRING (this.x + 2, this.y + y), LEFT$(temp2$, this.w - 4)
+            IF this.x + 2 + LEN(temp2$) > this.x + this.w - 2 THEN
+                _PRINTSTRING (this.x + this.w - 2, this.y + y), CHR$(26)
+            END IF
 
             'show/highlight .displayFormat button
             IF displayFormatButton > 0 AND displayFormatButton >= this.hPos AND _
@@ -8368,6 +8372,18 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
         IF doubleClickThreshold > 0 AND doubleClickThreshold < p.w AND IdeDebugMode > 0 THEN
             _PRINTSTRING (p.x + doubleClickThreshold, p.y + 5), CHR$(194)
             _PRINTSTRING (p.x + doubleClickThreshold, p.y + p.h - 1), CHR$(193)
+
+            IF focus = varListBox AND o(varListBox).sel > 0 THEN
+                y = o(varListBox).sel
+                IF usedVariableList(varDlgList(y).index).watch <> 0 AND _
+                   INSTR(usedVariableList(varDlgList(y).index).varType, "STRING *") = 0 AND _
+                   usedVariableList(varDlgList(y).index).varType <> "STRING" THEN
+                    COLOR 15, 3
+                    y = o(varListBox).selY
+                    _PRINTSTRING (p.x + doubleClickThreshold - 1, y), CHR$(29)
+                    COLOR fg, bg
+                END IF
+            END IF
         END IF
 
         '-------- end of custom display changes --------
@@ -8694,6 +8710,11 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
                         thisWidth = idewx - 20
                     ELSE
                         thisWidth = 45
+                        SELECT CASE usedVariableList(tempIndex&).displayFormat
+                            CASE 1: a2$ = "&H" + HEX$(VAL(a2$))
+                            CASE 2: a2$ = "&B" + _BIN$(VAL(a2$))
+                            CASE 3: a2$ = "&O" + OCT$(VAL(a2$))
+                        END SELECT
                     END IF
                     getNewValueInput:
                     v$ = ideinputbox$(dlgTitle$, dlgPrompt2$, a2$, "", thisWidth, 0, ok)
@@ -8945,18 +8966,14 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
         IF mCLICK AND focus = 2 THEN 'list click
             IF timeElapsedSince(lastClick!) < .3 AND clickedItem = o(varListBox).sel THEN
                 IF doubleClickThreshold > 0 AND mX >= p.x + doubleClickThreshold AND IdeDebugMode > 0 THEN
-                    y = ABS(o(varListBox).sel)
-                    usedVariableList(varDlgList(y).index).displayFormat = usedVariableList(varDlgList(y).index).displayFormat - 1
-                    IF usedVariableList(varDlgList(y).index).displayFormat < 0 THEN
-                        usedVariableList(varDlgList(y).index).displayFormat = 3
-                    END IF
                     focus = 5
                     GOTO sendValue
-                ELSE
+                ELSEIF (doubleClickThreshold > 0 AND mX < p.x + doubleClickThreshold - 1 AND IdeDebugMode > 0) OR _
+                   IdeDebugMode = 0 THEN
                     GOTO toggleWatch
                 END IF
             ELSEIF clickedItem = o(varListBox).sel THEN
-                IF doubleClickThreshold > 0 AND mX >= p.x + doubleClickThreshold AND IdeDebugMode > 0 THEN
+                IF doubleClickThreshold > 0 AND mX = p.x + doubleClickThreshold - 1 AND IdeDebugMode > 0 THEN
                     y = ABS(o(varListBox).sel)
                     IF INSTR(usedVariableList(varDlgList(y).index).varType, "STRING *") = 0 AND usedVariableList(varDlgList(y).index).varType <> "STRING" THEN
                         usedVariableList(varDlgList(y).index).displayFormat = usedVariableList(varDlgList(y).index).displayFormat + 1
@@ -8981,6 +8998,7 @@ FUNCTION idevariablewatchbox$(currentScope$, filter$, selectVar, returnAction)
             IF y >= 1 AND y <= totalVisibleVariables THEN
                 o(varListBox).sel = y
                 quickDlgUpdate = -1: GOSUB dlgUpdate
+                y = o(varListBox).sel 'reset y, as it may get messed up in the GOSUB above
                 IF usedVariableList(varDlgList(y).index).watch <> 0 AND usedVariableList(varDlgList(y).index).isarray THEN
                     GOTO setArrayRange
                 END IF
@@ -10808,13 +10826,19 @@ SUB idedrawobj (o AS idedbotype, f)
                 ELSE
                     IF y <= o.h THEN
                         a3$ = " " + a3$
-                        IF o.sel = n THEN COLOR 7, 0 ELSE COLOR 0, 7
+                        IF o.sel = n THEN
+                            COLOR 7, 0
+                            o.selY = o.par.y + o.y + y
+                        ELSE
+                            COLOR 0, 7
+                        END IF
                         IF (o.sel = n OR -o.sel = n) AND o.foc = 0 THEN
                             o.cx = o.par.x + o.x + 2: o.cy = o.par.y + o.y + y
                             IF LEFT$(a3$, 2) = CHR$(32) + CHR$(195) OR LEFT$(a3$, 2) = CHR$(32) + CHR$(192) THEN
                                 o.cx = o.cx + 2
                             END IF
                         END IF
+
                         LOCATE o.par.y + o.y + y, o.par.x + o.x + 1
                         IF INSTR(a3$, CHR$(16)) THEN
                             'color formatting: CHR$(16) + CHR$(color)
@@ -10822,11 +10846,13 @@ SUB idedrawobj (o AS idedbotype, f)
                             '                  CHR$(17) + CHR$(bg color)
                             '                  CHR$(17) + CHR$(17) restores default
                             character = 0
-                            FOR cf = POS(1) TO POS(1) + o.w
+                            rightSideLimit = POS(1) + o.w - 1
+                            cf = POS(1)
+                            DO
                                 character = character + 1
                                 IF character > LEN(a3$) THEN
                                     PRINT SPACE$(o.w - (POS(1) - (o.par.x + o.x)) + 1);
-                                    EXIT FOR
+                                    EXIT DO
                                 END IF
                                 IF ASC(a3$, character) = 16 AND character < LEN(a3$) THEN
                                     IF ASC(a3$, character + 1) >= 0 AND ASC(a3$, character + 1) <= 15 THEN
@@ -10856,8 +10882,14 @@ SUB idedrawobj (o AS idedbotype, f)
                                     _CONTINUE
                                 END IF
                                 PRINT MID$(a3$, character, 1);
-                            NEXT
+                                cf = cf + 1
+                            LOOP UNTIL cf > rightSideLimit
+                            IF character < LEN(a3$) THEN _PRINTSTRING (rightSideLimit, CSRLIN), CHR$(26)
+                            IF POS(1) < rightSideLimit THEN
+                                PRINT SPACE$(rightSideLimit - POS(1));
+                            END IF
                         ELSE
+                            IF LEN(a3$) > o.w THEN MID$(a3$, o.w, 1) = CHR$(26)
                             a3$ = a3$ + SPACE$(o.w)
                             a3$ = LEFT$(a3$, o.w)
                             'customization specific for the SUBs list, due to the tree characters:

@@ -200,6 +200,7 @@ TYPE idedbotype
     cy AS LONG
     foc AS LONG
     sel AS LONG 'selected item no.
+    selY AS LONG
     stx AS LONG 'selected item in string form
     issel AS _BYTE 'selection indicator (for text boxes only)
     sx1 AS LONG 'selection start (for text boxes only)
