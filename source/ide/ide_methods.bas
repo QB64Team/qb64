@@ -5774,7 +5774,7 @@ FUNCTION ide2 (ignore)
                         PCOPY 3, 0
                         GOTO ideloop
                     END IF
-                    result = idemessagebox("Start Paused", "Insert $DEBUG metacommand?", "#Yes;#No")
+                    result = idemessagebox("Start Paused", "Insert $DEBUG metacommand?", "#Yes;#No;#Don't show this again")
                     IF result = 1 THEN
                         ideselect = 0
                         ideinsline 1, SCase$("$Debug")
@@ -5783,9 +5783,13 @@ FUNCTION ide2 (ignore)
                         startPaused = -1
                         startPausedPending = -1
                         GOTO specialchar
-                    ELSE
-                        GOTO ideloop
+                    ELSEIF result = 3 THEN
+                        result = idemessagebox("Debug", "You can reenable the 'Auto-add $Debug Metacommand' feature\nin the Debug menu.", "#OK")
+                        AutoAddDebugCommand = 0
+                        WriteConfigSetting debugSettingsSection$, "AutoAddDebugCommand", "False"
+                        menu$(DebugMenuID, DebugMenuAutoAddCommand) = "Auto-add $#Debug Metacommand"
                     END IF
+                    GOTO ideloop
                 ELSE
                     startPausedPending = 0
                     startPaused = -1
@@ -5811,16 +5815,19 @@ FUNCTION ide2 (ignore)
                             PCOPY 3, 0
                             GOTO ideloop
                         END IF
-                        result = idemessagebox("Watch List", "Insert $DEBUG metacommand?", "#Yes;#No")
+                        result = idemessagebox("Watch List", "Insert $DEBUG metacommand?", "#Yes;#No;#Don't show this again")
                         IF result = 1 THEN
                             ideselect = 0
                             ideinsline 1, SCase$("$Debug")
                             idecy = idecy + 1
                             idechangemade = 1
-                            GOTO ideloop
-                        ELSE
-                            GOTO ideloop
+                        ELSEIF result = 3 THEN
+                            result = idemessagebox("Debug", "You can reenable the 'Auto-add $Debug Metacommand' feature\nin the Debug menu.", "#OK")
+                            AutoAddDebugCommand = 0
+                            WriteConfigSetting debugSettingsSection$, "AutoAddDebugCommand", "False"
+                            menu$(DebugMenuID, DebugMenuAutoAddCommand) = "Auto-add $#Debug Metacommand"
                         END IF
+                        GOTO ideloop
                     ELSE
                         IF idecompiling = 1 THEN
                             SCREEN , , 3, 0
@@ -5904,13 +5911,18 @@ FUNCTION ide2 (ignore)
                             PCOPY 3, 0
                             GOTO ideloop
                         END IF
-                        result = idemessagebox("Toggle Breakpoint", "Insert $DEBUG metacommand?", "#Yes;#No")
+                        result = idemessagebox("Toggle Breakpoint", "Insert $DEBUG metacommand?", "#Yes;#No;#Don't show this again")
                         IF result = 1 THEN
                             ideselect = 0
                             ideinsline 1, SCase$("$Debug")
                             idecy = idecy + 1
                             idechangemade = 1
                             IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
+                        ELSEIF result = 3 THEN
+                            result = idemessagebox("Debug", "You can reenable the 'Auto-add $Debug Metacommand' feature\nin the Debug menu.", "#OK")
+                            AutoAddDebugCommand = 0
+                            WriteConfigSetting debugSettingsSection$, "AutoAddDebugCommand", "False"
+                            menu$(DebugMenuID, DebugMenuAutoAddCommand) = "Auto-add $#Debug Metacommand"
                         END IF
                     ELSE
                         IdeBreakpoints(idecy) = NOT IdeBreakpoints(idecy)
@@ -5950,13 +5962,18 @@ FUNCTION ide2 (ignore)
                             PCOPY 3, 0
                             GOTO ideloop
                         END IF
-                        result = idemessagebox("Toggle Skip Line", "Insert $DEBUG metacommand?", "#Yes;#No")
+                        result = idemessagebox("Toggle Skip Line", "Insert $DEBUG metacommand?", "#Yes;#No;#Don't show this again")
                         IF result = 1 THEN
                             ideselect = 0
                             ideinsline 1, SCase$("$Debug")
                             idecy = idecy + 1
                             idechangemade = 1
                             IdeSkipLines(idecy) = NOT IdeSkipLines(idecy)
+                        ELSEIF result = 3 THEN
+                            result = idemessagebox("Debug", "You can reenable the 'Auto-add $Debug Metacommand' feature\nin the Debug menu.", "#OK")
+                            AutoAddDebugCommand = 0
+                            WriteConfigSetting debugSettingsSection$, "AutoAddDebugCommand", "False"
+                            menu$(DebugMenuID, DebugMenuAutoAddCommand) = "Auto-add $#Debug Metacommand"
                         END IF
                     ELSE
                         IdeSkipLines(idecy) = NOT IdeSkipLines(idecy)
