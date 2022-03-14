@@ -68,8 +68,13 @@ elif [ -e /etc/redhat-release ]; then
   DISTRO=redhat
 elif [ -e /etc/centos-release ]; then
   DISTRO=centos
+else
+  echo "Your Linux Distro ($lsb_command) isn't one we reconize. Does it happen to be based off of one of these instead?"
 fi
+distroFound="0"
 
+
+installThePackages () {
 #Find and install packages
 if [ "$DISTRO" == "arch" ]; then
   echo "ArchLinux detected."
@@ -96,14 +101,56 @@ elif [ "$DISTRO" == "voidlinux" ]; then
    installer_command="sudo xbps-install -Sy "
    pkg_install
 
-elif [ -z "$DISTRO" ]; then
-  echo "Unable to detect distro, skipping package installation"
-  echo "Please be aware that for QB64 to compile, you will need the following installed:"
-  echo "  OpenGL developement libraries"
-  echo "  ALSA development libraries"
-  echo "  GNU C++ Compiler (g++)"
-  echo "  xmessage (x11-utils)"
-  echo "  zlib"
+else
+  
+  echo "We can't detect your distro. This step in the process requires you to install the required libraries. Does your distro happen to be based off of one of the following?"
+  echo "1) Arch"
+  echo "2) Ubuntu/Debian"
+  echo "3) Fedora/CentOS"
+  echo "4) VoidLinux"
+  echo "5) Other"
+  read -p "Which Distro [1/2/3/4/5]?" distroNumber
+  if [[ $distroNumber -eq "1" ]]
+  then
+    echo "Alright, we're gonna assume you're using Arch"
+    DISTRO="arch"
+    distroFound="1"
+  fi
+    
+  if [[ $distroNumber -eq "2" ]]
+  then
+    echo "Alright, we're gonna assume you're using Debian/Ubuntu"
+    DISTRO="debian"
+    distroFound="1"
+  fi
+  if [[ $distroNumber -eq "3" ]]
+  then
+    echo "Alright, we're gonna assume you're using Fedora"
+    DISTRO="fedora"
+    distroFound="1"
+	fi
+	if [[ $distroNumber -eq "4" ]]
+	then
+		echo "Alright, we're gonna assume you're using VoidLinux"
+    	DISTRO="voidlinux"
+    	distroFound="1"
+   fi
+   
+  if [[ $distroFound -eq "0" ]]; then
+    distroFound="2"
+    echo "Alright. Compiling should work if you have the following libraries:"
+    echo "  OpenGL developement libraries"
+    echo "  ALSA development libraries"
+    echo "  GNU C++ Compiler (g++)"
+    echo "  xmessage (x11-utils)"
+    echo "  zlib"
+  fi
+fi
+}
+
+installThePackages
+if [[ distroFound="1" ]]; then
+  installThePackages
 fi
 
 echo "Compiling and installing QB64..."
