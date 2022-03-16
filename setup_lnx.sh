@@ -149,7 +149,7 @@ fi
 }
 
 installThePackages
-if [[ distroFound = "1" ]]; then
+if [[ $distroFound = "1" ]]; then
   installThePackages
 fi
 
