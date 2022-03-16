@@ -193,7 +193,7 @@ if [ -e "./qb64" ]; then
   _pwd=`pwd`
   echo "#!/bin/sh" > ./run_qb64.sh
   echo "cd $_pwd" >> ./run_qb64.sh
-  echo "./qb64 &" >> ./run_qb64.sh
+  echo "./qb64 \$1" >> ./run_qb64.sh
   
   chmod +x ./run_qb64.sh
   #chmod -R 777 ./
@@ -202,7 +202,7 @@ if [ -e "./qb64" ]; then
 [Desktop Entry]
 Name=QB64 Programming IDE
 GenericName=QB64 Programming IDE
-Exec=$_pwd/run_qb64.sh
+Exec=$_pwd/run_qb64.sh %f
 Icon=$_pwd/$QB64_ICON_PATH/$QB64_ICON_NAME
 Terminal=false
 Type=Application
