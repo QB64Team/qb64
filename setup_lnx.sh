@@ -68,8 +68,13 @@ elif [ -e /etc/redhat-release ]; then
   DISTRO=redhat
 elif [ -e /etc/centos-release ]; then
   DISTRO=centos
+else
+  echo "Your Linux Distro ($lsb_command) isn't one we reconize. Does it happen to be based off of one of these instead?"
 fi
+distroFound="0"
 
+
+installThePackages () {
 #Find and install packages
 if [ "$DISTRO" == "arch" ]; then
   echo "ArchLinux detected."
@@ -96,14 +101,56 @@ elif [ "$DISTRO" == "voidlinux" ]; then
    installer_command="sudo xbps-install -Sy "
    pkg_install
 
-elif [ -z "$DISTRO" ]; then
-  echo "Unable to detect distro, skipping package installation"
-  echo "Please be aware that for QB64 to compile, you will need the following installed:"
-  echo "  OpenGL developement libraries"
-  echo "  ALSA development libraries"
-  echo "  GNU C++ Compiler (g++)"
-  echo "  xmessage (x11-utils)"
-  echo "  zlib"
+else
+  
+  echo "We can't detect your distro. This step in the process requires you to install the required libraries. Does your distro happen to be based off of one of the following?"
+  echo "1) Arch"
+  echo "2) Ubuntu/Debian"
+  echo "3) Fedora/CentOS"
+  echo "4) VoidLinux"
+  echo "5) Other"
+  read -p "Which Distro [1/2/3/4/5]?" distroNumber
+  if [[ $distroNumber = "1" ]]
+  then
+    echo "Alright, we're gonna assume you're using Arch"
+    DISTRO="arch"
+    distroFound="1"
+  fi
+    
+  if [[ $distroNumber = "2" ]]
+  then
+    echo "Alright, we're gonna assume you're using Debian/Ubuntu"
+    DISTRO="debian"
+    distroFound="1"
+  fi
+  if [[ $distroNumber = "3" ]]
+  then
+    echo "Alright, we're gonna assume you're using Fedora"
+    DISTRO="fedora"
+    distroFound="1"
+	fi
+	if [[ $distroNumber = "4" ]]
+	then
+		echo "Alright, we're gonna assume you're using VoidLinux"
+    	DISTRO="voidlinux"
+    	distroFound="1"
+   fi
+   
+  if [[ $distroFound = "0" ]]; then
+    distroFound="2"
+    echo "Alright. Compiling should work if you have the following libraries:"
+    echo "  OpenGL developement libraries"
+    echo "  ALSA development libraries"
+    echo "  GNU C++ Compiler (g++)"
+    echo "  xmessage (x11-utils)"
+    echo "  zlib"
+  fi
+fi
+}
+
+installThePackages
+if [[ $distroFound = "1" ]]; then
+  installThePackages
 fi
 
 echo "Compiling and installing QB64..."
@@ -138,7 +185,7 @@ cp -r ./internal/source/* ./internal/temp/
 pushd internal/c >/dev/null
 g++ -no-pie -w qbx.cpp libqb/os/lnx/libqb_setup.o parts/video/font/ttf/os/lnx/src.o parts/core/os/lnx/src.a -lGL -lGLU -lX11 -lpthread -ldl -lrt -D FREEGLUT_STATIC -o ../../qb64
 popd
-
+exitStatus=0
 if [ -e "./qb64" ]; then
   echo "Done compiling!!"
 
@@ -146,7 +193,7 @@ if [ -e "./qb64" ]; then
   _pwd=`pwd`
   echo "#!/bin/sh" > ./run_qb64.sh
   echo "cd $_pwd" >> ./run_qb64.sh
-  echo "./qb64 &" >> ./run_qb64.sh
+  echo "./qb64 \$1" >> ./run_qb64.sh
   
   chmod +x ./run_qb64.sh
   #chmod -R 777 ./
@@ -155,7 +202,7 @@ if [ -e "./qb64" ]; then
 [Desktop Entry]
 Name=QB64 Programming IDE
 GenericName=QB64 Programming IDE
-Exec=$_pwd/run_qb64.sh
+Exec=$_pwd/run_qb64.sh %f
 Icon=$_pwd/$QB64_ICON_PATH/$QB64_ICON_NAME
 Terminal=false
 Type=Application
@@ -171,6 +218,7 @@ EOF
   echo "There is a ./run_qb64.sh script in this folder that should let you run qb64 if using the executable directly isn't working."
   echo 
   echo "You should also find a QB64 option in the Programming/Development section of your menu you can use."
+  exitStatus=0
 else
   ### QB64 didn't compile
   echo "It appears that the qb64 executable file was not created, this is usually an indication of a compile failure (You probably saw lots of error messages pop up on the screen)"
@@ -178,6 +226,8 @@ else
   echo "If you need help, please feel free to post on the QB64 Forums detailing what happened and what distro you are using."
   echo "Also, please tell them the exact contents of this next line:"
   echo "DISTRO: $DISTRO"
+  exitStatus=1
 fi
 echo
 echo "Thank you for using the QB64 installer."
+exit $exitStatus
