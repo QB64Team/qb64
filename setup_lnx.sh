@@ -110,33 +110,33 @@ else
   echo "4) VoidLinux"
   echo "5) Other"
   read -p "Which Distro [1/2/3/4/5]?" distroNumber
-  if [[ $distroNumber -eq "1" ]]
+  if [[ $distroNumber = "1" ]]
   then
     echo "Alright, we're gonna assume you're using Arch"
     DISTRO="arch"
     distroFound="1"
   fi
     
-  if [[ $distroNumber -eq "2" ]]
+  if [[ $distroNumber = "2" ]]
   then
     echo "Alright, we're gonna assume you're using Debian/Ubuntu"
     DISTRO="debian"
     distroFound="1"
   fi
-  if [[ $distroNumber -eq "3" ]]
+  if [[ $distroNumber = "3" ]]
   then
     echo "Alright, we're gonna assume you're using Fedora"
     DISTRO="fedora"
     distroFound="1"
 	fi
-	if [[ $distroNumber -eq "4" ]]
+	if [[ $distroNumber = "4" ]]
 	then
 		echo "Alright, we're gonna assume you're using VoidLinux"
     	DISTRO="voidlinux"
     	distroFound="1"
    fi
    
-  if [[ $distroFound -eq "0" ]]; then
+  if [[ $distroFound = "0" ]]; then
     distroFound="2"
     echo "Alright. Compiling should work if you have the following libraries:"
     echo "  OpenGL developement libraries"
@@ -149,7 +149,7 @@ fi
 }
 
 installThePackages
-if [[ distroFound="1" ]]; then
+if [[ distroFound = "1" ]]; then
   installThePackages
 fi
 
@@ -185,7 +185,7 @@ cp -r ./internal/source/* ./internal/temp/
 pushd internal/c >/dev/null
 g++ -no-pie -w qbx.cpp libqb/os/lnx/libqb_setup.o parts/video/font/ttf/os/lnx/src.o parts/core/os/lnx/src.a -lGL -lGLU -lX11 -lpthread -ldl -lrt -D FREEGLUT_STATIC -o ../../qb64
 popd
-
+exitStatus=0
 if [ -e "./qb64" ]; then
   echo "Done compiling!!"
 
@@ -218,6 +218,7 @@ EOF
   echo "There is a ./run_qb64.sh script in this folder that should let you run qb64 if using the executable directly isn't working."
   echo 
   echo "You should also find a QB64 option in the Programming/Development section of your menu you can use."
+  exitStatus=0
 else
   ### QB64 didn't compile
   echo "It appears that the qb64 executable file was not created, this is usually an indication of a compile failure (You probably saw lots of error messages pop up on the screen)"
@@ -225,6 +226,8 @@ else
   echo "If you need help, please feel free to post on the QB64 Forums detailing what happened and what distro you are using."
   echo "Also, please tell them the exact contents of this next line:"
   echo "DISTRO: $DISTRO"
+  exitStatus=1
 fi
 echo
 echo "Thank you for using the QB64 installer."
+exit $exitStatus
