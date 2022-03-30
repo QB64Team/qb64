@@ -1061,29 +1061,37 @@ IF C = 9 THEN 'run
     'execute program
 
     IF iderunmode = 1 THEN
-        IF os$ = "WIN" THEN SHELL _DONTWAIT QuotedFilename$(CHR$(34) + lastBinaryGenerated$ + CHR$(34)) + ModifyCOMMAND$
-        IF path.exe$ = "" THEN path.exe$ = "./"
-        IF os$ = "LNX" THEN
-            IF LEFT$(lastBinaryGenerated$, LEN(path.exe$)) = path.exe$ THEN
-                SHELL _DONTWAIT QuotedFilename$(lastBinaryGenerated$) + ModifyCOMMAND$
-            ELSE
-                SHELL _DONTWAIT QuotedFilename$(path.exe$ + lastBinaryGenerated$) + ModifyCOMMAND$
-            END IF
-        END IF
-        IF path.exe$ = "./" THEN path.exe$ = ""
-    ELSE
-        IF os$ = "WIN" THEN SHELL QuotedFilename$(CHR$(34) + lastBinaryGenerated$ + CHR$(34)) + ModifyCOMMAND$
-        IF path.exe$ = "" THEN path.exe$ = "./"
-        IF os$ = "LNX" THEN
-            IF LEFT$(lastBinaryGenerated$, LEN(path.exe$)) = path.exe$ THEN
-                SHELL QuotedFilename$(lastBinaryGenerated$) + ModifyCOMMAND$
-            ELSE
-                SHELL QuotedFilename$(path.exe$ + lastBinaryGenerated$) + ModifyCOMMAND$
-            END IF
-        END IF
-        IF path.exe$ = "./" THEN path.exe$ = ""
-        DO: LOOP UNTIL INKEY$ = ""
-        DO: LOOP UNTIL _KEYHIT = 0
+        SELECT CASE os$
+            CASE "WIN": SHELL _DONTWAIT QuotedFilename$(CHR$(34) + lastBinaryGenerated$ + CHR$(34)) + ModifyCOMMAND$
+
+            CASE "LNX"
+
+                IF path.exe$ = "" THEN path.exe$ = "./" './ to specify relative paths
+
+                IF LEFT$(lastBinaryGenerated$, LEN(path.exe$)) = path.exe$ THEN
+                    shellcmdline$ = QuotedFilename$(lastBinaryGenerated$) + ModifyCOMMAND$
+                ELSE
+                    shellcmdline$ = QuotedFilename$(path.exe$ + lastBinaryGenerated$) + ModifyCOMMAND$
+                END IF
+
+                IF path.exe$ = "./" THEN path.exe$ = "" 'restore it to empty string
+
+
+                IF Console THEN
+                    'launch terminal with program when using $CONSOLE
+                    IF ReadConfigSetting(generalSettingsSection$, "DefaultTerminal", term$) = 0 THEN 'if DefaultTerminal is not in config.ini, then add it
+                        WriteConfigSetting generalSettingsSection$, "DefaultTerminal", "Auto"
+                        term$ = "auto"
+                    END IF
+
+                    IF LCASE$(term$) = "auto" THEN term$ = "$(./internal/support/sh/console.sh)"
+
+                    SHELL _DONTWAIT term$ + " -e " + shellcmdline$ 'bring up a terminal when using $Console
+
+                    'not using $CONSOLE
+                ELSE SHELL _DONTWAIT shellcmdline$
+                END IF
+        END SELECT
     END IF
 
     IF idemode THEN
@@ -25306,18 +25314,16 @@ FUNCTION N2S$ (exp$) 'scientific Notation to String
 END FUNCTION
 
 
-FUNCTION QuotedFilename$ (f$)
-
-    IF os$ = "WIN" THEN
-        QuotedFilename$ = CHR$(34) + f$ + CHR$(34)
-        EXIT FUNCTION
-    END IF
-
+FUNCTION QuotedFilename$ (filename$)
+    f$ = filename$ 'because functions pass params BYREF, we dont want to modify filename$
     IF os$ = "LNX" THEN
-        QuotedFilename$ = "'" + f$ + "'"
-        EXIT FUNCTION
+        i~% = INSTR(f$, CHR$(34)) 'escape '"'
+        WHILE i~%
+            f$ = LEFT$(f$, i~%) + "\" + MID$(f$, i~%) '"' -> '\"'
+            i~% = INSTR(i~% + 2, f$, CHR$(32))
+        WEND
     END IF
-
+    QuotedFilename$ = CHR$(34) + f$ + CHR$(34)
 END FUNCTION
 
 
