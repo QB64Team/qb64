@@ -12,6 +12,9 @@ extern void sub__consolefont(qbs* FontName, int FontSize);
 extern void sub__console_cursor(int32 visible, int32 cursorsize, int32 passed);
 extern int32 func__getconsoleinput();
 
+extern void unlockvWatchHandle();
+extern int32 vWatchHandle();
+
 #ifdef DEPENDENCY_ZLIB
     #include <zlib.h>
     qbs *func__deflate(qbs *text);
@@ -184,6 +187,7 @@ extern int32 func__controlchr();
 extern void sub__blink(int32);
 extern int32 func__blink();
 extern int32 func__hasfocus();
+extern void set_foreground_window(ptrszint i);
 extern qbs *func__title();
 extern int32 func__handle();
 extern int32 func__fileexists(qbs*);
@@ -246,6 +250,7 @@ extern int32 func__openconnection(int32);
 extern int32 func__openclient(qbs*);
 extern int32 func__connected(int32);
 extern qbs *func__connectionaddress(int32);
+extern int32 func__environcount();
 extern qbs *func_environ(qbs*);
 extern qbs *func_environ(int32);
 extern void sub_environ(qbs*);
@@ -282,6 +287,7 @@ extern double get_error_erl();
 extern uint32 get_error_err();
 extern char *human_error(int32 errorcode);
 extern void end();
+extern int32 stop_program_state();
 extern uint8 *mem_static_malloc(uint32 size);
 extern void mem_static_restore(uint8* restore_point);
 extern uint8 *cmem_dynamic_malloc(uint32 size);
@@ -306,6 +312,7 @@ extern qbs *qbs_new_txt(const char *txt);
 extern qbs *qbs_new_txt_len(const char *txt,int32 len);
 extern qbs *qbs_new_fixed(uint8 *offset,uint32 size,uint8 tmp);
 extern qbs *qbs_new(int32 size,uint8 tmp);
+extern void set_qbs_size(ptrszint *target_qbs,int32 newlength);
 extern qbs *qbs_set(qbs *deststr,qbs *srcstr);
 extern qbs *qbs_add(qbs *str1,qbs *str2);
 extern qbs *qbs_ucase(qbs *str);
@@ -482,6 +489,8 @@ extern long double func_fix_float(long double value);
 extern double func_exp_single(double value);
 extern long double func_exp_float(long double value);
 extern void sub_sleep(int32 seconds,int32 passed);
+extern qbs *func__bin(int64 value,int32 neg_bits);
+extern qbs *func__bin_float(long double value);
 extern qbs *func_oct(int64 value,int32 neg_bits);
 extern qbs *func_oct_float(long double value);
 extern qbs *func_hex(int64 value,int32 neg_size);
@@ -630,6 +639,8 @@ extern qbs *ui642string(uint64 v);
 extern qbs *s2string(float v);
 extern qbs *d2string(double v);
 extern qbs *f2string(long double v);
+extern qbs *o2string(ptrszint v);
+extern qbs *uo2string(uptrszint v);
 extern char string2b(qbs*str);
 extern uint8 string2ub(qbs*str);
 extern int16 string2i(qbs*str);
@@ -641,6 +652,8 @@ extern uint64 string2ui64(qbs*str);
 extern float string2s(qbs*str);
 extern double string2d(qbs*str);
 extern long double string2f(qbs*str);
+extern ptrszint string2o(qbs*str);
+extern uptrszint string2uo(qbs*str);
 //Cobalt(aka Dave) added the next 2 lines
 uint64 func__shr(uint64 a1, int b1);
 uint64 func__shl(uint64 a1, int b1);
@@ -706,6 +719,7 @@ double error_erl=0;
 uint32 qbs_tmp_list_nexti=1;
 uint32 error_occurred=0;
 uint32 new_error=0;
+uint32 bkp_new_error=0;
 qbs* nothingstring;
 uint32 qbevent=0;
 uint8 suspend_program=0;
@@ -928,6 +942,46 @@ inline int8 func_abs(int8 d){return abs(d);}
 inline int16 func_abs(int16 d){return abs(d);}
 inline int32 func_abs(int32 d){return abs(d);}
 inline int64 func_abs(int64 d){return llabs(d);}
+
+extern int32 disableEvents;
+
+ptrszint check_lbound(ptrszint *array,int32 index, int32 num_indexes) {
+    static ptrszint ret;
+    disableEvents = 1;
+    ret = func_lbound((ptrszint*)(*array),index,num_indexes);
+    new_error=0;
+    disableEvents = 0;
+    return ret;
+}
+
+ptrszint check_ubound(ptrszint *array,int32 index, int32 num_indexes) {
+    static ptrszint ret;
+    disableEvents = 1;
+    ret = func_ubound((ptrszint*)(*array),index,num_indexes);
+    new_error=0;
+    disableEvents = 0;
+    return ret;
+}
+
+uint64 call_getubits(uint32 bsize,ptrszint *array,ptrszint i) {
+    return getubits(bsize,(uint8*)(*array),i);
+}
+
+int64 call_getbits(uint32 bsize,ptrszint *array,ptrszint i) {
+    return getbits(bsize,(uint8*)(*array),i);
+}
+
+void call_setbits(uint32 bsize,ptrszint *array,ptrszint i,int64 val) {
+    setbits(bsize,(uint8*)(*array),i,val);
+}
+
+int32 logical_drives() {
+    #ifdef QB64_WINDOWS
+        return GetLogicalDrives();
+    #else
+        return 0;
+    #endif
+}
 
 inline ptrszint array_check(uptrszint index,uptrszint limit){
     //nb. forces signed index into an unsigned variable for quicker comparison
@@ -2036,8 +2090,6 @@ void events(){
 extern int64 display_lock_request;
 extern int64 display_lock_confirmed;
 extern int64 display_lock_released;
-
-extern int32 disableEvents;
 
 uint32 r;
 void evnt(uint32 linenumber, uint32 inclinenumber = 0, const char* incfilename = NULL){

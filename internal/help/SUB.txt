@@ -24,8 +24,9 @@ A '''SUB''' procedure is a procedure within a program that can calculate and ret
 * SUB procedures can save program memory as all memory used in a SUB is released on procedure exit except for [[STATIC]] values.
 * [[_DEFINE]] can be used to define all new or old QB64 variable [[TYPE]] definitions instead of DEF***.
 * [[$INCLUDE]] text library files with needed SUB and [[FUNCTION]] procedures can be included in programs after all sub-procedures.
-* '''QB64 ignores all procedural DECLARE statements!''' Define all ''parameter'' [[TYPE]]s in the SUB procedure.
+* '''QB64 ignores all procedural DECLARE statements.''' Define all ''parameter'' [[TYPE]]s in the SUB procedure.
 *  '''Images are not deallocated when the [[SUB]] or [[FUNCTION]] they are created in ends. Free them with [[_FREEIMAGE]].'''
+* In order to use OpenGL commands you need a [[SUB]] [[_GL]] in your program.
 
 
 ''Example 1:'' Text [[PRINT]] screen centering using [[PEEK]] to find the SCREEN mode width. Call and SUB procedure code:
@@ -75,6 +76,7 @@ exit 1
 
 ''See also:'' 
 * [[FUNCTION]], [[CALL]]
+* '''SUB''' [[_GL]]
 * [[BYVAL]], [[SCREEN (statement)]]
 * [[EXIT]], [[END]]
 

@@ -404,7 +404,7 @@ id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.ret = STRINGTYPE - ISPOINTER
 id.specialformat = "[?]"
-id.hr_syntax = "_DEVICE$(device_number)
+id.hr_syntax = "_DEVICE$(device_number)"
 regid
 
 clearid
@@ -415,7 +415,7 @@ id.args = 1
 id.arg = MKL$(LONGTYPE - ISPOINTER)
 id.ret = LONGTYPE - ISPOINTER
 id.specialformat = "[?]"
-id.hr_syntax = "_DEVICEINPUT or _DEVICEINPUT(device_number%)
+id.hr_syntax = "_DEVICEINPUT or _DEVICEINPUT(device_number%)"
 regid
 
 clearid
@@ -664,7 +664,7 @@ id.args = 4
 id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "[?,?,?,?]"
 id.ret = LONGTYPE - ISPOINTER
-id.hr_syntax = "_SCREENIMAGE(column1, row1, column2, row2)
+id.hr_syntax = "_SCREENIMAGE(column1, row1, column2, row2)"
 regid
 
 
@@ -850,6 +850,14 @@ id.ret = LONGTYPE - ISPOINTER
 id.hr_syntax = "_OPENCLIENT(" + CHR$(34) + "TCP/IP:port:address" + CHR$(34) + ")"
 regid
 
+
+clearid
+id.n = qb64prefix$ + "EnvironCount"
+id.subfunc = 1
+id.callname = "func__environcount"
+id.ret = LONGTYPE - ISPOINTER
+id.hr_syntax = "_ENVIRONCOUNT"
+regid
 
 clearid
 id.n = "Environ"
@@ -1076,7 +1084,7 @@ id.args = 2
 id.arg = MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "?[,?]"
 id.ret = LONGTYPE - ISPOINTER
-id.hr_syntax = "_COPYIMAGE[(imageHandle&[, mode])]
+id.hr_syntax = "_COPYIMAGE[(imageHandle&[, mode])]"
 regid
 
 'IMAGE SELECTION
@@ -1763,16 +1771,6 @@ id.arg = MKL$(STRINGTYPE - ISPOINTER)
 id.hr_syntax = "CHAIN moduleName$"
 regid
 
-clearid
-id.n = "Shell"
-id.subfunc = 2
-id.callname = "sub_shell"
-id.args = 1
-id.arg = MKL$(STRINGTYPE - ISPOINTER)
-id.specialformat = "[?]"
-'id.secondargcantbe = "_HIDE"
-id.hr_syntax = "SHELL [_DONTWAIT] [_HIDE] commandToRun$"
-regid
 
 clearid
 id.n = "Shell"
@@ -1793,6 +1791,17 @@ id.args = 1
 id.arg = MKL$(STRINGTYPE - ISPOINTER)
 id.specialformat = "{_DontWait}[{_Hide}][?]"
 id.secondargmustbe = "_DontWait"
+id.hr_syntax = "SHELL [_DONTWAIT] [_HIDE] commandToRun$"
+regid
+
+clearid
+id.n = "Shell"
+id.subfunc = 2
+id.callname = "sub_shell"
+id.args = 1
+id.arg = MKL$(STRINGTYPE - ISPOINTER)
+id.specialformat = "[?]"
+'id.secondargcantbe = "_HIDE"
 id.hr_syntax = "SHELL [_DONTWAIT] [_HIDE] commandToRun$"
 regid
 
@@ -2229,6 +2238,16 @@ id.hr_syntax = "UBOUND(arrayName[, dimension%])"
 regid
 
 clearid
+id.n = qb64prefix$ + "Bin"
+id.musthave = "$"
+id.subfunc = 1
+id.args = 1
+id.arg = MKL$(-1)
+id.ret = STRINGTYPE - ISPOINTER
+id.hr_syntax = "_BIN$(number)"
+regid
+
+clearid
 id.n = "Oct"
 id.musthave = "$"
 id.subfunc = 1
@@ -2402,7 +2421,7 @@ id.args = 7
 id.arg = MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(ULONGTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER)
 id.specialformat = "[{Step}](?,?),?[,[?][,[?][,[?][,?]]]]"
 'CIRCLE [STEP] (x!,y!),radius![,[color&] [,[start!] [,[end!] [,aspect!]]]]
-id.hr_syntax = "CIRCLE [STEP] (x!, y!), radius![, [color&] [, [start!] [, [end!] [, aspect!]]]]
+id.hr_syntax = "CIRCLE [STEP] (x!, y!), radius![, [color&] [, [start!] [, [end!] [, aspect!]]]]"
 regid
 
 clearid
@@ -2422,6 +2441,55 @@ id.callname = "sub_bsave"
 id.args = 3
 id.arg = MKL$(STRINGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
 id.hr_syntax = "BSAVE saveFile$, VARPTR(array(index)), fileSize&"
+regid
+
+'double definition
+clearid
+id.n = "Get"
+id.subfunc = 2
+id.callname = "sub_graphics_get"
+id.args = 6
+id.arg = MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(-3) + MKL$(ULONGTYPE - ISPOINTER)
+id.specialformat = "[{Step}](?,?)-[{Step}](?,?),?[,?]"
+id.secondargmustbe = "Step"
+id.hr_syntax = "GET [STEP] (column1, row1)-[STEP](column2, row2), array([index])[, offscreenColor]"
+regid
+
+clearid
+id.n = "Get"
+id.subfunc = 2
+id.callname = "sub_graphics_get"
+id.args = 6
+id.arg = MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(-3) + MKL$(ULONGTYPE - ISPOINTER)
+id.specialformat = "[{Step}](?,?)-[{Step}](?,?),?[,?]"
+id.secondargmustbe = "("
+id.hr_syntax = "GET [STEP] (column1, row1)-[STEP](column2, row2), array([index])[, offscreenColor]"
+regid
+
+'double definition
+clearid
+id.n = "Put"
+id.subfunc = 2
+id.callname = "sub_graphics_put"
+id.args = 5
+id.arg = MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(-3) + MKL$(LONGTYPE - ISPOINTER) + MKL$(ULONGTYPE - ISPOINTER)
+id.specialformat = "[{Step}](?,?),?[,[{_Clip}][{PSet|PReset|And|Or|Xor}][,?]]"
+'PUT [STEP] (x!,y!),arrayname# [(indexes%)] [,actionverb]
+'PUT (10, 10), myimage, _CLIP, 0
+id.secondargmustbe = "Step"
+id.hr_syntax = "PUT [STEP](column, row), Array([index])[,] [_CLIP]  [{PSET|PRESET|AND|OR|XOR}]][, omitcolor]"
+regid
+clearid
+id.n = "Put"
+id.subfunc = 2
+id.callname = "sub_graphics_put"
+id.args = 5
+id.arg = MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(-3) + MKL$(LONGTYPE - ISPOINTER) + MKL$(ULONGTYPE - ISPOINTER)
+id.specialformat = "[{Step}](?,?),?[,[{_Clip}][{PSet|PReset|And|Or|Xor}][,?]]"
+'PUT [STEP] (x!,y!),arrayname# [(indexes%)] [,actionverb]
+'PUT (10, 10), myimage, _CLIP, 0
+id.secondargmustbe = "("
+id.hr_syntax = "PUT [STEP](column, row), Array([index])[,] [_CLIP]  [{PSET|PRESET|AND|OR|XOR}]][, omitcolor]"
 regid
 
 clearid
@@ -2446,53 +2514,14 @@ id.specialformat = "[#]?[,[?][,?]]" 'field complient definition
 id.hr_syntax = "PUT #filenumber&, [position][, {holdingvariable|holdingarray()}]"
 regid
 
-'double definition
 clearid
-id.n = "Get"
+id.n = "Open"
 id.subfunc = 2
-id.callname = "sub_graphics_get"
+id.callname = "sub_open"
 id.args = 6
-id.arg = MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(-3) + MKL$(ULONGTYPE - ISPOINTER)
-id.specialformat = "[{Step}](?,?)-[{Step}](?,?),?[,?]"
-id.secondargmustbe = "Step"
-id.hr_syntax = "GET [STEP] (column1, row1)-[STEP](column2, row2), array([index])[, offscreenColor]"
-regid
-
-clearid
-id.n = "Get"
-id.subfunc = 2
-id.callname = "sub_graphics_get"
-id.args = 6
-id.arg = MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(-3) + MKL$(ULONGTYPE - ISPOINTER)
-id.specialformat = "[{Step}](?,?)-[{Step}](?,?),?[,?]"
-id.secondargmustbe = "("
-id.hr_syntax = "GET [STEP] (column1, row1)-[STEP](column2, row2), array([index])[, offscreenColor]"
-regid
-
-'double definition
-clearid
-id.n = "Put"
-id.subfunc = 2
-id.callname = "sub_graphics_put"
-id.args = 5
-id.arg = MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(-3) + MKL$(LONGTYPE - ISPOINTER) + MKL$(ULONGTYPE - ISPOINTER)
-id.specialformat = "[{Step}](?,?),?[,[{_Clip}][{PSet|PReset|And|Or|Xor}][,?]]"
-'PUT [STEP] (x!,y!),arrayname# [(indexes%)] [,actionverb]
-'PUT (10, 10), myimage, _CLIP, 0
-id.secondargmustbe = "Step"
-id.hr_syntax = "PUT [STEP](column, row), Array([index])[,] [_CLIP]  [{PSET|PRESET|AND|OR|XOR}]][, omitcolor]"
-regid
-clearid
-id.n = "Put"
-id.subfunc = 2
-id.callname = "sub_graphics_put"
-id.args = 5
-id.arg = MKL$(FLOATTYPE - ISPOINTER) + MKL$(FLOATTYPE - ISPOINTER) + MKL$(-3) + MKL$(LONGTYPE - ISPOINTER) + MKL$(ULONGTYPE - ISPOINTER)
-id.specialformat = "[{Step}](?,?),?[,[{_Clip}][{PSet|PReset|And|Or|Xor}][,?]]"
-'PUT [STEP] (x!,y!),arrayname# [(indexes%)] [,actionverb]
-'PUT (10, 10), myimage, _CLIP, 0
-id.secondargmustbe = "("
-id.hr_syntax = "PUT [STEP](column, row), Array([index])[,] [_CLIP]  [{PSET|PRESET|AND|OR|XOR}]][, omitcolor]"
+id.arg = MKL$(STRINGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
+id.specialformat = "?[{For Random|For Binary|For Input|For Output|For Append}][{Access Read Write|Access Read|Access Write}][{Shared|Lock Read Write|Lock Read|Lock Write}]{As}[#]?[{Len =}?]"
+id.hr_syntax = "OPEN fileName$ [FOR mode] [ACCESS|LOCK|SHARED [{READ|WRITE}] AS [#]fileNumber& [LEN = recordLength]"
 regid
 
 clearid
@@ -2503,15 +2532,6 @@ id.args = 4
 id.arg = MKL$(STRINGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(STRINGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
 id.specialformat = "?,[#]?,?[,?]"
 id.hr_syntax = "OPEN modeLetter$, [#]fileNumber&, fileName$[, recordLength]"
-regid
-clearid
-id.n = "Open"
-id.subfunc = 2
-id.callname = "sub_open"
-id.args = 6
-id.arg = MKL$(STRINGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER) + MKL$(LONGTYPE - ISPOINTER)
-id.specialformat = "?[{For Random|For Binary|For Input|For Output|For Append}][{Access Read Write|Access Read|Access Write}][{Shared|Lock Read Write|Lock Read|Lock Write}]{As}[#]?[{Len =}?]"
-id.hr_syntax = "OPEN fileName$ [FOR mode] [ACCESS|LOCK|SHARED [{READ|WRITE}] AS [#]fileNumber& [LEN = recordLength]"
 regid
 
 clearid

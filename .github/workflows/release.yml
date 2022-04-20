@@ -1,0 +1,84 @@
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  linux-build:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'ci-skip')"
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: sudo apt update && sudo apt install libglu1-mesa-dev libncurses-dev
+    - name: Bootstrap compiler
+      run: .ci/bootstrap.sh lnx
+    - name: Compile
+      run: .ci/compile.sh
+    - name: Publish to S3
+      if: github.event_name == 'push'
+      run: .ci/deploy.sh lnx
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: us-east-2
+        S3_ENDPOINT: https://nyc3.digitaloceanspaces.com
+
+  macos-build:
+    runs-on: macos-latest
+    if: "!contains(github.event.head_commit.message, 'ci-skip')"
+    steps:
+    - uses: actions/checkout@v2
+    - name: Bootstrap compiler
+      run: .ci/bootstrap.sh osx
+    - name: Compile
+      run: .ci/compile.sh
+    - name: Publish to S3
+      if: github.event_name == 'push'
+      run: .ci/deploy.sh osx
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: us-east-2
+        S3_ENDPOINT: https://nyc3.digitaloceanspaces.com
+
+  windows-x86-build:
+    runs-on: windows-latest
+    if: "!contains(github.event.head_commit.message, 'ci-skip')"
+    env:
+      PLATFORM: x86
+    steps:
+    - uses: actions/checkout@v2
+    - name: Bootstrap compiler
+      run: .ci/bootstrap.bat
+    - name: Compile
+      run: .ci/compile.bat
+    - name: Publish to S3
+      if: github.event_name == 'push'
+      run: .ci/deploy.ps1
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: us-east-2
+        S3_ENDPOINT: https://nyc3.digitaloceanspaces.com
+
+  windows-x64-build:
+    runs-on: windows-latest
+    if: "!contains(github.event.head_commit.message, 'ci-skip')"
+    env:
+      PLATFORM: x64
+    steps:
+    - uses: actions/checkout@v2
+    - name: Bootstrap compiler
+      run: .ci/bootstrap.bat
+    - name: Compile
+      run: .ci/compile.bat
+    - name: Publish to S3
+      if: github.event_name == 'push'
+      run: .ci/deploy.ps1
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: us-east-2
+        S3_ENDPOINT: https://nyc3.digitaloceanspaces.com
+

@@ -49,6 +49,13 @@ FUNCTION Wiki$ (PageName$)
         END IF
     END IF
 
+    IF _SHELLHIDE("curl --version") <> 0 THEN
+        PCOPY 2, 0
+        result = idemessagebox("QB64", "Cannot find 'curl'.", "#Abort")
+        PCOPY 3, 0: SCREEN , , 3, 0
+        EXIT FUNCTION
+    END IF
+
     IF Help_Recaching = 0 THEN
         a$ = "Downloading '" + PageName$ + "' page..."
         IF LEN(a$) > 60 THEN a$ = LEFT$(a$, 57) + STRING$(3, 250)
@@ -60,58 +67,36 @@ FUNCTION Wiki$ (PageName$)
         PCOPY 3, 0
     END IF
 
-    url$ = "www.qb64.org/wiki/index.php?title=" + PageName2$ + "&action=edit"
-    'when fetching from .org, look for name="wpTextbox1">
-    s1$ = "name=" + CHR$(34) + "wpTextbox1" + CHR$(34) + ">"
-    url2$ = url$
-    x = INSTR(url2$, "/")
-    IF x THEN url2$ = LEFT$(url$, x - 1)
-    c = _OPENCLIENT("TCP/IP:80:" + url2$)
-    IF c = 0 THEN
-        EXIT FUNCTION
-    END IF
-    e$ = CHR$(13) + CHR$(10)
-    url3$ = RIGHT$(url$, LEN(url$) - x + 1)
-    x$ = "GET " + url3$ + " HTTP/1.1" + e$
-    x$ = x$ + "Host: " + url2$ + e$ + e$
-    PUT #c, , x$
-    t! = TIMER
+    url$ = CHR$(34) + wikiBaseAddress$ + "/index.php?title=" + PageName2$ + "&action=edit" + CHR$(34)
+    outputFile$ = Cache_Folder$ + "/" + PageName2$ + ".txt"
 
-    DO
-        GET #c, , a2$
-        IF LEN(a2$) THEN
-            a$ = a$ + a2$
-            IF INSTR(a$, "</body>") THEN
-                CLOSE #c
-                s2$ = "</textarea>"
-                s1 = INSTR(a$, s1$): IF s1 = 0 THEN EXIT FUNCTION
-                s1 = s1 + LEN(s1$)
-                s2 = INSTR(a$, s2$): IF s2 = 0 THEN EXIT FUNCTION
-                s2 = s2 - 1
-                IF s1 > s2 THEN EXIT FUNCTION
-                a$ = MID$(a$, s1, s2 - s1 + 1)
-                fh = FREEFILE
-                E = 0
-                ON ERROR GOTO qberror_test
-                OPEN Cache_Folder$ + "/" + PageName2$ + ".txt" FOR OUTPUT AS #fh 'clear old content
-                ON ERROR GOTO qberror
-                IF E = 0 THEN
-                    CLOSE #fh
-                    ON ERROR GOTO qberror_test
-                    OPEN Cache_Folder$ + "/" + PageName2$ + ".txt" FOR BINARY AS #fh
-                    ON ERROR GOTO qberror
-                    IF E = 0 THEN
-                        PUT #fh, , a$
-                        CLOSE #fh
-                    END IF
-                END IF
-                Wiki$ = a$
-                EXIT FUNCTION
-            END IF
+    'wiki text delimiters:
+    s1$ = "name=" + CHR$(34) + "wpTextbox1" + CHR$(34) + ">"
+    s2$ = "</textarea>"
+
+    SHELL _HIDE "curl -o " + CHR$(34) + outputFile$ + CHR$(34) + " " + url$
+    fh = FREEFILE
+    OPEN outputFile$ FOR BINARY AS #fh 'get new content
+    a$ = SPACE$(LOF(fh))
+    GET #fh, 1, a$
+    CLOSE #fh
+
+    s1 = INSTR(a$, s1$)
+    IF s1 > 0 THEN
+        'clean up downloaded contents
+        a$ = MID$(a$, s1 + LEN(s1$))
+        s2 = INSTR(a$, s2$)
+        IF s2 > 0 THEN
+            a$ = LEFT$(a$, s2)
         END IF
-        _LIMIT 100
-    LOOP UNTIL ABS(TIMER - t!) > 20
-    CLOSE #c
+
+        OPEN outputFile$ FOR OUTPUT AS #fh 'clear old content
+        PRINT #fh, a$ 'save clean content
+        CLOSE #fh
+    END IF
+
+    Wiki$ = a$
+    EXIT FUNCTION
 END FUNCTION
 
 SUB Help_AddTxt (t$, col, link)
@@ -174,7 +159,7 @@ SUB Help_NewLine
     IF Help_Pos > help_w THEN help_w = Help_Pos
 
     Help_Txt_Len = Help_Txt_Len + 1: ASC(Help_Txt$, Help_Txt_Len) = 13
-    Help_Txt_Len = Help_Txt_Len + 1: ASC(Help_Txt$, Help_Txt_Len) = col + Help_BG_Col * 16
+    Help_Txt_Len = Help_Txt_Len + 1: ASC(Help_Txt$, Help_Txt_Len) = Help_BG_Col * 16
     Help_Txt_Len = Help_Txt_Len + 1: ASC(Help_Txt$, Help_Txt_Len) = 0
     Help_Txt_Len = Help_Txt_Len + 1: ASC(Help_Txt$, Help_Txt_Len) = 0
 
@@ -347,6 +332,19 @@ SUB WikiParse (a$)
                 i = i + LEN(s$) - 1
                 GOTO Special
             END IF
+
+            s$ = "&lt;nowiki>"
+            IF c$(LEN(s$)) = s$ THEN
+                i = i + LEN(s$) - 1
+                GOTO Special
+            END IF
+
+            s$ = "&lt;/nowiki>"
+            IF c$(LEN(s$)) = s$ THEN
+                i = i + LEN(s$) - 1
+                GOTO Special
+            END IF
+
 
             s$ = "&lt;p style="
             IF c$(LEN(s$)) = s$ THEN

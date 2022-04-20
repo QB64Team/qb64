@@ -11,7 +11,9 @@ DIM SHARED IDEBuildModeChanged
 DIM SHARED IdeInfo AS STRING
 DIM SHARED IdeContextHelpSF AS _BYTE
 
-DIM SHARED host&
+DIM SHARED host&, debugClient&, hostport$, variableWatchList$, backupVariableWatchList$, watchpointList$
+DIM SHARED vWatchReceivedData$(1 TO 1000), nextvWatchDataSlot, latestWatchpointMet&
+DIM SHARED startPausedPending AS _BYTE
 
 DIM SHARED IdeSystem AS LONG
 '1=Entering text into the main IDE window
@@ -19,10 +21,12 @@ DIM SHARED IdeSystem AS LONG
 '3=Scrolling within the help window
 IdeSystem = 1
 
-DIM SHARED IdeDebugMode AS LONG
+DIM SHARED IdeDebugMode AS LONG, callStackLength AS LONG
+DIM SHARED callstacklist$
 
 DIM SHARED IdeRecentLink(1 TO 6, 1 TO 2) AS STRING
 DIM SHARED IdeOpenFile AS STRING 'makes IdeOpen directly open the file passed
+DIM SHARED fileDlgSearchTerm$
 
 TYPE IdeBmkType
     y AS LONG 'the vertical line
@@ -41,6 +45,7 @@ DIM SHARED QuickNavTotal AS LONG
 DIM SHARED QuickNavHistory(0) AS QuickNavType
 
 REDIM SHARED IdeBreakpoints(1) AS _BYTE
+REDIM SHARED IdeSkipLines(1) AS _BYTE
 
 'GetInput global variables
 DIM SHARED iCHECKLATER 'the values will be checked later
@@ -132,6 +137,8 @@ DIM SHARED idelayoutallow AS LONG
 
 'IDE MODULE: shared data & definitions
 '---------------------------------------------------
+CONST idesystem2.w = 20 '"Find" field width (Status bar)
+
 DIM SHARED idesubwindow, idehelp, statusarealink AS INTEGER
 DIM SHARED ideexit
 DIM SHARED idet AS STRING, idel, ideli, iden
@@ -139,7 +146,7 @@ DIM SHARED ideundopos, ideundobase, ideundoflag
 DIM SHARED idelaunched, idecompiling
 DIM SHARED idecompiledline 'stores the number of the last line sent to the compiler, used only to know which line to send next
 DIM SHARED idecompiledline$ 'stores the last line sent to the compiler
-DIM SHARED idesx, idesy, idecx, idecy
+DIM SHARED idesx, idesy, idecx, idecy, debugnextline
 DIM SHARED ideselect, ideselectx1, ideselecty1, idemouseselect, idembmonitor
 DIM SHARED ideCurrentSingleLineSelection AS STRING
 DIM SHARED ideunsaved
@@ -166,9 +173,9 @@ DIM SHARED EnteringRGB AS _BYTE
 DIM SHARED ActiveINCLUDELink AS LONG
 DIM SHARED ActiveINCLUDELinkFile AS STRING
 DIM SHARED HideCurrentLineHighlight AS _BYTE, ShowLineNumbers AS _BYTE
-DIM SHARED SearchMenuEnableQuickNav AS INTEGER
+DIM SHARED SearchMenuEnableQuickNav AS INTEGER, searchStringFoundOn AS LONG
 DIM SHARED idegotobox_LastLineNum AS LONG, maxLineNumberLength AS LONG
-DIM SHARED versionStringStatus$, lineNumberStatus$
+DIM SHARED versionStringStatus$, lineNumberStatus$, ideshowtextBypassColorRestore AS _BYTE
 
 '--------------------------------------------------------------------------------
 TYPE idedbptype
@@ -193,6 +200,7 @@ TYPE idedbotype
     cy AS LONG
     foc AS LONG
     sel AS LONG 'selected item no.
+    selY AS LONG
     stx AS LONG 'selected item in string form
     issel AS _BYTE 'selection indicator (for text boxes only)
     sx1 AS LONG 'selection start (for text boxes only)
@@ -201,7 +209,6 @@ TYPE idedbotype
 END TYPE
 '--------------------------------------------------------------------------------
 DIM SHARED idefocusline 'simply stores the location of the line to highlight in red
-DIM SHARED idecompilererrormessage$
 DIM SHARED ideautorun, startPaused
 DIM SHARED menu$(1 TO 11, 0 TO 20)
 DIM SHARED menuDesc$(1 TO 11, 0 TO 20)
@@ -215,6 +222,8 @@ DIM SHARED ViewMenuID AS INTEGER, ViewMenuShowLineNumbersSubMenuID AS INTEGER
 DIM SHARED ViewMenuShowSeparatorID AS INTEGER, ViewMenuShowBGID AS INTEGER
 DIM SHARED ViewMenuCompilerWarnings AS INTEGER
 DIM SHARED RunMenuID AS INTEGER, RunMenuSaveExeWithSource AS INTEGER, brackethighlight AS INTEGER
+DIM SHARED DebugMenuID AS INTEGER, DebugMenuCallStack AS INTEGER, DebugMenuWatchListToConsole AS INTEGER
+DIM SHARED DebugMenuAutoAddCommand AS INTEGER
 DIM SHARED multihighlight AS INTEGER, keywordHighlight AS INTEGER
 DIM SHARED PresetColorSchemes AS INTEGER, TotalColorSchemes AS INTEGER, ColorSchemes$(0)
 DIM SHARED LastValidColorScheme AS INTEGER

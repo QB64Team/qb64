@@ -267,9 +267,9 @@ int32 snd_init_done=0;
 void snd_init(){
     if (!snd_init_done){
 
-        dev = alcOpenDevice(NULL); if(!dev) exit(111);
-        ctx = alcCreateContext(dev, NULL);
-        alcMakeContextCurrent(ctx); if(!ctx) exit(222);
+        dev = alcOpenDevice(NULL); if (!dev) goto done;
+        ctx = alcCreateContext(dev, NULL); if (!ctx) goto done;
+        alcMakeContextCurrent(ctx);
 
         alListener3f(AL_POSITION, 0, 0, 0);
         alListener3f(AL_VELOCITY, 0, 0, 0);
@@ -279,6 +279,7 @@ void snd_init(){
 
 
     }
+    done:;
     snd_init_done=1;
 }
 

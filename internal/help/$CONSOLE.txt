@@ -8,7 +8,8 @@ The [[$CONSOLE]] [[metacommand]] creates a console window that can be used throu
 {{Description}}
 * [[_CONSOLE]] '''ON''' or '''OFF''' may be used to show or hide the console window at run time.
 * The ''':ONLY''' option can be used when only a console window is desired without a program window.
-* [[_DEST]] [[_CONSOLE]] may be used to send screen output to the console window.
+* [[_DEST]] and [[_SOURCE]] are automatically set to [[_CONSOLE]] when the ''':ONLY''' option is used, in order to send screen output to the console window and get input from it too.
+** In normal [[$CONSOLE]] mode (dual screen) you have to manually set [[_DEST]] and [[_SOURCE]] to [[_CONSOLE]] in order to work with the console window.
 * [[_SCREENHIDE]] and [[_SCREENSHOW]] can be used to hide or show the main program window.
 * [[_DELAY]] or [[SLEEP]] can be used to allow the console window to be set in front of the main program window.
 * [[_CONSOLETITLE]] can be used to change the title of the console window.

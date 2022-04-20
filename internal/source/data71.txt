@@ -1,38 +1,46 @@
-qbs *_FUNC_EVALUATE_EXPRESSION_STRING_EVALUATE_EXPRESSION=NULL;
-if (!_FUNC_EVALUATE_EXPRESSION_STRING_EVALUATE_EXPRESSION)_FUNC_EVALUATE_EXPRESSION_STRING_EVALUATE_EXPRESSION=qbs_new(0,0);
-qbs*oldstr3439=NULL;
-if(_FUNC_EVALUATE_EXPRESSION_STRING_E->tmp||_FUNC_EVALUATE_EXPRESSION_STRING_E->fixed||_FUNC_EVALUATE_EXPRESSION_STRING_E->readonly){
-oldstr3439=_FUNC_EVALUATE_EXPRESSION_STRING_E;
-if (oldstr3439->cmem_descriptor){
-_FUNC_EVALUATE_EXPRESSION_STRING_E=qbs_new_cmem(oldstr3439->len,0);
+qbs *_FUNC_GDB_FIX_STRING_GDB_FIX=NULL;
+if (!_FUNC_GDB_FIX_STRING_GDB_FIX)_FUNC_GDB_FIX_STRING_GDB_FIX=qbs_new(0,0);
+qbs*oldstr3524=NULL;
+if(_FUNC_GDB_FIX_STRING_G_COMMAND->tmp||_FUNC_GDB_FIX_STRING_G_COMMAND->fixed||_FUNC_GDB_FIX_STRING_G_COMMAND->readonly){
+oldstr3524=_FUNC_GDB_FIX_STRING_G_COMMAND;
+if (oldstr3524->cmem_descriptor){
+_FUNC_GDB_FIX_STRING_G_COMMAND=qbs_new_cmem(oldstr3524->len,0);
 }else{
-_FUNC_EVALUATE_EXPRESSION_STRING_E=qbs_new(oldstr3439->len,0);
+_FUNC_GDB_FIX_STRING_G_COMMAND=qbs_new(oldstr3524->len,0);
 }
-memcpy(_FUNC_EVALUATE_EXPRESSION_STRING_E->chr,oldstr3439->chr,oldstr3439->len);
+memcpy(_FUNC_GDB_FIX_STRING_G_COMMAND->chr,oldstr3524->chr,oldstr3524->len);
 }
-qbs *_FUNC_EVALUATE_EXPRESSION_STRING_T=NULL;
-if (!_FUNC_EVALUATE_EXPRESSION_STRING_T)_FUNC_EVALUATE_EXPRESSION_STRING_T=qbs_new(0,0);
-qbs *_FUNC_EVALUATE_EXPRESSION_STRING_EXP=NULL;
-if (!_FUNC_EVALUATE_EXPRESSION_STRING_EXP)_FUNC_EVALUATE_EXPRESSION_STRING_EXP=qbs_new(0,0);
-int32 *_FUNC_EVALUATE_EXPRESSION_LONG_EVAL_E=NULL;
-if(_FUNC_EVALUATE_EXPRESSION_LONG_EVAL_E==NULL){
-_FUNC_EVALUATE_EXPRESSION_LONG_EVAL_E=(int32*)mem_static_malloc(4);
-*_FUNC_EVALUATE_EXPRESSION_LONG_EVAL_E=0;
+qbs *_FUNC_GDB_FIX_STRING_C=NULL;
+if (!_FUNC_GDB_FIX_STRING_C)_FUNC_GDB_FIX_STRING_C=qbs_new(0,0);
+byte_element_struct *byte_element_3525=NULL;
+if (!byte_element_3525){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3525=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3525=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_FUNC_EVALUATE_EXPRESSION_LONG_C=NULL;
-if(_FUNC_EVALUATE_EXPRESSION_LONG_C==NULL){
-_FUNC_EVALUATE_EXPRESSION_LONG_C=(int32*)mem_static_malloc(4);
-*_FUNC_EVALUATE_EXPRESSION_LONG_C=0;
+int32 *_FUNC_GDB_FIX_LONG_O=NULL;
+if(_FUNC_GDB_FIX_LONG_O==NULL){
+_FUNC_GDB_FIX_LONG_O=(int32*)mem_static_malloc(4);
+*_FUNC_GDB_FIX_LONG_O=0;
 }
-int32 *_FUNC_EVALUATE_EXPRESSION_LONG_S=NULL;
-if(_FUNC_EVALUATE_EXPRESSION_LONG_S==NULL){
-_FUNC_EVALUATE_EXPRESSION_LONG_S=(int32*)mem_static_malloc(4);
-*_FUNC_EVALUATE_EXPRESSION_LONG_S=0;
+int64 fornext_value3527;
+int64 fornext_finalvalue3527;
+int64 fornext_step3527;
+uint8 fornext_step_negative3527;
+qbs *_FUNC_GDB_FIX_STRING_O=NULL;
+if (!_FUNC_GDB_FIX_STRING_O)_FUNC_GDB_FIX_STRING_O=qbs_new(0,0);
+int32 *_FUNC_GDB_FIX_LONG_X=NULL;
+if(_FUNC_GDB_FIX_LONG_X==NULL){
+_FUNC_GDB_FIX_LONG_X=(int32*)mem_static_malloc(4);
+*_FUNC_GDB_FIX_LONG_X=0;
 }
-qbs *_FUNC_EVALUATE_EXPRESSION_STRING_EVAL=NULL;
-if (!_FUNC_EVALUATE_EXPRESSION_STRING_EVAL)_FUNC_EVALUATE_EXPRESSION_STRING_EVAL=qbs_new(0,0);
-static qbs *sc_3443=qbs_new(0,0);
-byte_element_struct *byte_element_3444=NULL;
-if (!byte_element_3444){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3444=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3444=(byte_element_struct*)mem_static_malloc(12);
+byte_element_struct *byte_element_3528=NULL;
+if (!byte_element_3528){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3528=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3528=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3529=NULL;
+if (!byte_element_3529){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3529=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3529=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3530=NULL;
+if (!byte_element_3530){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3530=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3530=(byte_element_struct*)mem_static_malloc(12);
 }

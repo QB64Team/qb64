@@ -26,7 +26,16 @@ REDIM SHARED PL(1000) AS INTEGER 'Priority Level
 REDIM SHARED PP_TypeMod(0) AS STRING, PP_ConvertedMod(0) AS STRING 'Prepass Name Conversion variables.
 Set_OrderOfOperations
 
-DIM SHARED vWatchOn, vWatchRecompileAttempts, vWatchDesiredState
+DIM SHARED vWatchOn, vWatchRecompileAttempts, vWatchDesiredState, vWatchErrorCall$
+DIM SHARED vWatchNewVariable$, vWatchVariableExclusions$
+vWatchErrorCall$ = "if (stop_program) {*__LONG_VWATCH_LINENUMBER=0; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);};if(new_error){bkp_new_error=new_error;new_error=0;*__LONG_VWATCH_LINENUMBER=-1; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);new_error=bkp_new_error;};"
+vWatchVariableExclusions$ = "@__LONG_VWATCH_LINENUMBER@__LONG_VWATCH_SUBLEVEL@__LONG_VWATCH_GOTO@" + _
+              "@__STRING_VWATCH_SUBNAME@__STRING_VWATCH_CALLSTACK@__ARRAY_BYTE_VWATCH_BREAKPOINTS" + _
+              "@__ARRAY_BYTE_VWATCH_SKIPLINES@__STRING_VWATCH_INTERNALSUBNAME@__ARRAY_STRING_VWATCH_STACK@"
+
+DIM SHARED nativeDataTypes$
+nativeDataTypes$ = "@_OFFSET@OFFSET@_UNSIGNED _OFFSET@UNSIGNED OFFSET@_BIT@BIT@_UNSIGNED _BIT@UNSIGNED BIT@_BYTE@_UNSIGNED _BYTE@BYTE@UNSIGNED BYTE@INTEGER@_UNSIGNED INTEGER@UNSIGNED INTEGER@LONG@_UNSIGNED LONG@UNSIGNED LONG@_INTEGER64@INTEGER64@_UNSIGNED _INTEGER64@UNSIGNED INTEGER64@SINGLE@DOUBLE@_FLOAT@FLOAT@STRING@"
+
 DIM SHARED qb64prefix_set_recompileAttempts, qb64prefix_set_desiredState
 DIM SHARED opex_recompileAttempts, opex_desiredState
 DIM SHARED opexarray_recompileAttempts, opexarray_desiredState
@@ -103,16 +112,17 @@ DIM SHARED ShowWarnings AS _BYTE, QuietMode AS _BYTE, CMDLineFile AS STRING
 DIM SHARED MonochromeLoggingMode AS _BYTE
 
 TYPE usedVarList
-    used AS _BYTE
-    linenumber AS LONG
-    includeLevel AS LONG
-    includedLine AS LONG
-    includedFile AS STRING
-    cname AS STRING
-    name AS STRING
+    AS LONG id, linenumber, includeLevel, includedLine, scope, localIndex
+    AS LONG arrayElementSize
+    AS _BYTE used, watch, isarray, displayFormat 'displayFormat: 0=DEC;1=HEX;2=BIN;3=OCT
+    AS STRING name, cname, varType, includedFile, subfunc
+    AS STRING watchRange, indexes, elements, elementTypes 'for Arrays and UDTs
+    AS STRING elementOffset, storage
 END TYPE
 
-REDIM SHARED usedVariableList(1000) AS usedVarList, totalVariablesCreated AS LONG
+REDIM SHARED backupUsedVariableList(1000) AS usedVarList
+DIM SHARED typeDefinitions$, backupTypeDefinitions$
+DIM SHARED totalVariablesCreated AS LONG, totalMainVariablesCreated AS LONG
 DIM SHARED bypassNextVariable AS _BYTE
 DIM SHARED totalWarnings AS LONG, warningListItems AS LONG, lastWarningHeader AS STRING
 DIM SHARED duplicateConstWarning AS _BYTE, warningsissued AS _BYTE
@@ -630,22 +640,7 @@ REDIM SHARED constdefined(constmax) AS LONG
 'UDT
 'names
 DIM SHARED lasttype AS LONG
-DIM SHARED udtxname(1000) AS STRING * 256
-DIM SHARED udtxcname(1000) AS STRING * 256
-DIM SHARED udtxsize(1000) AS LONG
-DIM SHARED udtxbytealign(1000) AS INTEGER 'first element MUST be on a byte alignment & size is a multiple of 8
-DIM SHARED udtxnext(1000) AS LONG
-DIM SHARED udtxvariable(1000) AS INTEGER 'true if the udt contains variable length elements
-'elements
 DIM SHARED lasttypeelement AS LONG
-DIM SHARED udtename(1000) AS STRING * 256
-DIM SHARED udtecname(1000) AS STRING * 256
-DIM SHARED udtebytealign(1000) AS INTEGER
-DIM SHARED udtesize(1000) AS LONG
-DIM SHARED udtetype(1000) AS LONG
-DIM SHARED udtetypesize(1000) AS LONG
-DIM SHARED udtearrayelements(1000) AS LONG
-DIM SHARED udtenext(1000) AS LONG
 
 TYPE idstruct
 
@@ -775,6 +770,8 @@ DIM SHARED findidinternal AS LONG
 DIM SHARED currentid AS LONG 'is the index of the last ID accessed
 DIM SHARED linenumber AS LONG, reallinenumber AS LONG, totallinenumber AS LONG, definingtypeerror AS LONG
 DIM SHARED wholeline AS STRING
+DIM SHARED firstLineNumberLabelvWatch AS LONG, lastLineNumberLabelvWatch AS LONG
+DIM SHARED vWatchUsedLabels AS STRING, vWatchUsedSkipLabels AS STRING
 DIM SHARED linefragment AS STRING
 'COMMON SHARED bitmask() AS _INTEGER64
 'COMMON SHARED bitmaskinv() AS _INTEGER64
@@ -782,6 +779,7 @@ DIM SHARED linefragment AS STRING
 DIM SHARED arrayprocessinghappened AS INTEGER
 DIM SHARED stringprocessinghappened AS INTEGER
 DIM SHARED cleanupstringprocessingcall AS STRING
+DIM SHARED inputfunctioncalled AS _BYTE
 DIM SHARED recompile AS INTEGER 'forces recompilation
 'COMMON SHARED cmemlist() AS INTEGER
 DIM SHARED optionbase AS INTEGER
@@ -815,8 +813,8 @@ DIM SHARED uniquenumbern AS LONG
 'CLEAR , , 16384
 
 
-DIM SHARED bitmask(1 TO 56) AS _INTEGER64
-DIM SHARED bitmaskinv(1 TO 56) AS _INTEGER64
+DIM SHARED bitmask(1 TO 64) AS _INTEGER64
+DIM SHARED bitmaskinv(1 TO 64) AS _INTEGER64
 
 DIM SHARED defineextaz(1 TO 27) AS STRING
 DIM SHARED defineaz(1 TO 27) AS STRING '27 is an underscore
@@ -893,7 +891,7 @@ DIM SHARED controlref(1000) AS LONG 'the line number the control was created on
 ON ERROR GOTO qberror
 
 i2&& = 1
-FOR i&& = 1 TO 56
+FOR i&& = 1 TO 64
     bitmask(i&&) = i2&&
     bitmaskinv(i&&) = NOT i2&&
     i2&& = i2&& + 2 ^ i&&
@@ -1177,7 +1175,7 @@ file$ = f$
 fullrecompile:
 
 BU_DEPENDENCY_CONSOLE_ONLY = DEPENDENCY(DEPENDENCY_CONSOLE_ONLY)
-FOR i = 1 TO UBOUND(Dependency): DEPENDENCY(i) = 0: NEXT
+FOR i = 1 TO UBOUND(DEPENDENCY): DEPENDENCY(i) = 0: NEXT
 DEPENDENCY(DEPENDENCY_CONSOLE_ONLY) = BU_DEPENDENCY_CONSOLE_ONLY AND 2 'Restore -g switch if used
 
 Error_Happened = 0
@@ -1218,6 +1216,7 @@ opexarray_recompileAttempts = 0
 
 recompile:
 vWatchOn = vWatchDesiredState
+vWatchVariable "", -1 'reset internal variables list
 
 qb64prefix_set = qb64prefix_set_desiredState
 qb64prefix$ = "_"
@@ -1411,6 +1410,21 @@ addmetainclude$ = ""
 nextrunlineindex = 1
 lasttype = 0
 lasttypeelement = 0
+REDIM SHARED udtxname(1000) AS STRING * 256
+REDIM SHARED udtxcname(1000) AS STRING * 256
+REDIM SHARED udtxsize(1000) AS LONG
+REDIM SHARED udtxbytealign(1000) AS INTEGER 'first element MUST be on a byte alignment & size is a multiple of 8
+REDIM SHARED udtxnext(1000) AS LONG
+REDIM SHARED udtxvariable(1000) AS INTEGER 'true if the udt contains variable length elements
+'elements
+REDIM SHARED udtename(1000) AS STRING * 256
+REDIM SHARED udtecname(1000) AS STRING * 256
+REDIM SHARED udtebytealign(1000) AS INTEGER
+REDIM SHARED udtesize(1000) AS LONG
+REDIM SHARED udtetype(1000) AS LONG
+REDIM SHARED udtetypesize(1000) AS LONG
+REDIM SHARED udtearrayelements(1000) AS LONG
+REDIM SHARED udtenext(1000) AS LONG
 definingtype = 0
 definingtypeerror = 0
 constlast = -1
@@ -1440,6 +1454,7 @@ linefragment$ = ""
 idn = 0
 arrayprocessinghappened = 0
 stringprocessinghappened = 0
+inputfunctioncalled = 0
 subfuncn = 0
 closedsubfunc = 0
 subfunc = ""
@@ -1447,11 +1462,17 @@ SelectCaseCounter = 0
 ExecCounter = 0
 UserDefineCount = 7
 totalVariablesCreated = 0
+typeDefinitions$ = ""
+totalMainVariablesCreated = 0
+REDIM SHARED usedVariableList(1000) AS usedVarList
 totalWarnings = 0
 duplicateConstWarning = 0
 emptySCWarning = 0
 warningListItems = 0
 lastWarningHeader = ""
+vWatchUsedLabels = SPACE$(1000)
+vWatchUsedSkipLabels = SPACE$(1000)
+firstLineNumberLabelvWatch = 0
 REDIM SHARED warning$(1000)
 REDIM SHARED warningLines(1000) AS LONG
 REDIM SHARED warningIncLines(1000) AS LONG
@@ -1640,11 +1661,11 @@ DO
         forceIncludeFromRoot$ = ""
         IF vWatchOn THEN
             addingvWatch = 1
-            IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch.bi"
-            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch.bm"
+            IF firstLine <> 0 THEN forceIncludeFromRoot$ = "internal\support\vwatch\vwatch.bi"
+            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "internal\support\vwatch\vwatch.bm"
         ELSE
-            'IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\header_stub.bas"
-            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch_stub.bm"
+            'IF firstLine <> 0 THEN forceIncludeFromRoot$ = "internal\support\vwatch\vwatch_stub.bi"
+            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "internal\support\vwatch\vwatch_stub.bm"
         END IF
         firstLine = 0: lastLine = 0
         IF LEN(forceIncludeFromRoot$) THEN GOTO forceInclude_prepass
@@ -1667,8 +1688,6 @@ DO
     LOOP
     InValidLine(linenumber) = 0
 
-    ColorPass:
-
     IF LEN(wholeline$) THEN
 
         IF UCASE$(_TRIM$(wholeline$)) = "$NOPREFIX" THEN
@@ -1688,12 +1707,20 @@ DO
         temp$ = LTRIM$(RTRIM$(UCASE$(wholestv$)))
 
         IF temp$ = "$COLOR:0" THEN
-            addmetainclude$ = getfilepath$(COMMAND$(0)) + "source" + pathsep$ + "utilities" + pathsep$ + "color0.bi"
+            IF qb64prefix_set THEN
+                addmetainclude$ = getfilepath$(COMMAND$(0)) + "internal" + pathsep$ + "support" + pathsep$ + "color" + pathsep$ + "color0_noprefix.bi"
+            ELSE
+                addmetainclude$ = getfilepath$(COMMAND$(0)) + "internal" + pathsep$ + "support" + pathsep$ + "color" + pathsep$ + "color0.bi"
+            END IF
             GOTO finishedlinepp
         END IF
 
         IF temp$ = "$COLOR:32" THEN
-            addmetainclude$ = getfilepath$(COMMAND$(0)) + "source" + pathsep$ + "utilities" + pathsep$ + "color32.bi"
+            IF qb64prefix_set THEN
+                addmetainclude$ = getfilepath$(COMMAND$(0)) + "internal" + pathsep$ + "support" + pathsep$ + "color" + pathsep$ + "color32_noprefix.bi"
+            ELSE
+                addmetainclude$ = getfilepath$(COMMAND$(0)) + "internal" + pathsep$ + "support" + pathsep$ + "color" + pathsep$ + "color32.bi"
+            END IF
             GOTO finishedlinepp
         END IF
 
@@ -1790,17 +1817,7 @@ DO
             IF temp = 0 THEN a$ = "Invalid Syntax.  $LET <flag> = <value>": GOTO errmes
             l$ = RTRIM$(LEFT$(temp$, temp - 1)): r$ = LTRIM$(MID$(temp$, temp + 1))
             'then validate to make certain the left side looks proper
-            l1$ = ""
-            FOR i = 1 TO LEN(l$)
-                a = ASC(l$, i)
-                SELECT CASE a
-                    CASE 32 'strip out spaces
-                    CASE 46: l1$ = l1$ + CHR$(a)
-                    CASE IS < 48, IS > 90: a$ = "Invalid symbol left of equal sign (" + CHR$(a) + ")": GOTO errmes
-                    CASE ELSE: l1$ = l1$ + CHR$(a)
-                END SELECT
-            NEXT
-            l$ = l1$
+            IF validname(l$) = 0 THEN a$ = "Invalid flag name": GOTO errmes
             IF LEFT$(r$, 1) = CHR$(34) THEN r$ = LTRIM$(MID$(r$, 2))
             IF RIGHT$(r$, 1) = CHR$(34) THEN r$ = RTRIM$(LEFT$(r$, LEN(r$) - 1))
             IF LEFT$(r$, 1) = "-" THEN
@@ -1817,7 +1834,7 @@ DO
                     CASE 46 'periods are fine.
                         r1$ = r1$ + "."
                     CASE IS < 48, IS > 90
-                        a$ = "Invalid symbol right of equal sign (" + CHR$(a) + ")": GOTO errmes
+                        a$ = "Invalid value": GOTO errmes
                     CASE ELSE
                         r1$ = r1$ + CHR$(a)
                 END SELECT
@@ -1934,6 +1951,7 @@ DO
                                 'traditional variable-name AS type syntax, single-element
                                 lasttypeelement = lasttypeelement + 1
                                 i2 = lasttypeelement
+                                WHILE i2 > UBOUND(udtenext): increaseUDTArrays: WEND
                                 udtenext(i2) = 0
 
                                 ii = 2
@@ -1943,6 +1961,7 @@ DO
                                 IF ii >= n OR getelement$(a$, ii) <> "AS" THEN a$ = "Expected element-name AS type, AS type element-list, or END TYPE": GOTO errmes
                                 t$ = getelements$(a$, ii + 1, n)
 
+                                IF t$ = RTRIM$(udtxname(definingtype)) THEN a$ = "Invalid self-reference": GOTO errmes
                                 typ = typname2typ(t$)
                                 IF Error_Happened THEN GOTO errmes
                                 IF typ = 0 THEN a$ = "Undefined type": GOTO errmes
@@ -1950,9 +1969,9 @@ DO
 
                                 IF validname(n$) = 0 THEN a$ = "Invalid name": GOTO errmes
                                 udtename(i2) = n$
-
                                 udtecname(i2) = getelement$(ca$, 1)
                                 NormalTypeBlock:
+                                typeDefinitions$ = typeDefinitions$ + MKL$(i2) + MKL$(LEN(n$)) + n$
                                 udtetype(i2) = typ
                                 udtetypesize(i2) = typsize
 
@@ -1963,10 +1982,10 @@ DO
                                 hashres = HashFind(hashname$, hashchkflags, hashresflags, hashresref)
                                 DO WHILE hashres
                                     IF hashresflags AND HASHFLAG_UDTELEMENT THEN
-                                        IF hashresref = i THEN a$ = "Name already in use": GOTO errmes
+                                        IF hashresref = i THEN a$ = "Name already in use (" + hashname$ + ")": GOTO errmes
                                     END IF
                                     IF hashresflags AND HASHFLAG_RESERVED THEN
-                                        IF hashresflags AND (HASHFLAG_TYPE + HASHFLAG_CUSTOMSYNTAX + HASHFLAG_OPERATOR + HASHFLAG_XELEMENTNAME) THEN a$ = "Name already in use": GOTO errmes
+                                        IF hashresflags AND (HASHFLAG_TYPE + HASHFLAG_CUSTOMSYNTAX + HASHFLAG_OPERATOR + HASHFLAG_XELEMENTNAME) THEN a$ = "Name already in use (" + hashname$ + ")": GOTO errmes
                                     END IF
                                     IF hashres <> 1 THEN hashres = HashFindCont(hashresflags, hashresref) ELSE hashres = 0
                                 LOOP
@@ -2033,14 +2052,17 @@ DO
                                 END IF
 
                                 t$ = RTRIM$(t$)
+                                IF t$ = RTRIM$(udtxname(definingtype)) THEN a$ = "Invalid self-reference": GOTO errmes
                                 typ = typname2typ(t$)
                                 IF Error_Happened THEN GOTO errmes
                                 IF typ = 0 THEN a$ = "Undefined type": GOTO errmes
                                 typsize = typname2typsize
 
+                                previousElement$ = lastElement$
                                 nexttypeelement:
                                 lasttypeelement = lasttypeelement + 1
                                 i2 = lasttypeelement
+                                WHILE i2 > UBOUND(udtenext): increaseUDTArrays: WEND
                                 udtenext(i2) = 0
                                 udtearrayelements(i2) = 0
 
@@ -2058,8 +2080,14 @@ DO
                                 lastElement$ = getelement$(a$, ii)
                                 IF lastElement$ = "" THEN GOTO finishedlinepp
                                 IF ii = n AND lastElement$ = "," THEN a$ = "Expected element-name": GOTO errmes
-                                IF lastElement$ = "," THEN GOTO getNextElement
+                                IF lastElement$ = "," THEN
+                                    IF previousElement$ = "," THEN a$ = "Expected element-name": GOTO errmes
+                                    previousElement$ = lastElement$
+                                    GOTO getNextElement
+                                END IF
                                 n$ = lastElement$
+                                IF previousElement$ <> "," THEN a$ = "Expected ,": GOTO errmes
+                                previousElement$ = lastElement$
                                 cn$ = getelement$(ca$, ii)
                                 GOTO nexttypeelement
                             END IF
@@ -2071,9 +2099,12 @@ DO
                             IF firstelement$ = "TYPE" THEN
                                 IF n <> 2 THEN a$ = "Expected TYPE typename": GOTO errmes
                                 lasttype = lasttype + 1
+                                typeDefinitions$ = typeDefinitions$ + MKL$(-1) + MKL$(lasttype)
                                 definingtype = lasttype
                                 i = definingtype
+                                WHILE i > UBOUND(udtenext): increaseUDTArrays: WEND
                                 IF validname(secondelement$) = 0 THEN a$ = "Invalid name": GOTO errmes
+                                typeDefinitions$ = typeDefinitions$ + MKL$(LEN(secondelement$)) + secondelement$
                                 udtxname(i) = secondelement$
                                 udtxcname(i) = getelement(ca$, 2)
                                 udtxnext(i) = 0
@@ -2093,7 +2124,7 @@ DO
                                     IF hashresflags AND HASHFLAG_RESERVED THEN
                                         IF (hashresflags AND (HASHFLAG_TYPE + HASHFLAG_OPERATOR + HASHFLAG_CUSTOMSYNTAX + HASHFLAG_XTYPENAME)) = 0 THEN allow = 1
                                     END IF
-                                    IF allow = 0 THEN a$ = "Name already in use": GOTO errmes
+                                    IF allow = 0 THEN a$ = "Name already in use (" + hashname$ + ")": GOTO errmes
                                     IF hashres <> 1 THEN hashres = HashFindCont(hashresflags, hashresref) ELSE hashres = 0
                                 LOOP
 
@@ -2176,7 +2207,7 @@ DO
                                 IF LEN(readable_e$) = 0 THEN
                                     readable_e$ = e3$
                                 ELSE
-                                    readable_e$ = readable_e$ + e3$
+                                    readable_e$ = readable_e$ + " " + e3$
                                 END IF
                             NEXT
 
@@ -2292,16 +2323,16 @@ DO
                                             END IF
                                             GOTO constAddDone
                                         ELSE
-                                            a$ = "Name already in use": GOTO errmes
+                                            a$ = "Name already in use (" + hashname$ + ")": GOTO errmes
                                         END IF
                                     END IF
                                 END IF
                                 IF hashresflags AND HASHFLAG_RESERVED THEN
-                                    a$ = "Name already in use": GOTO errmes
+                                    a$ = "Name already in use (" + hashname$ + ")": GOTO errmes
                                 END IF
                                 IF hashresflags AND (HASHFLAG_SUB + HASHFLAG_FUNCTION) THEN
-                                    IF ids(hashresref).internal_subfunc = 0 OR RTRIM$(ids(hashresref).musthave) <> "$" THEN a$ = "Name already in use": GOTO errmes
-                                    IF t AND ISSTRING THEN a$ = "Name already in use": GOTO errmes
+                                    IF ids(hashresref).internal_subfunc = 0 OR RTRIM$(ids(hashresref).musthave) <> "$" THEN a$ = "Name already in use (" + hashname$ + ")": GOTO errmes
+                                    IF t AND ISSTRING THEN a$ = "Name already in use (" + hashname$ + ")": GOTO errmes
                                 END IF
                                 IF hashres <> 1 THEN hashres = HashFindCont(hashresflags, hashresref) ELSE hashres = 0
                             LOOP
@@ -2515,6 +2546,7 @@ DO
                                         argnelereq = 0
 
                                         IF symbol2$ <> "" AND t2$ <> "" THEN a$ = "Syntax error - check parameter types": GOTO errmes
+                                        IF t2$ = "" AND e$ = "AS" THEN a$ = "Expected AS type": GOTO errmes
                                         IF t2$ = "" THEN t2$ = symbol2$
                                         IF t2$ = "" THEN
                                             IF LEFT$(n2$, 1) = "_" THEN v = 27 ELSE v = ASC(UCASE$(n2$)) - 64
@@ -2862,11 +2894,11 @@ DO
         forceIncludeFromRoot$ = ""
         IF vWatchOn THEN
             addingvWatch = 1
-            IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch.bi"
-            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch.bm"
+            IF firstLine <> 0 THEN forceIncludeFromRoot$ = "internal\support\vwatch\vwatch.bi"
+            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "internal\support\vwatch\vwatch.bm"
         ELSE
-            'IF firstLine <> 0 THEN forceIncludeFromRoot$ = "source\embed\header_stub.bas"
-            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "source\utilities\vwatch_stub.bm"
+            'IF firstLine <> 0 THEN forceIncludeFromRoot$ = "internal\support\vwatch\vwatch_stub.bi"
+            IF lastLine <> 0 THEN forceIncludeFromRoot$ = "internal\support\vwatch\vwatch_stub.bm"
         END IF
         firstLine = 0: lastLine = 0
         IF LEN(forceIncludeFromRoot$) THEN GOTO forceInclude
@@ -2906,7 +2938,7 @@ DO
 
     IF InValidLine(linenumber) THEN
         layoutok = 1
-        layout$ = SPACE$(controllevel) + LTRIM$(RTRIM$(a3$))
+        layout$ = SPACE$(controllevel + 1) + LTRIM$(RTRIM$(a3$))
         IF idemode GOTO ideret4 ELSE GOTO skipide4
     END IF
 
@@ -3078,14 +3110,22 @@ DO
 
         IF a3u$ = "$COLOR:0" THEN
             layout$ = SCase$("$Color:0")
-            addmetainclude$ = getfilepath$(COMMAND$(0)) + "source" + pathsep$ + "utilities" + pathsep$ + "color0.bi"
+            IF qb64prefix_set THEN
+                addmetainclude$ = getfilepath$(COMMAND$(0)) + "internal" + pathsep$ + "support" + pathsep$ + "color" + pathsep$ + "color0_noprefix.bi"
+            ELSE
+                addmetainclude$ = getfilepath$(COMMAND$(0)) + "internal" + pathsep$ + "support" + pathsep$ + "color" + pathsep$ + "color0.bi"
+            END IF
             layoutdone = 1
             GOTO finishednonexec
         END IF
 
         IF a3u$ = "$COLOR:32" THEN
             layout$ = SCase$("$Color:32")
-            addmetainclude$ = getfilepath$(COMMAND$(0)) + "source" + pathsep$ + "utilities" + pathsep$ + "color32.bi"
+            IF qb64prefix_set THEN
+                addmetainclude$ = getfilepath$(COMMAND$(0)) + "internal" + pathsep$ + "support" + pathsep$ + "color" + pathsep$ + "color32_noprefix.bi"
+            ELSE
+                addmetainclude$ = getfilepath$(COMMAND$(0)) + "internal" + pathsep$ + "support" + pathsep$ + "color" + pathsep$ + "color32.bi"
+            END IF
             layoutdone = 1
             GOTO finishednonexec
         END IF
@@ -3112,12 +3152,18 @@ DO
 
         IF a3u$ = "$DEBUG" THEN
             layout$ = SCase$("$Debug")
+            IF NoIDEMode THEN
+                addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "$Debug", "$Debug features only work from the IDE"
+            END IF
             GOTO finishednonexec
         END IF
 
         IF a3u$ = "$CHECKING:OFF" THEN
             layout$ = SCase$("$Checking:Off")
             NoChecks = 1
+            IF vWatchOn <> 0 AND NoIDEMode = 0 AND inclevel = 0 THEN
+                addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "$Debug", "$Debug features won't work in $Checking:Off blocks"
+            END IF
             GOTO finishednonexec
         END IF
 
@@ -3422,7 +3468,8 @@ DO
                 inclinenump$ = inclinenump$ + "," + CHR$(34) + thisincname$ + CHR$(34)
             END IF
             IF NoChecks = 0 THEN
-                PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + inclinenump$ + ");r=0;}"
+                IF vWatchOn AND inclinenumber(inclevel) = 0 THEN temp$ = vWatchErrorCall$ ELSE temp$ = ""
+                PRINT #12, "if(qbevent){" + temp$ + "evnt(" + str2$(linenumber) + inclinenump$ + ");r=0;}"
             END IF
             IF n = 1 THEN GOTO finishednonexec
             entireline$ = getelements(entireline$, 2, n): u$ = UCASE$(entireline$): n = n - 1
@@ -3482,7 +3529,8 @@ DO
                     inclinenump$ = inclinenump$ + "," + CHR$(34) + thisincname$ + CHR$(34)
                 END IF
                 IF NoChecks = 0 THEN
-                    PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + inclinenump$ + ");r=0;}"
+                    IF vWatchOn AND inclinenumber(inclevel) = 0 THEN temp$ = vWatchErrorCall$ ELSE temp$ = ""
+                    PRINT #12, "if(qbevent){" + temp$ + "evnt(" + str2$(linenumber) + inclinenump$ + ");r=0;}"
                 END IF
                 entireline$ = RIGHT$(entireline$, LEN(entireline$) - x3): u$ = UCASE$(entireline$)
                 n = numelements(entireline$): IF n = 0 THEN GOTO finishednonexec
@@ -4756,6 +4804,8 @@ DO
             END IF
 
             subfunc = RTRIM$(id.callname) 'SUB_..."
+            IF id.subfunc = 1 THEN subfuncoriginalname$ = "FUNCTION " ELSE subfuncoriginalname$ = "SUB "
+            subfuncoriginalname$ = subfuncoriginalname$ + RTRIM$(id.cn)
             subfuncn = subfuncn + 1
             closedsubfunc = 0
             subfuncid = targetid
@@ -4970,8 +5020,9 @@ DO
                             IF typ AND ISUDT THEN
                                 IF RTRIM$(udtxcname(typ AND 511)) = "_MEM" AND UCASE$(t3$) = "MEM" AND qb64prefix_set = 1 THEN
                                     t3$ = MID$(RTRIM$(udtxcname(typ AND 511)), 2)
+                                ELSE
+                                    t3$ = RTRIM$(udtxcname(typ AND 511))
                                 END IF
-                                t3$ = RTRIM$(udtxcname(typ AND 511))
                                 l$ = l$ + sp + t3$
                             ELSE
                                 FOR t3i = 1 TO LEN(t3$)
@@ -5117,15 +5168,30 @@ DO
             PRINT #12, "uint8 *tmp_mem_static_pointer=mem_static_pointer;"
             PRINT #12, "uint32 tmp_cmem_sp=cmem_sp;"
             PRINT #12, "#include " + CHR$(34) + "data" + str2$(subfuncn) + ".txt" + CHR$(34)
-            IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-                PRINT #12, "*__LONG_VWATCH_SUBLEVEL=*__LONG_VWATCH_SUBLEVEL+ 1 ;"
-            END IF
 
             'create new _MEM lock for this scope
             PRINT #12, "mem_lock *sf_mem_lock;" 'MUST not be static for recursion reasons
             PRINT #12, "new_mem_lock();"
             PRINT #12, "sf_mem_lock=mem_lock_tmp;"
             PRINT #12, "sf_mem_lock->type=3;"
+
+            IF vWatchOn = 1 THEN
+                PRINT #12, "*__LONG_VWATCH_SUBLEVEL=*__LONG_VWATCH_SUBLEVEL+ 1 ;"
+                IF subfunc <> "SUB_VWATCH" THEN
+                    inclinenump$ = ""
+                    IF inclinenumber(inclevel) THEN
+                        thisincname$ = getfilepath$(incname$(inclevel))
+                        thisincname$ = MID$(incname$(inclevel), LEN(thisincname$) + 1)
+                        inclinenump$ = "(" + thisincname$ + "," + STR$(inclinenumber(inclevel)) + ") "
+                    END IF
+
+                    PRINT #12, "qbs_set(__STRING_VWATCH_SUBNAME,qbs_new_txt_len(" + CHR$(34) + inclinenump$ + subfuncoriginalname$ + CHR$(34) + "," + str2$(LEN(inclinenump$ + subfuncoriginalname$)) + "));"
+                    PRINT #12, "qbs_cleanup(qbs_tmp_base,0);"
+                    PRINT #12, "qbs_set(__STRING_VWATCH_INTERNALSUBNAME,qbs_new_txt_len(" + CHR$(34) + subfunc + CHR$(34) + "," + str2$(LEN(subfunc)) + "));"
+                    PRINT #12, "qbs_cleanup(qbs_tmp_base,0);"
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER=-2; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);"
+                END IF
+            END IF
 
             PRINT #12, "if (new_error) goto exit_subfunc;"
 
@@ -5257,14 +5323,55 @@ DO
                 l$ = SCase$("End") + sp + secondelement$
                 layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
 
+                IF vWatchOn = 1 THEN
+                    vWatchVariable "", 1
+                END IF
+
                 staticarraylist = "": staticarraylistn = 0 'remove previously listed arrays
                 dimstatic = 0
                 PRINT #12, "exit_subfunc:;"
-                IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-                    IF NoChecks = 0 THEN
-                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                IF vWatchOn = 1 THEN
+                    IF NoChecks = 0 AND inclinenumber(inclevel) = 0 THEN
+                        vWatchAddLabel linenumber, 0
+                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
+                        vWatchAddLabel 0, -1
                     END IF
                     PRINT #12, "*__LONG_VWATCH_SUBLEVEL=*__LONG_VWATCH_SUBLEVEL- 1 ;"
+
+                    IF inclinenumber(inclevel) = 0 AND firstLineNumberLabelvWatch > 0 THEN
+                        PRINT #12, "goto VWATCH_SKIPSETNEXTLINE;"
+                        PRINT #12, "VWATCH_SETNEXTLINE:;"
+                        PRINT #12, "switch (*__LONG_VWATCH_GOTO) {"
+                        FOR i = firstLineNumberLabelvWatch TO lastLineNumberLabelvWatch
+                            WHILE i > LEN(vWatchUsedLabels)
+                                vWatchUsedLabels = vWatchUsedLabels + SPACE$(1000)
+                                vWatchUsedSkipLabels = vWatchUsedSkipLabels + SPACE$(1000)
+                            WEND
+                            IF ASC(vWatchUsedLabels, i) = 1 THEN
+                                PRINT #12, "    case " + str2$(i) + ":"
+                                PRINT #12, "        goto VWATCH_LABEL_" + str2$(i) + ";"
+                                PRINT #12, "        break;"
+                            END IF
+                        NEXT
+                        PRINT #12, "    default:"
+                        PRINT #12, "        *__LONG_VWATCH_GOTO=*__LONG_VWATCH_LINENUMBER;"
+                        PRINT #12, "        goto VWATCH_SETNEXTLINE;"
+                        PRINT #12, "}"
+
+                        PRINT #12, "VWATCH_SKIPLINE:;"
+                        PRINT #12, "switch (*__LONG_VWATCH_GOTO) {"
+                        FOR i = firstLineNumberLabelvWatch TO lastLineNumberLabelvWatch
+                            IF ASC(vWatchUsedSkipLabels, i) = 1 THEN
+                                PRINT #12, "    case -" + str2$(i) + ":"
+                                PRINT #12, "        goto VWATCH_SKIPLABEL_" + str2$(i) + ";"
+                                PRINT #12, "        break;"
+                            END IF
+                        NEXT
+                        PRINT #12, "}"
+
+                        PRINT #12, "VWATCH_SKIPSETNEXTLINE:;"
+                    END IF
+                    firstLineNumberLabelvWatch = 0
                 END IF
 
                 'release _MEM lock for this scope
@@ -5493,6 +5600,10 @@ DO
                     IF controltype(controllevel) <> 2 THEN a$ = "NEXT without FOR": GOTO errmes
                     IF n <> 1 AND controlvalue(controllevel) <> currentid THEN a$ = "Incorrect variable after NEXT": GOTO errmes
                     PRINT #12, "fornext_continue_" + str2$(controlid(controllevel)) + ":;"
+                    IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 AND NoChecks = 0 THEN
+                        vWatchAddLabel linenumber, 0
+                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
+                    END IF
                     PRINT #12, "}"
                     PRINT #12, "fornext_exit_" + str2$(controlid(controllevel)) + ":;"
                     controllevel = controllevel - 1
@@ -5539,8 +5650,9 @@ DO
                 IF Error_Happened THEN GOTO errmes
                 IF stringprocessinghappened THEN e$ = cleanupstringprocessingcall$ + e$ + ")"
                 IF (typ AND ISSTRING) THEN a$ = "WHILE ERROR! Cannot accept a STRING type.": GOTO errmes
-                IF NoChecks = 0 AND vWatchOn = 1 THEN
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                IF NoChecks = 0 AND vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
+                    vWatchAddLabel linenumber, 0
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 END IF
                 PRINT #12, "while((" + e$ + ")||new_error){"
             ELSE
@@ -5598,14 +5710,16 @@ DO
                 IF stringprocessinghappened THEN e$ = cleanupstringprocessingcall$ + e$ + ")"
                 IF (typ AND ISSTRING) THEN a$ = "DO ERROR! Cannot accept a STRING type.": GOTO errmes
                 IF whileuntil = 1 THEN PRINT #12, "while((" + e$ + ")||new_error){" ELSE PRINT #12, "while((!(" + e$ + "))||new_error){"
-                IF NoChecks = 0 AND vWatchOn = 1 THEN
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                IF NoChecks = 0 AND vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
+                    vWatchAddLabel linenumber, 0
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 END IF
                 controltype(controllevel) = 4
             ELSE
                 controltype(controllevel) = 3
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 AND NoChecks = 0 THEN
-                    PRINT #12, "do{*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                    vWatchAddLabel linenumber, 0
+                    PRINT #12, "do{*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 ELSE
                     PRINT #12, "do{"
                 END IF
@@ -5638,15 +5752,17 @@ DO
                 IF stringprocessinghappened THEN e$ = cleanupstringprocessingcall$ + e$ + ")"
                 IF (typ AND ISSTRING) THEN a$ = "LOOP ERROR! Cannot accept a STRING type.": GOTO errmes
                 PRINT #12, "dl_continue_" + str2$(controlid(controllevel)) + ":;"
-                IF NoChecks = 0 AND vWatchOn = 1 THEN
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                IF NoChecks = 0 AND vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
+                    vWatchAddLabel linenumber, 0
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 END IF
                 IF whileuntil = 1 THEN PRINT #12, "}while((" + e$ + ")&&(!new_error));" ELSE PRINT #12, "}while((!(" + e$ + "))&&(!new_error));"
             ELSE
                 PRINT #12, "dl_continue_" + str2$(controlid(controllevel)) + ":;"
 
-                IF NoChecks = 0 AND vWatchOn = 1 THEN
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                IF NoChecks = 0 AND vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
+                    vWatchAddLabel linenumber, 0
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 END IF
 
                 IF controltype(controllevel) = 4 THEN
@@ -5798,8 +5914,9 @@ DO
             e$ = evaluatetotyp(e$, ctyp)
             IF Error_Happened THEN GOTO errmes
 
-            IF NoChecks = 0 AND vWatchOn = 1 THEN
-                PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+            IF NoChecks = 0 AND vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
+                vWatchAddLabel linenumber, 0
+                PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
             END IF
 
             PRINT #12, "fornext_step" + u$ + "=" + e$ + ";"
@@ -5886,7 +6003,8 @@ DO
             IF NoChecks = 0 THEN
                 PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                    vWatchAddLabel linenumber, 0
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 END IF
             END IF
             FOR i = controllevel TO 1 STEP -1
@@ -5927,7 +6045,8 @@ DO
             IF NoChecks = 0 THEN
                 PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                    vWatchAddLabel linenumber, 0
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 END IF
             END IF
 
@@ -6008,6 +6127,11 @@ DO
                 IF LEN(layout$) = 0 THEN layout$ = l$ ELSE layout$ = layout$ + sp + l$
             END IF
 
+            IF NoChecks = 0 AND vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
+                vWatchAddLabel linenumber, 0
+                PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
+            END IF
+
             PRINT #12, "}"
             FOR i = 1 TO controlvalue(controllevel)
                 PRINT #12, "}"
@@ -6025,7 +6149,8 @@ DO
             IF NoChecks = 0 THEN
                 PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                    vWatchAddLabel linenumber, 0
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 END IF
             END IF
 
@@ -6145,8 +6270,14 @@ DO
                 controllevel = controllevel - 1
                 IF EveryCaseSet(SelectCaseCounter) THEN PRINT #12, "} /* End of SELECT EVERYCASE ELSE */"
             END IF
+
             PRINT #12, "sc_" + str2$(controlid(controllevel)) + "_end:;"
             IF controltype(controllevel) < 10 OR controltype(controllevel) > 17 THEN a$ = "END SELECT without SELECT CASE": GOTO errmes
+
+            IF NoChecks = 0 AND vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
+                vWatchAddLabel linenumber, 0
+                PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
+            END IF
 
             IF SelectCaseCounter > 0 AND SelectCaseHasCaseBlock(SelectCaseCounter) = 0 THEN
                 'warn user of empty SELECT CASE block
@@ -6263,7 +6394,8 @@ DO
             IF NoChecks = 0 THEN
                 PRINT #12, "S_" + str2$(statementn) + ":;": dynscope = 1
                 IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+                    vWatchAddLabel linenumber, 0
+                    PRINT #12, "*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
                 END IF
             END IF
 
@@ -6309,7 +6441,7 @@ DO
                             IF i2 = 1 THEN e$ = el$ ELSE e$ = er$
                             e$ = fixoperationorder(e$)
                             IF Error_Happened THEN GOTO errmes
-                            IF i2 = 1 THEN l$ = l$ + sp + tlayout$ ELSE l$ = l$ + sp + SCase$("TO") + sp + tlayout$
+                            IF i2 = 1 THEN l$ = l$ + sp + tlayout$ ELSE l$ = l$ + sp + SCase$("To") + sp + tlayout$
                             e$ = evaluate(e$, typ)
                             IF Error_Happened THEN GOTO errmes
                             IF (typ AND ISREFERENCE) THEN e$ = refer(e$, typ, 0)
@@ -6451,7 +6583,8 @@ DO
 
     IF NoChecks = 0 THEN
         IF vWatchOn = 1 AND inclinenumber(inclevel) = 0 THEN
-            PRINT #12, "do{*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+            vWatchAddLabel linenumber, 0
+            PRINT #12, "do{*__LONG_VWATCH_LINENUMBER= " + str2$(linenumber) + "; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
         ELSE
             PRINT #12, "do{"
         END IF
@@ -7432,6 +7565,7 @@ DO
                 IF optionexplicit THEN a$ = "Variable '" + n$ + "' (" + symbol2fulltypename$(typ$) + ") not defined": GOTO errmes
                 bypassNextVariable = -1
                 retval = dim2(n$, typ$, method, "")
+                manageVariableList "", vWatchNewVariable$, 0, 2
                 IF Error_Happened THEN GOTO errmes
                 'note: variable created!
 
@@ -8010,7 +8144,7 @@ DO
                 GOTO dimgottyp
 
                 dimgottyp:
-                IF d$ <> "" AND d$ <> "," THEN a$ = "DIM: Expected comma!": GOTO errmes
+                IF d$ <> "" AND d$ <> "," THEN a$ = "DIM: Expected ,": GOTO errmes
 
                 'In QBASIC, if no type info is given it can refer to an expeicit/formally defined array
                 IF notype <> 0 AND dimoption <> 3 AND dimoption <> 1 THEN 'not DIM or STATIC which only create new content
@@ -8036,17 +8170,17 @@ DO
                                 'if types match then fail
                                 IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                     IF ts = id.tsize THEN
-                                        a$ = "Name already in use": GOTO errmes
+                                        a$ = "Name already in use (" + varname$ + ")": GOTO errmes
                                     END IF
                                 END IF
                             ELSE
                                 IF dimmethod = 0 THEN
-                                    a$ = "Name already in use": GOTO errmes 'explicit over explicit
+                                    a$ = "Name already in use (" + varname$ + ")": GOTO errmes 'explicit over explicit
                                 ELSE
                                     'if types match then fail
                                     IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                         IF ts = id.tsize THEN
-                                            a$ = "Name already in use": GOTO errmes
+                                            a$ = "Name already in use (" + varname$ + ")": GOTO errmes
                                         END IF
                                     END IF
                                 END IF
@@ -8063,17 +8197,17 @@ DO
                                     'if types match then fail
                                     IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                         IF ts = id.tsize THEN
-                                            a$ = "Name already in use": GOTO errmes
+                                            a$ = "Name already in use (" + varname$ + s2$ + ")": GOTO errmes
                                         END IF
                                     END IF
                                 ELSE
                                     IF dimmethod = 0 THEN
-                                        a$ = "Name already in use": GOTO errmes 'explicit over explicit
+                                        a$ = "Name already in use (" + varname$ + s2$ + ")": GOTO errmes 'explicit over explicit
                                     ELSE
                                         'if types match then fail
                                         IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                             IF ts = id.tsize THEN
-                                                a$ = "Name already in use": GOTO errmes
+                                                a$ = "Name already in use (" + varname$ + s2$ + ")": GOTO errmes
                                             END IF
                                         END IF
                                     END IF
@@ -8097,13 +8231,13 @@ DO
                         IF UCASE$(varname$) = UCASE$(varname2$) THEN
                             IF dimmethod2 = 1 THEN
                                 'old using symbol
-                                IF symbol2fulltypename$(typ$) = typ2$ THEN a$ = "Name already in use": GOTO errmes
+                                IF symbol2fulltypename$(typ$) = typ2$ THEN a$ = "Name already in use (" + varname$ + ")": GOTO errmes
                             ELSE
                                 'old using AS
                                 IF dimmethod = 0 THEN
-                                    a$ = "Name already in use": GOTO errmes
+                                    a$ = "Name already in use (" + varname$ + ")": GOTO errmes
                                 ELSE
-                                    IF symbol2fulltypename$(typ$) = typ2$ THEN a$ = "Name already in use": GOTO errmes
+                                    IF symbol2fulltypename$(typ$) = typ2$ THEN a$ = "Name already in use (" + varname$ + ")": GOTO errmes
                                 END IF
                             END IF
                         END IF
@@ -8119,17 +8253,17 @@ DO
                                 'if types match then fail
                                 IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                     IF ts = id.tsize THEN
-                                        a$ = "Name already in use": GOTO errmes
+                                        a$ = "Name already in use (" + varname$ + ")": GOTO errmes
                                     END IF
                                 END IF
                             ELSE
                                 IF dimmethod = 0 THEN
-                                    a$ = "Name already in use": GOTO errmes 'explicit over explicit
+                                    a$ = "Name already in use (" + varname$ + ")": GOTO errmes 'explicit over explicit
                                 ELSE
                                     'if types match then fail
                                     IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                         IF ts = id.tsize THEN
-                                            a$ = "Name already in use": GOTO errmes
+                                            a$ = "Name already in use (" + varname$ + ")": GOTO errmes
                                         END IF
                                     END IF
                                 END IF
@@ -8146,17 +8280,17 @@ DO
                                     'if types match then fail
                                     IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                         IF ts = id.tsize THEN
-                                            a$ = "Name already in use": GOTO errmes
+                                            a$ = "Name already in use (" + varname$ + s2$ + ")": GOTO errmes
                                         END IF
                                     END IF
                                 ELSE
                                     IF dimmethod = 0 THEN
-                                        a$ = "Name already in use": GOTO errmes 'explicit over explicit
+                                        a$ = "Name already in use (" + varname$ + s2$ + ")": GOTO errmes 'explicit over explicit
                                     ELSE
                                         'if types match then fail
                                         IF (id.arraytype AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) = (t AND (ISFLOAT + ISUDT + 511 + ISUNSIGNED + ISSTRING + ISFIXEDLENGTH)) THEN
                                             IF ts = id.tsize THEN
-                                                a$ = "Name already in use": GOTO errmes
+                                                a$ = "Name already in use (" + varname$ + s2$ + ")": GOTO errmes
                                             END IF
                                         END IF
                                     END IF
@@ -8564,7 +8698,7 @@ DO
                     GOTO errmes
                 END IF
 
-                IF d$ <> "" AND d$ <> "," THEN a$ = "DIM: Expected comma!": GOTO errmes
+                IF d$ <> "" AND d$ <> "," THEN a$ = "DIM: Expected ,": GOTO errmes
 
                 newDimSyntax = -1
                 GOSUB NormalDimBlock
@@ -8673,7 +8807,16 @@ DO
         END IF
     END IF
 
+    IF firstelement$ = "CHAIN" THEN
+        IF vWatchOn THEN
+            addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "Feature incompatible with $Debug mode", "CHAIN"
+        END IF
+    END IF
+
     IF firstelement$ = "RUN" THEN 'RUN
+        IF vWatchOn THEN
+            addWarning linenumber, inclevel, inclinenumber(inclevel), incname$(inclevel), "Feature incompatible with $Debug mode", "RUN"
+        END IF
         l$ = SCase$("Run")
         IF n = 1 THEN
             'no parameters
@@ -8766,7 +8909,8 @@ DO
                 thisincname$ = MID$(incname$(inclevel), LEN(thisincname$) + 1)
                 inclinenump$ = inclinenump$ + "," + CHR$(34) + thisincname$ + CHR$(34)
             END IF
-            PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + inclinenump$ + ");}" 'non-resumable error check (cannot exit without handling errors)
+            IF vWatchOn AND inclinenumber(inclevel) = 0 THEN temp$ = vWatchErrorCall$ ELSE temp$ = ""
+            PRINT #12, "if(qbevent){" + temp$ + "evnt(" + str2$(linenumber) + inclinenump$ + ");}" 'non-resumable error check (cannot exit without handling errors)
             PRINT #12, "exit_code=" + e$ + ";"
             l$ = l$ + sp + l2$
         END IF
@@ -8789,14 +8933,18 @@ DO
                 thisincname$ = MID$(incname$(inclevel), LEN(thisincname$) + 1)
                 inclinenump$ = inclinenump$ + "," + CHR$(34) + thisincname$ + CHR$(34)
             END IF
-            PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + inclinenump$ + ");}" 'non-resumable error check (cannot exit without handling errors)
+            IF vWatchOn = 1 AND NoChecks = 0 AND inclinenumber(inclevel) = 0 THEN temp$ = vWatchErrorCall$ ELSE temp$ = ""
+            PRINT #12, "if(qbevent){" + temp$ + "evnt(" + str2$(linenumber) + inclinenump$ + ");}" 'non-resumable error check (cannot exit without handling errors)
             PRINT #12, "exit_code=" + e$ + ";"
             l$ = l$ + sp + l2$
         END IF
 
 
-        IF vWatchOn = 1 AND NoChecks = 0 THEN
-            PRINT #12, "*__LONG_VWATCH_LINENUMBER= 0; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+        IF vWatchOn = 1 THEN
+            IF inclinenumber(inclevel) = 0 THEN
+                vWatchAddLabel linenumber, 0
+            END IF
+            PRINT #12, "*__LONG_VWATCH_LINENUMBER= 0; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);"
         END IF
         PRINT #12, "if (sub_gl_called) error(271);"
         PRINT #12, "close_program=1;"
@@ -8818,8 +8966,13 @@ DO
                 'note: this value is currently ignored but evaluated for checking reasons
             END IF
             layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
-            PRINT #12, "close_program=1;"
-            PRINT #12, "end();"
+            IF vWatchOn = 1 AND NoChecks = 0 AND inclinenumber(inclevel) = 0 THEN
+                PRINT #12, "*__LONG_VWATCH_LINENUMBER=-3; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars); if (*__LONG_VWATCH_GOTO>0) goto VWATCH_SETNEXTLINE; if (*__LONG_VWATCH_GOTO<0) goto VWATCH_SKIPLINE;"
+                vWatchAddLabel linenumber, 0
+            ELSE
+                PRINT #12, "close_program=1;"
+                PRINT #12, "end();"
+            END IF
             GOTO finishedline
         END IF
     END IF
@@ -10004,8 +10157,14 @@ DO
                     NEXT
                     IF numvar = 0 THEN a$ = "Syntax error - Reference: INPUT [;] " + CHR$(34) + "[Question or statement text]" + CHR$(34) + "{,|;} variable[, ...] or INPUT ; variable[, ...]": GOTO errmes
                     IF lineinput = 1 AND numvar > 1 THEN a$ = "Too many variables": GOTO errmes
+                    IF vWatchOn = 1 THEN
+                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= -4; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);"
+                    END IF
                     PRINT #12, "qbs_input(" + str2(numvar) + "," + str2$(newline) + ");"
                     PRINT #12, "if (stop_program) end();"
+                    IF vWatchOn = 1 THEN
+                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= -5; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);"
+                    END IF
                     PRINT #12, cleanupstringprocessingcall$ + "0);"
                     layoutdone = 1: IF LEN(layout$) THEN layout$ = layout$ + sp + l$ ELSE layout$ = l$
                     GOTO finishedline
@@ -11000,7 +11159,21 @@ DO
                     subcall$ = subcall$ + "," + str2$(passed&)
                 END IF
                 subcall$ = subcall$ + ");"
+
+                IF firstelement$ = "SLEEP" THEN
+                    IF vWatchOn = 1 THEN
+                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= -4; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);"
+                    END IF
+                END IF
+
                 PRINT #12, subcall$
+
+                IF firstelement$ = "SLEEP" THEN
+                    IF vWatchOn = 1 THEN
+                        PRINT #12, "*__LONG_VWATCH_LINENUMBER= -5; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);"
+                    END IF
+                END IF
+
                 subcall$ = ""
                 IF stringprocessinghappened THEN PRINT #12, cleanupstringprocessingcall$ + "0);"
 
@@ -11060,6 +11233,13 @@ DO
     THENGOTO = 0
     finishedline2:
 
+    IF inputfunctioncalled THEN
+        inputfunctioncalled = 0
+        IF vWatchOn = 1 THEN
+            PRINT #12, "*__LONG_VWATCH_LINENUMBER= -5; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);"
+        END IF
+    END IF
+
     IF arrayprocessinghappened = 1 THEN arrayprocessinghappened = 0
 
     inclinenump$ = ""
@@ -11070,11 +11250,12 @@ DO
         inclinenump$ = inclinenump$ + "," + CHR$(34) + thisincname$ + CHR$(34)
     END IF
     IF NoChecks = 0 THEN
+        IF vWatchOn AND inclinenumber(inclevel) = 0 THEN temp$ = vWatchErrorCall$ ELSE temp$ = ""
         IF dynscope THEN
             dynscope = 0
-            PRINT #12, "if(qbevent){evnt(" + str2$(linenumber) + inclinenump$ + ");if(r)goto S_" + str2$(statementn) + ";}"
+            PRINT #12, "if(qbevent){" + temp$ + "evnt(" + str2$(linenumber) + inclinenump$ + ");if(r)goto S_" + str2$(statementn) + ";}"
         ELSE
-            PRINT #12, "if(!qbevent)break;evnt(" + str2$(linenumber) + inclinenump$ + ");}while(r);"
+            PRINT #12, "if(!qbevent)break;" + temp$ + "evnt(" + str2$(linenumber) + inclinenump$ + ");}while(r);"
         END IF
     END IF
 
@@ -11294,6 +11475,9 @@ FOR i = 1 TO idn
             getid i
             IF Error_Happened THEN GOTO errmes
             IF id.arrayelements = -1 THEN GOTO clearerasereturned 'cannot erase non-existant array
+            IF INSTR(vWatchVariableExclusions$, "@" + RTRIM$(id.callname) + "@") > 0 THEN
+                GOTO clearerasereturned
+            END IF
             clearerasereturn = 1: GOTO clearerase
         END IF 'array
 
@@ -11316,14 +11500,23 @@ FOR i = 1 TO idn
                     PRINT #12, "memset((void*)(" + e$ + "->chr),0," + bytes$ + ");"
                     GOTO cleared
                 ELSE
-                    PRINT #12, e$ + "->len=0;"
+                    IF INSTR(vWatchVariableExclusions$, "@" + e$ + "@") = 0 AND LEFT$(e$, 12) <> "_SUB_VWATCH_" THEN
+                        PRINT #12, e$ + "->len=0;"
+                    END IF
                     GOTO cleared
                 END IF
             END IF
             IF typ AND ISUDT THEN
-                PRINT #12, "memset((void*)" + e$ + ",0," + bytes$ + ");"
+                IF udtxvariable(typ AND 511) THEN
+                    'this next procedure resets values of UDT variables with variable-length strings
+                    clear_udt_with_varstrings e$, typ AND 511, 12, 0
+                ELSE
+                    PRINT #12, "memset((void*)" + e$ + ",0," + bytes$ + ");"
+                END IF
             ELSE
-                PRINT #12, "*" + e$ + "=0;"
+                IF INSTR(vWatchVariableExclusions$, "@" + e$ + "@") = 0 AND LEFT$(e$, 12) <> "_SUB_VWATCH_" THEN
+                    PRINT #12, "*" + e$ + "=0;"
+                END IF
             END IF
             GOTO cleared
         END IF 'non-array variable
@@ -11593,6 +11786,12 @@ ELSE
     PRINT #18, "int32 asserts=0;"
 END IF
 
+IF vWatchOn THEN
+    PRINT #18, "int32 vwatch=-1;"
+ELSE
+    PRINT #18, "int32 vwatch=0;"
+END IF
+
 fh = FREEFILE
 OPEN tmpdir$ + "dyninfo.txt" FOR APPEND AS #fh
 IF Resize THEN
@@ -11602,6 +11801,11 @@ IF Resize_Scale THEN
     PRINT #fh, "ScreenResizeScale=" + str2(Resize_Scale) + ";"
 END IF
 CLOSE #fh
+
+IF vWatchOn = 1 THEN
+    vWatchVariable "", 1
+END IF
+
 
 'DATA_finalize
 PRINT #18, "ptrszint data_size=" + str2(DataOffset) + ";"
@@ -12087,7 +12291,7 @@ IF NOT IgnoreWarnings THEN
         header$ = "unused variable" 's (" + LTRIM$(STR$(totalUnusedVariables)) + ")"
         FOR i = 1 TO totalVariablesCreated
             IF usedVariableList(i).used = 0 THEN
-                addWarning usedVariableList(i).linenumber, usedVariableList(i).includeLevel, usedVariableList(i).includedLine, usedVariableList(i).includedFile, header$, usedVariableList(i).name + SPACE$((maxVarNameLen + 1) - LEN(usedVariableList(i).name)) + " (" + usedVariableList(i).cname + ")"
+                addWarning usedVariableList(i).linenumber, usedVariableList(i).includeLevel, usedVariableList(i).includedLine, usedVariableList(i).includedFile, header$, usedVariableList(i).name + SPACE$((maxVarNameLen + 1) - LEN(usedVariableList(i).name)) + "  " + usedVariableList(i).varType
             END IF
         NEXT
     END IF
@@ -13053,7 +13257,7 @@ END IF
 
 IF compfailed THEN
     IF idemode THEN
-        idemessage$ = "C++ Compilation failed (Check " + CHR$(0) + compilelog$ + CHR$(0) + ")"
+        idemessage$ = "C++ Compilation failed " + CHR$(0) + "(Check " + _TRIM$(compilelog$) + ")"
         GOTO ideerror
     END IF
     IF compfailed THEN
@@ -13083,6 +13287,22 @@ E = 1
 RESUME NEXT
 
 qberror:
+'_CONSOLE ON
+'_ECHO "A QB error has occurred (and you have compiled in debugging support)."
+'_ECHO "Some key information (qb64.bas):"
+'_ECHO "Error" + STR$(ERR)
+'_ECHO "Description: " + _ERRORMESSAGE$
+'_ECHO "Line" + STR$(_ERRORLINE)
+'IF _INCLERRORLINE THEN
+'    _ECHO "Included line" + STR$(_INCLERRORLINE)
+'    _ECHO "Included file " + _INCLERRORFILE$
+'END IF
+'_ECHO ""
+'_ECHO "Loaded source file details:"
+'_ECHO "ideerror =" + STR$(ideerror) + "; qberrorhappened =" + STR$(qberrorhappened) + "; qberrorhappenedvalue =" + STR$(qberrorhappenedvalue) + "; linenumber =" + STR$(linenumber)
+'_ECHO "ca$ = {" + ca$ + "}, idecommand$ = {" + idecommand$ + "}"
+'_ECHO "linefragment = {" + linefragment+ "}"
+
 IF Debug THEN 'A more in-your-face error handler
     IF ConsoleMode THEN
         PRINT
@@ -13111,7 +13331,8 @@ END IF
 
 IF ideerror THEN 'error happened inside the IDE
     fh = FREEFILE
-    OPEN "internal\temp\ideerror.txt" FOR OUTPUT AS #fh
+    OPEN "internal\temp\ideerror.txt" FOR APPEND AS #fh
+    PRINT #fh, DATE$; TIME$; "--------------------"
     PRINT #fh, ERR
     PRINT #fh, _ERRORMESSAGE$
     PRINT #fh, _ERRORLINE
@@ -13668,7 +13889,7 @@ FUNCTION allocarray (n2$, elements$, elementsize, udt)
             'REDIM (not DIM) must be used to redefine an array
             IF redimoption = 0 THEN
                 f12$ = f12$ + CRLF + "if (" + n$ + "[2]&1){" 'array is defined
-                f12$ = f12$ + CRLF + "error(10);" 'cannot redefine an array without using REDIM!
+                f12$ = f12$ + CRLF + "if (!error_occurred) error(10);" 'cannot redefine an array without using REDIM!
                 f12$ = f12$ + CRLF + "}else{"
             ELSE
                 '--------ERASE EXISTING ARRAY IF NECESSARY--------
@@ -13945,7 +14166,7 @@ END FUNCTION
 
 FUNCTION arrayreference$ (indexes$, typ)
     arrayprocessinghappened = 1
-    '*returns an array reference: idnumber CHR$(179) index$
+    '*returns an array reference: idnumber | index$
     '*does not take into consideration the type of the array
 
     '*expects array id to be passed in the global id structure
@@ -14082,10 +14303,128 @@ SUB clearid
     id = cleariddata
 END SUB
 
+SUB vWatchVariable (this$, action AS _BYTE)
+    STATIC totalLocalVariables AS LONG, localVariablesList$
+    STATIC totalMainModuleVariables AS LONG, mainModuleVariablesList$
+
+    SELECT CASE action
+        CASE -1 'reset
+            totalLocalVariables = 0
+            localVariablesList$ = ""
+            totalMainModuleVariables = 0
+            mainModuleVariablesList$ = ""
+        CASE 0 'add
+            IF INSTR(vWatchVariableExclusions$, "@" + this$ + "@") > 0 OR LEFT$(this$, 12) = "_SUB_VWATCH_" THEN
+                EXIT SUB
+            END IF
+
+            vWatchNewVariable$ = this$
+            IF subfunc = "" THEN
+                totalMainModuleVariables = totalMainModuleVariables + 1
+                mainModuleVariablesList$ = mainModuleVariablesList$ + "vwatch_global_vars[" + str2$(totalMainModuleVariables - 1) + "] = &" + this$ + ";" + CRLF
+                manageVariableList id.cn, this$, totalMainModuleVariables - 1, 0
+            ELSE
+                totalLocalVariables = totalLocalVariables + 1
+                localVariablesList$ = localVariablesList$ + "vwatch_local_vars[" + str2$(totalLocalVariables - 1) + "] = &" + this$ + ";" + CRLF
+                manageVariableList id.cn, this$, totalLocalVariables - 1, 0
+            END IF
+        CASE 1 'dump to data[].txt & reset
+            IF subfunc = "" THEN
+                IF totalMainModuleVariables > 0 THEN
+                    PRINT #13, "void *vwatch_local_vars[0];"
+                    PRINT #18, "void *vwatch_global_vars["; totalMainModuleVariables; "];"
+                    PRINT #13, mainModuleVariablesList$
+                ELSE
+                    PRINT #13, "void *vwatch_local_vars[0];"
+                    PRINT #18, "void *vwatch_global_vars[0];"
+                END IF
+
+                mainModuleVariablesList$ = ""
+                totalMainModuleVariables = 0
+            ELSE
+                IF subfunc <> "SUB_VWATCH" THEN
+                    IF totalLocalVariables > 0 THEN
+                        PRINT #13, "void *vwatch_local_vars["; (totalLocalVariables); "];"
+                        PRINT #13, localVariablesList$
+                    ELSE
+                        PRINT #13, "void *vwatch_local_vars[0];"
+                    END IF
+                ELSE
+                    PRINT #13, "void *vwatch_local_vars[0];"
+                END IF
+
+                localVariablesList$ = ""
+                totalLocalVariables = 0
+            END IF
+    END SELECT
+END SUB
+
+SUB vWatchAddLabel (this AS LONG, lastLine AS _BYTE)
+    STATIC prevLabel AS LONG, prevSkip AS LONG
+
+    IF lastLine = 0 THEN
+        WHILE this > LEN(vWatchUsedLabels)
+            vWatchUsedLabels = vWatchUsedLabels + SPACE$(1000)
+            vWatchUsedSkipLabels = vWatchUsedSkipLabels + SPACE$(1000)
+        WEND
+
+        IF firstLineNumberLabelvWatch = 0 THEN
+            firstLineNumberLabelvWatch = this
+        ELSE
+            IF prevSkip <> prevLabel THEN
+                ASC(vWatchUsedSkipLabels, prevLabel) = 1
+                PRINT #12, "VWATCH_SKIPLABEL_" + str2$(prevLabel) + ":;"
+                prevSkip = prevLabel
+            END IF
+        END IF
+
+        IF prevLabel <> this THEN
+            ASC(vWatchUsedLabels, this) = 1
+            PRINT #12, "VWATCH_LABEL_" + str2$(this) + ":;"
+            prevLabel = this
+            lastLineNumberLabelvWatch = this
+        END IF
+    ELSE
+        IF prevSkip <> prevLabel THEN
+            ASC(vWatchUsedSkipLabels, prevLabel) = 1
+            PRINT #12, "VWATCH_SKIPLABEL_" + str2$(prevLabel) + ":;"
+            prevSkip = prevLabel
+        END IF
+    END IF
+END SUB
+
 SUB closemain
     xend
 
     PRINT #12, "return;"
+
+    IF vWatchOn AND firstLineNumberLabelvWatch > 0 THEN
+        PRINT #12, "VWATCH_SETNEXTLINE:;"
+        PRINT #12, "switch (*__LONG_VWATCH_GOTO) {"
+        FOR i = firstLineNumberLabelvWatch TO lastLineNumberLabelvWatch
+            IF ASC(vWatchUsedLabels, i) = 1 THEN
+                PRINT #12, "    case " + str2$(i) + ":"
+                PRINT #12, "        goto VWATCH_LABEL_" + str2$(i) + ";"
+                PRINT #12, "        break;"
+            END IF
+        NEXT
+        PRINT #12, "    default:"
+        PRINT #12, "        *__LONG_VWATCH_GOTO=*__LONG_VWATCH_LINENUMBER;"
+        PRINT #12, "        goto VWATCH_SETNEXTLINE;"
+        PRINT #12, "}"
+
+        PRINT #12, "VWATCH_SKIPLINE:;"
+        PRINT #12, "switch (*__LONG_VWATCH_GOTO) {"
+        FOR i = firstLineNumberLabelvWatch TO lastLineNumberLabelvWatch
+            IF ASC(vWatchUsedSkipLabels, i) = 1 THEN
+                PRINT #12, "    case -" + str2$(i) + ":"
+                PRINT #12, "        goto VWATCH_SKIPLABEL_" + str2$(i) + ";"
+                PRINT #12, "        break;"
+            END IF
+        NEXT
+        PRINT #12, "}"
+
+    END IF
 
     PRINT #12, "}"
     PRINT #15, "}" 'end case
@@ -14093,7 +14432,7 @@ SUB closemain
     PRINT #15, "error(3);" 'no valid return possible
 
     closedmain = 1
-
+    firstLineNumberLabelvWatch = 0
 END SUB
 
 FUNCTION countelements (a$)
@@ -14220,6 +14559,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 id.arrayelements = nume
                 id.callname = n$
                 regid
+                vWatchVariable n$, 0
                 IF Error_Happened THEN EXIT FUNCTION
                 GOTO dim2exitfunc
             END IF
@@ -14256,7 +14596,9 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                     PRINT #13, "}"
                 END IF
             END IF
+            id.callname = n$
             regid
+            vWatchVariable n$, 0
             IF Error_Happened THEN EXIT FUNCTION
             GOTO dim2exitfunc
         END IF
@@ -14390,6 +14732,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
                 END IF
                 regid
                 IF Error_Happened THEN EXIT FUNCTION
+                vWatchVariable n$, 0
                 GOTO dim2exitfunc
             END IF
 
@@ -14422,7 +14765,9 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             IF method = 1 THEN
                 id.musthave = "$" + str2(bytes)
             END IF
+            id.callname = n$
             regid
+            vWatchVariable n$, 0
             IF Error_Happened THEN EXIT FUNCTION
             GOTO dim2exitfunc
         END IF
@@ -14489,6 +14834,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             END IF
             regid
             IF Error_Happened THEN EXIT FUNCTION
+            vWatchVariable n$, 0
             GOTO dim2exitfunc
         END IF
 
@@ -14512,7 +14858,9 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             id.musthave = "$"
         END IF
+        id.callname = n$
         regid
+        vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
         GOTO dim2exitfunc
     END IF
@@ -14522,10 +14870,10 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             IF LEFT$(typ$, 7) <> "_BIT * " AND LEFT$(typ$, 6) <> "BIT * " THEN Give_Error "Expected " + qb64prefix$ + "BIT * number": EXIT FUNCTION
             c$ = MID$(typ$, INSTR(typ$, " * ") + 3)
             IF isuinteger(c$) = 0 THEN Give_Error "Number expected after *": EXIT FUNCTION
-            IF LEN(c$) > 2 THEN Give_Error "Too many characters in number after *": EXIT FUNCTION
+            IF LEN(c$) > 2 THEN Give_Error "Cannot create a bit variable of size > 64 bits": EXIT FUNCTION
             bits = VAL(c$)
             IF bits = 0 THEN Give_Error "Cannot create a bit variable of size 0 bits": EXIT FUNCTION
-            IF bits > 57 THEN Give_Error "Cannot create a bit variable of size > 24 bits": EXIT FUNCTION
+            IF bits > 64 THEN Give_Error "Cannot create a bit variable of size > 64 bits": EXIT FUNCTION
         ELSE
             bits = 1
         END IF
@@ -14535,6 +14883,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
 
         'array of bit-length variables
         IF elements$ <> "" THEN
+            IF bits > 63 THEN Give_Error "Cannot create a bit array of size > 63 bits": EXIT FUNCTION
             arraydesc = 0
             cmps$ = varname$: IF unsgn THEN cmps$ = cmps$ + "~"
             cmps$ = cmps$ + "`" + str2(bits)
@@ -14595,6 +14944,7 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
             END IF
             regid
             IF Error_Happened THEN EXIT FUNCTION
+            vWatchVariable n$, 0
             GOTO dim2exitfunc
         END IF
         'standard bit-length variable
@@ -14615,7 +14965,9 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             IF unsgn THEN id.musthave = "~`" + str2(bits) ELSE id.musthave = "`" + str2(bits)
         END IF
+        id.callname = n$
         regid
+        vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
         GOTO dim2exitfunc
     END IF
@@ -14700,7 +15052,9 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             IF unsgn THEN id.musthave = "~%%" ELSE id.musthave = "%%"
         END IF
+        id.callname = n$
         regid
+        vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
         GOTO dim2exitfunc
     END IF
@@ -14782,7 +15136,9 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             IF unsgn THEN id.musthave = "~%" ELSE id.musthave = "%"
         END IF
+        id.callname = n$
         regid
+        vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
         GOTO dim2exitfunc
     END IF
@@ -14869,7 +15225,9 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             IF unsgn THEN id.musthave = "~%&" ELSE id.musthave = "%&"
         END IF
+        id.callname = n$
         regid
+        vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
         GOTO dim2exitfunc
     END IF
@@ -14953,7 +15311,9 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             IF unsgn THEN id.musthave = "~&" ELSE id.musthave = "&"
         END IF
+        id.callname = n$
         regid
+        vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
         GOTO dim2exitfunc
     END IF
@@ -15037,7 +15397,9 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             IF unsgn THEN id.musthave = "~&&" ELSE id.musthave = "&&"
         END IF
+        id.callname = n$
         regid
+        vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
         GOTO dim2exitfunc
     END IF
@@ -15121,7 +15483,9 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             id.musthave = "!"
         END IF
+        id.callname = n$
         regid
+        vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
         GOTO dim2exitfunc
     END IF
@@ -15203,7 +15567,9 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             id.musthave = "#"
         END IF
+        id.callname = n$
         regid
+        vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
         GOTO dim2exitfunc
     END IF
@@ -15285,7 +15651,9 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
         IF method = 1 THEN
             id.musthave = "##"
         END IF
+        id.callname = n$
         regid
+        vWatchVariable n$, 0
         IF Error_Happened THEN EXIT FUNCTION
         GOTO dim2exitfunc
     END IF
@@ -15293,9 +15661,6 @@ FUNCTION dim2 (varname$, typ2$, method, elements$)
     Give_Error "Unknown type": EXIT FUNCTION
     dim2exitfunc:
 
-    IF bypassNextVariable = 0 THEN
-        manageVariableList cvarname$, n$, 0
-    END IF
     bypassNextVariable = 0
 
     IF dimsfarray THEN
@@ -15386,7 +15751,7 @@ FUNCTION udtreference$ (o$, a$, typ AS LONG)
         GOTO udtfindelenext
     END IF
 
-    'Change e reference to u CHR$(179) 0 reference?
+    'Change e reference to u | 0 reference?
     IF udtetype(E) AND ISUDT THEN
         u = udtetype(E) AND 511
         E = 0
@@ -15886,6 +16251,7 @@ FUNCTION evaluate$ (a2$, typ AS LONG)
                     IF optionexplicit THEN Give_Error "Variable '" + x$ + "' (" + symbol2fulltypename$(typ$) + ") not defined": EXIT FUNCTION
                     bypassNextVariable = -1
                     retval = dim2(x$, typ$, 1, "")
+                    manageVariableList "", vWatchNewVariable$, 0, 3
                     IF Error_Happened THEN EXIT FUNCTION
 
                     simplevarfound:
@@ -16271,6 +16637,12 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
     targetid = currentid
 
     IF RTRIM$(id2.callname) = "func_stub" THEN Give_Error "Command not implemented": EXIT FUNCTION
+    IF RTRIM$(id2.callname) = "func_input" AND args = 1 AND inputfunctioncalled = 0 THEN
+        inputfunctioncalled = -1
+        IF vWatchOn = 1 THEN
+            PRINT #12, "*__LONG_VWATCH_LINENUMBER= -4; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);"
+        END IF
+    END IF
 
     SetDependency id2.Dependency
 
@@ -16294,7 +16666,14 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
         NEXT
         omitargs = omitarg_last - omitarg_first + 1
 
-        IF args <> id2.args - omitargs AND args <> id2.args THEN Give_Error "Incorrect number of arguments passed to function": EXIT FUNCTION
+        IF args <> id2.args - omitargs AND args <> id2.args THEN
+            IF LEN(id2.hr_syntax) > 0 THEN
+                Give_Error "Incorrect number of arguments - Reference: " + id2.hr_syntax
+            ELSE
+                Give_Error "Incorrect number of arguments passed to function"
+            END IF
+            EXIT FUNCTION
+        END IF
 
         passomit = 1 'pass omit flags param to function
 
@@ -16305,7 +16684,14 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
         IF n$ = "ASC" AND args = 2 THEN GOTO skipargnumchk
         IF id2.overloaded = -1 AND (args >= id2.minargs AND args <= id2.args) THEN GOTO skipargnumchk
 
-        IF id2.args <> args THEN Give_Error "Incorrect number of arguments passed to function": EXIT FUNCTION
+        IF id2.args <> args THEN
+            IF LEN(id2.hr_syntax) > 0 THEN
+                Give_Error "Incorrect number of arguments - Reference: " + id2.hr_syntax
+            ELSE
+                Give_Error "Incorrect number of arguments passed to function"
+            END IF
+            EXIT FUNCTION
+        END IF
 
     END IF
 
@@ -16560,6 +16946,35 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                     GOTO evalfuncspecial
                 END IF
 
+
+                '*special case*
+                IF n$ = "_BIN" OR (n$ = "BIN" AND qb64prefix_set = 1) THEN
+                    IF RTRIM$(id2.musthave) = "$" THEN
+                        bits = sourcetyp AND 511
+
+                        IF (sourcetyp AND ISSTRING) THEN Give_Error "Expected numeric value": EXIT FUNCTION
+                        wasref = 0
+                        IF (sourcetyp AND ISREFERENCE) THEN e$ = refer(e$, sourcetyp, 0): wasref = 1
+                        IF Error_Happened THEN EXIT FUNCTION
+                        bits = sourcetyp AND 511
+                        IF (sourcetyp AND ISOFFSETINBITS) THEN
+                            e$ = "func__bin(" + e$ + "," + str2$(bits) + ")"
+                        ELSE
+                            IF (sourcetyp AND ISFLOAT) THEN
+                                e$ = "func__bin_float(" + e$ + ")"
+                            ELSE
+                                IF bits = 64 THEN
+                                    IF wasref = 0 THEN bits = 0
+                                END IF
+                                e$ = "func__bin(" + e$ + "," + str2$(bits) + ")"
+                            END IF
+                        END IF
+                        typ& = STRINGTYPE - ISPOINTER
+                        r$ = e$
+                        GOTO evalfuncspecial
+                    END IF
+                END IF
+
                 '*special case*
                 IF n$ = "OCT" THEN
                     IF RTRIM$(id2.musthave) = "$" THEN
@@ -16587,8 +17002,6 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                         GOTO evalfuncspecial
                     END IF
                 END IF
-
-
 
                 '*special case*
                 IF n$ = "HEX" THEN
@@ -16620,13 +17033,6 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                         GOTO evalfuncspecial
                     END IF
                 END IF
-
-
-
-
-
-
-
 
 
                 '*special case*
@@ -16795,7 +17201,7 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                 IF n$ = "_MK" OR (n$ = "MK" AND qb64prefix_set = 1) THEN mktype = -1
                 IF mktype THEN
                     IF mktype <> -1 OR curarg = 2 THEN
-                        IF (sourcetyp AND ISOFFSET) THEN Give_Error "Cannot convert " + qb64prefix$ + "OFFSET type to other types": EXIT FUNCTION
+                        'IF (sourcetyp AND ISOFFSET) THEN Give_Error "Cannot convert " + qb64prefix$ + "OFFSET type to other types": EXIT FUNCTION
                         'both _MK and trad. process the following
                         qtyp& = 0
                         IF mktype$ = "%%" THEN ctype$ = "b": qtyp& = BYTETYPE - ISPOINTER
@@ -16809,6 +17215,8 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                         IF mktype$ = "!" THEN ctype$ = "s": qtyp& = SINGLETYPE - ISPOINTER
                         IF mktype$ = "#" THEN ctype$ = "d": qtyp& = DOUBLETYPE - ISPOINTER
                         IF mktype$ = "##" THEN ctype$ = "f": qtyp& = FLOATTYPE - ISPOINTER
+                        IF mktype$ = "%&" THEN ctype$ = "o": qtyp& = OFFSETTYPE - ISPOINTER
+                        IF mktype$ = "~%&" THEN ctype$ = "uo": qtyp& = UOFFSETTYPE - ISPOINTER
                         IF LEFT$(mktype$, 2) = "~`" THEN ctype$ = "ubit": qtyp& = UINTEGER64TYPE - ISPOINTER: size = VAL(RIGHT$(mktype$, LEN(mktype$) - 2))
                         IF LEFT$(mktype$, 1) = "`" THEN ctype$ = "bit": qtyp& = INTEGER64TYPE - ISPOINTER: size = VAL(RIGHT$(mktype$, LEN(mktype$) - 1))
                         IF qtyp& = 0 THEN Give_Error qb64prefix$ + "MK only accepts numeric types": EXIT FUNCTION
@@ -16846,6 +17254,8 @@ FUNCTION evaluatefunc$ (a2$, args AS LONG, typ AS LONG)
                         IF cvtype$ = "!" THEN ctype$ = "s": typ& = SINGLETYPE - ISPOINTER
                         IF cvtype$ = "#" THEN ctype$ = "d": typ& = DOUBLETYPE - ISPOINTER
                         IF cvtype$ = "##" THEN ctype$ = "f": typ& = FLOATTYPE - ISPOINTER
+                        IF cvtype$ = "%&" THEN ctype$ = "o": typ& = OFFSETTYPE - ISPOINTER
+                        IF cvtype$ = "~%&" THEN ctype$ = "uo": typ& = UOFFSETTYPE - ISPOINTER
                         IF LEFT$(cvtype$, 2) = "~`" THEN ctype$ = "ubit": typ& = UINTEGER64TYPE - ISPOINTER: size = VAL(RIGHT$(cvtype$, LEN(cvtype$) - 2))
                         IF LEFT$(cvtype$, 1) = "`" THEN ctype$ = "bit": typ& = INTEGER64TYPE - ISPOINTER: size = VAL(RIGHT$(cvtype$, LEN(cvtype$) - 1))
                         IF typ& = 0 THEN Give_Error qb64prefix$ + "CV cannot return STRING type!": EXIT FUNCTION
@@ -17701,6 +18111,11 @@ FUNCTION evaluatetotyp$ (a2$, targettyp AS LONG)
                 IF (udtetype(E) AND ISSTRING) > 0 AND (udtetype(E) AND ISFIXEDLENGTH) = 0 AND (targettyp = -5) THEN
                     evaluatetotyp$ = "(*(qbs**)" + dst$ + ")->len"
                     EXIT FUNCTION
+                ELSEIF (udtetype(E) AND ISSTRING) > 0 AND (udtetype(E) AND ISFIXEDLENGTH) = 0 AND (targettyp = -4) THEN
+                    dst$ = "(*((qbs**)((char*)" + scope$ + n$ + "+(" + o$ + "))))->chr"
+                    bytes$ = "(*((qbs**)((char*)" + scope$ + n$ + "+(" + o$ + "))))->len"
+                    evaluatetotyp$ = "byte_element((uint64)" + dst$ + "," + bytes$ + "," + NewByteElement$ + ")"
+                    EXIT FUNCTION
                 END IF
                 bytes$ = str2(udtesize(E) \ 8)
             END IF
@@ -18222,7 +18637,7 @@ FUNCTION findid& (n2$)
         '''    END IF 'safeguard
     END IF
 
-    'optomizations for later comparisons
+    'optimizations for later comparisons
     insf$ = subfunc + SPACE$(256 - LEN(subfunc))
     secondarg$ = secondarg$ + SPACE$(256 - LEN(secondarg$))
     IF LEN(sc$) THEN scpassed = 1: sc$ = sc$ + SPACE$(8 - LEN(sc$)) ELSE scpassed = 0
@@ -18241,7 +18656,7 @@ FUNCTION findid& (n2$)
         hashretry:
         z = HashFindCont(unrequired, i)
     ELSE
-        z = HashFindRev(n$, 1, unrequired, i)
+        z = HashFind(n$, 1, unrequired, i)
     END IF
     findidinternal = z
     IF z = 0 THEN GOTO noid
@@ -18326,31 +18741,8 @@ FUNCTION findid& (n2$)
     id = ids(i)
 
     t = id.t
-    IF t = 0 THEN
-        t = id.arraytype
-        IF t AND ISUDT THEN
-            manageVariableList "", scope$ + "ARRAY_UDT_" + RTRIM$(id.n), 1
-        ELSE
-            n$ = id2shorttypename$
-            IF LEFT$(n$, 1) = "_" THEN
-                manageVariableList "", scope$ + "ARRAY" + n$ + "_" + RTRIM$(id.n), 2
-            ELSE
-                manageVariableList "", scope$ + "ARRAY_" + n$ + "_" + RTRIM$(id.n), 3
-            END IF
-        END IF
-    ELSE
-        IF t AND ISUDT THEN
-            manageVariableList "", scope$ + "UDT_" + RTRIM$(id.n), 4
-        ELSE
-            n$ = id2shorttypename$
-            IF LEFT$(n$, 1) = "_" THEN
-                manageVariableList "", scope$ + MID$(n$, 2) + "_" + RTRIM$(id.n), 5
-            ELSE
-                manageVariableList "", scope$ + n$ + "_" + RTRIM$(id.n), 6
-            END IF
-        END IF
-    END IF
-
+    temp$ = refer$(str2$(i), t, 1)
+    manageVariableList "", temp$, 0, 1
     currentid = i
     EXIT FUNCTION
 
@@ -18456,6 +18848,8 @@ END FUNCTION
 
 
 FUNCTION fixoperationorder$ (savea$)
+    STATIC uboundlbound AS _BYTE
+
     a$ = savea$
     IF Debug THEN PRINT #9, "fixoperationorder:in:" + a$
 
@@ -18464,6 +18858,7 @@ FUNCTION fixoperationorder$ (savea$)
     n = numelements(a$) 'n is maintained throughout function
 
     IF fooindwel = 1 THEN 'actions to take on initial call only
+        uboundlbound = 0
 
         'Quick check for duplicate binary operations
         uppercasea$ = UCASE$(a$) 'capitalize it once to reduce calls to ucase over and over
@@ -19088,7 +19483,9 @@ FUNCTION fixoperationorder$ (savea$)
 
                             IF Debug THEN PRINT #9, "found id matching " + f2$
 
-                            IF nextc = 40 THEN '(
+                            IF nextc = 40 OR uboundlbound <> 0 THEN '(
+
+                                uboundlbound = 0
 
                                 'function or array?
                                 IF id.arraytype <> 0 OR id.subfunc = 1 THEN
@@ -19100,6 +19497,9 @@ FUNCTION fixoperationorder$ (savea$)
                                     IF Error_Happened THEN EXIT FUNCTION
                                     IF id.internal_subfunc THEN
                                         f2$ = SCase$(RTRIM$(id.cn)) + s$
+                                        IF (UCASE$(f2$) = "UBOUND" OR UCASE$(f2$) = "LBOUND") THEN
+                                            uboundlbound = 2
+                                        END IF
                                     ELSE
                                         f2$ = RTRIM$(id.cn) + s$
                                     END IF
@@ -19306,6 +19706,7 @@ FUNCTION fixoperationorder$ (savea$)
         END IF
 
         IF c = 41 OR c = 125 THEN ')}
+            IF uboundlbound THEN uboundlbound = uboundlbound - 1
             b = b - 1
 
             IF b = 0 THEN
@@ -19551,7 +19952,7 @@ FUNCTION isvalidvariable (a$)
     NEXT
 
     isvalidvariable = 1
-    IF i > n THEN EXIT FUNCTION
+    IF i > n THEN EXIT FUNCTION 'i is always greater than n because n is undefined here. Why didn't I remove this line and the ones below it, which will never run? Cause I'm a coward. F.h.
     e$ = RIGHT$(a$, LEN(a$) - i - 1)
     IF e$ = "%%" OR e$ = "~%%" THEN EXIT FUNCTION
     IF e$ = "%" OR e$ = "~%" THEN EXIT FUNCTION
@@ -20884,7 +21285,7 @@ SUB regid
                             IF INSTR(ids(currentid).mayhave, "$") = 0 THEN allow = 1
                         END IF
                     END IF
-                    IF allow = 0 THEN Give_Error "Name already in use": EXIT SUB
+                    IF allow = 0 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                 END IF 'hashres
                 IF hashres <> 1 THEN hashres = HashFindCont(hashresflags, hashresref) ELSE hashres = 0
             LOOP
@@ -20915,35 +21316,35 @@ SUB regid
                         'All reserved words can be used as variables in QBASIC if "$" is appended to the variable name!
                         '(allow)
                     ELSE
-                        Give_Error "Name already in use": EXIT SUB 'Conflicts with reserved word
+                        Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'Conflicts with reserved word
                     END IF
                 END IF 'HASHFLAG_RESERVED
 
                 'conflict with sub/function?
                 IF hashresflags AND (HASHFLAG_FUNCTION + HASHFLAG_SUB) THEN
-                    IF ids(hashresref).internal_subfunc = 0 THEN Give_Error "Name already in use": EXIT SUB 'QBASIC doesn't allow a variable of the same name as a user-defined sub/func
+                    IF ids(hashresref).internal_subfunc = 0 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'QBASIC doesn't allow a variable of the same name as a user-defined sub/func
                     IF RTRIM$(id.n) = "WIDTH" AND ids(hashresref).subfunc = 2 THEN GOTO varname_exception
                     musthave$ = RTRIM$(id.musthave)
                     IF LEN(musthave$) = 0 THEN
                         IF RTRIM$(ids(hashresref).musthave) = "$" THEN
                             'a sub/func requiring "$" can co-exist with implicit numeric variables
-                            IF INSTR(id.mayhave, "$") THEN Give_Error "Name already in use": EXIT SUB
+                            IF INSTR(id.mayhave, "$") THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                         ELSE
-                            Give_Error "Name already in use": EXIT SUB 'Implicitly defined variables cannot conflict with sub/func names
+                            Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'Implicitly defined variables cannot conflict with sub/func names
                         END IF
                     END IF 'len(musthave$)=0
                     IF INSTR(musthave$, "$") THEN
-                        IF RTRIM$(ids(hashresref).musthave) = "$" THEN Give_Error "Name already in use": EXIT SUB 'A sub/function name already exists as a string
+                        IF RTRIM$(ids(hashresref).musthave) = "$" THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'A sub/function name already exists as a string
                         '(allow)
                     ELSE
-                        IF RTRIM$(ids(hashresref).musthave) <> "$" THEN Give_Error "Name already in use": EXIT SUB 'A non-"$" sub/func name already exists with this name
+                        IF RTRIM$(ids(hashresref).musthave) <> "$" THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'A non-"$" sub/func name already exists with this name
                     END IF
                 END IF 'HASHFLAG_FUNCTION + HASHFLAG_SUB
 
                 'conflict with constant?
                 IF hashresflags AND HASHFLAG_CONSTANT THEN
                     scope1 = constsubfunc(hashresref)
-                    IF (scope1 = 0 AND AllowLocalName = 0) OR scope1 = scope2 THEN Give_Error "Name already in use": EXIT SUB
+                    IF (scope1 = 0 AND AllowLocalName = 0) OR scope1 = scope2 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                 END IF
 
                 'conflict with variable?
@@ -20951,12 +21352,12 @@ SUB regid
                     astype1 = 0: IF ASC(ids(hashresref).musthave) = 32 THEN astype1 = 1
                     scope1 = ids(hashresref).insubfuncn
                     IF astype1 = 1 AND astype2 = 1 THEN
-                        IF scope1 = scope2 THEN Give_Error "Name already in use": EXIT SUB
+                        IF scope1 = scope2 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                     END IF
                     'same type?
                     IF id.t = ids(hashresref).t THEN
                         IF id.tsize = ids(hashresref).tsize THEN
-                            IF scope1 = scope2 THEN Give_Error "Name already in use": EXIT SUB
+                            IF scope1 = scope2 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                         END IF
                     END IF
                     'will astype'd fixed STRING-variable mask a non-fixed string?
@@ -20964,7 +21365,7 @@ SUB regid
                         IF astype2 = 1 THEN
                             IF ids(hashresref).t AND ISSTRING THEN
                                 IF (ids(hashresref).t AND ISFIXEDLENGTH) = 0 THEN
-                                    IF scope1 = scope2 THEN Give_Error "Name already in use": EXIT SUB
+                                    IF scope1 = scope2 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                                 END IF
                             END IF
                         END IF
@@ -20995,29 +21396,29 @@ SUB regid
                     'All reserved words can be used as variables in QBASIC if "$" is appended to the variable name!
                     '(allow)
                 ELSE
-                    Give_Error "Name already in use": EXIT SUB 'Conflicts with reserved word
+                    Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'Conflicts with reserved word
                 END IF
             END IF 'HASHFLAG_RESERVED
 
             'conflict with sub/function?
             IF hashresflags AND (HASHFLAG_FUNCTION + HASHFLAG_SUB) THEN
-                IF ids(hashresref).internal_subfunc = 0 THEN Give_Error "Name already in use": EXIT SUB 'QBASIC doesn't allow a variable of the same name as a user-defined sub/func
+                IF ids(hashresref).internal_subfunc = 0 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'QBASIC doesn't allow a variable of the same name as a user-defined sub/func
                 IF RTRIM$(id.n) = "WIDTH" AND ids(hashresref).subfunc = 2 THEN GOTO arrayname_exception
                 musthave$ = RTRIM$(id.musthave)
 
                 IF LEN(musthave$) = 0 THEN
                     IF RTRIM$(ids(hashresref).musthave) = "$" THEN
                         'a sub/func requiring "$" can co-exist with implicit numeric variables
-                        IF INSTR(id.mayhave, "$") THEN Give_Error "Name already in use": EXIT SUB
+                        IF INSTR(id.mayhave, "$") THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                     ELSE
-                        Give_Error "Name already in use": EXIT SUB 'Implicitly defined variables cannot conflict with sub/func names
+                        Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'Implicitly defined variables cannot conflict with sub/func names
                     END IF
                 END IF 'len(musthave$)=0
                 IF INSTR(musthave$, "$") THEN
-                    IF RTRIM$(ids(hashresref).musthave) = "$" THEN Give_Error "Name already in use": EXIT SUB 'A sub/function name already exists as a string
+                    IF RTRIM$(ids(hashresref).musthave) = "$" THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'A sub/function name already exists as a string
                     '(allow)
                 ELSE
-                    IF RTRIM$(ids(hashresref).musthave) <> "$" THEN Give_Error "Name already in use": EXIT SUB 'A non-"$" sub/func name already exists with this name
+                    IF RTRIM$(ids(hashresref).musthave) <> "$" THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB 'A non-"$" sub/func name already exists with this name
                 END IF
             END IF 'HASHFLAG_FUNCTION + HASHFLAG_SUB
 
@@ -21026,12 +21427,12 @@ SUB regid
                 astype1 = 0: IF ASC(ids(hashresref).musthave) = 32 THEN astype1 = 1
                 scope1 = ids(hashresref).insubfuncn
                 IF astype1 = 1 AND astype2 = 1 THEN
-                    IF scope1 = scope2 THEN Give_Error "Name already in use": EXIT SUB
+                    IF scope1 = scope2 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                 END IF
                 'same type?
                 IF id.arraytype = ids(hashresref).arraytype THEN
                     IF id.tsize = ids(hashresref).tsize THEN
-                        IF scope1 = scope2 THEN Give_Error "Name already in use": EXIT SUB
+                        IF scope1 = scope2 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                     END IF
                 END IF
                 'will astype'd fixed STRING-variable mask a non-fixed string?
@@ -21039,7 +21440,7 @@ SUB regid
                     IF astype2 = 1 THEN
                         IF ids(hashresref).arraytype AND ISSTRING THEN
                             IF (ids(hashresref).arraytype AND ISFIXEDLENGTH) = 0 THEN
-                                IF scope1 = scope2 THEN Give_Error "Name already in use": EXIT SUB
+                                IF scope1 = scope2 THEN Give_Error "Name already in use (" + n$ + ")": EXIT SUB
                             END IF
                         END IF
                     END IF
@@ -21155,7 +21556,7 @@ FUNCTION symboltype (s$) 'returns type or 0(not a valid symbol)
         IF isuinteger(RIGHT$(s$, l - 1)) THEN
             IF l > 3 THEN EXIT FUNCTION
             n = VAL(RIGHT$(s$, l - 1))
-            IF n > 56 THEN EXIT FUNCTION
+            IF n > 64 THEN EXIT FUNCTION
             symboltype = n + ISOFFSETINBITS: EXIT FUNCTION
         END IF
         EXIT FUNCTION
@@ -21181,7 +21582,7 @@ FUNCTION symboltype (s$) 'returns type or 0(not a valid symbol)
             IF isuinteger(RIGHT$(s$, l - 2)) THEN
                 IF l > 4 THEN EXIT FUNCTION
                 n = VAL(RIGHT$(s$, l - 2))
-                IF n > 56 THEN EXIT FUNCTION
+                IF n > 64 THEN EXIT FUNCTION
                 symboltype = n + ISOFFSETINBITS + ISUNSIGNED: EXIT FUNCTION
             END IF
             EXIT FUNCTION
@@ -21886,7 +22287,6 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             directudt:
             IF u <> u2 OR e2 <> 0 THEN Give_Error "Expected = similar user defined type": EXIT SUB
             dst$ = "((char*)" + lhsscope$ + n$ + ")+(" + o$ + ")"
-
             copy_full_udt dst$, src$, 12, 0, u
 
             'print "setFULLUDTrefer!"
@@ -21923,7 +22323,6 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
         'print "setUDTrefer:"+r$,e$
         tlayout$ = tl$
         IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
-        manageVariableList "", scope$ + n$, 7
         EXIT SUB
     END IF
 
@@ -21958,7 +22357,6 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             PRINT #12, cleanupstringprocessingcall$ + "0);"
             tlayout$ = tl$
             IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
-            manageVariableList "", r$, 8
             EXIT SUB
         END IF
 
@@ -22034,7 +22432,6 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             IF arrayprocessinghappened THEN arrayprocessinghappened = 0
             tlayout$ = tl$
             IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
-            manageVariableList "", r$, 9
             EXIT SUB
         END IF
 
@@ -22066,7 +22463,6 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
             IF arrayprocessinghappened THEN arrayprocessinghappened = 0
             tlayout$ = tl$
             IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
-            manageVariableList "", r$, 10
             EXIT SUB
         END IF
 
@@ -22095,8 +22491,6 @@ SUB setrefer (a2$, typ2 AS LONG, e2$, method AS LONG)
         tlayout$ = tl$
 
         IF LEFT$(r$, 1) = "*" THEN r$ = MID$(r$, 2)
-        manageVariableList "", r$, 11
-
         EXIT SUB
     END IF 'variable
 
@@ -22140,7 +22534,7 @@ FUNCTION typ2ctyp$ (t AS LONG, tstr AS STRING)
             IF b = 16 THEN ctyp$ = "int16"
             IF b = 32 THEN ctyp$ = "int32"
             IF b = 64 THEN ctyp$ = "int64"
-            IF typ AND ISOFFSET THEN ctyp$ = "ptrszint"
+            IF t AND ISOFFSET THEN ctyp$ = "ptrszint"
             IF (t AND ISUNSIGNED) THEN ctyp$ = "u" + ctyp$
         END IF
         IF t AND ISOFFSET THEN
@@ -22162,7 +22556,7 @@ FUNCTION typ2ctyp$ (t AS LONG, tstr AS STRING)
         IF n$ <> "" THEN
             IF isuinteger(n$) = 0 THEN Give_Error "Invalid index after _BIT type": EXIT FUNCTION
             b = VAL(n$)
-            IF b > 57 THEN Give_Error "Invalid index after _BIT type": EXIT FUNCTION
+            IF b > 64 THEN Give_Error "Invalid index after _BIT type": EXIT FUNCTION
         END IF
         IF b <= 32 THEN ctyp$ = "int32" ELSE ctyp$ = "int64"
         IF unsgn THEN ctyp$ = "u" + ctyp$
@@ -22199,33 +22593,41 @@ FUNCTION type2symbol$ (typ$)
         IF MID$(t$, i, 1) = sp THEN MID$(t$, i, 1) = " "
     NEXT
     e$ = "Cannot convert type (" + typ$ + ") to symbol"
-    t2$ = "_UNSIGNED _BIT": s$ = "~`1": IF LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "_UNSIGNED _BYTE": s$ = "~%%": IF LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "_UNSIGNED INTEGER": s$ = "~%": IF LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "_UNSIGNED LONG": s$ = "~&": IF LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "_UNSIGNED _INTEGER64": s$ = "~&&": IF LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "_UNSIGNED _OFFSET": s$ = "~%&": IF LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "_BIT": s$ = "`1": IF LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "_BYTE": s$ = "%%": IF LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "INTEGER": s$ = "%": IF LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "LONG": s$ = "&": IF LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "_INTEGER64": s$ = "&&": IF LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "_OFFSET": s$ = "%&": IF LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "SINGLE": s$ = "!": IF LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "DOUBLE": s$ = "#": IF LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "_FLOAT": s$ = "##": IF LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "STRING": s$ = "$": IF LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "UNSIGNED BIT": s$ = "~`1": IF qb64prefix_set = 1 AND LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "UNSIGNED BYTE": s$ = "~%%": IF qb64prefix_set = 1 AND LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "UNSIGNED INTEGER": s$ = "~%": IF qb64prefix_set = 1 AND LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "UNSIGNED LONG": s$ = "~&": IF qb64prefix_set = 1 AND LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "UNSIGNED INTEGER64": s$ = "~&&": IF qb64prefix_set = 1 AND LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "UNSIGNED OFFSET": s$ = "~%&": IF qb64prefix_set = 1 AND LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "BIT": s$ = "`1": IF qb64prefix_set = 1 AND LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "BYTE": s$ = "%%": IF qb64prefix_set = 1 AND LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "INTEGER64": s$ = "&&": IF qb64prefix_set = 1 AND LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "OFFSET": s$ = "%&": IF qb64prefix_set = 1 AND LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
-    t2$ = "FLOAT": s$ = "##": IF qb64prefix_set = 1 AND LEFT$(t$, LEN(t2$)) = t2$ THEN GOTO t2sfound
+    t2$ = "_UNSIGNED _BIT": s$ = "~`1": IF t$ = t2$ THEN GOTO t2sfound
+    t2$ = "_UNSIGNED _BYTE": s$ = "~%%": IF t$ = t2$ THEN GOTO t2sfound
+    t2$ = "_UNSIGNED LONG": s$ = "~&": IF t$ = t2$ THEN GOTO t2sfound
+    t2$ = "_UNSIGNED _INTEGER64": s$ = "~&&": IF t$ = t2$ THEN GOTO t2sfound
+    t2$ = "_UNSIGNED INTEGER": s$ = "~%": IF t$ = t2$ THEN GOTO t2sfound
+    t2$ = "_UNSIGNED _OFFSET": s$ = "~%&": IF t$ = t2$ THEN GOTO t2sfound
+    t2$ = "_BIT": s$ = "`1": IF t$ = t2$ THEN GOTO t2sfound
+    t2$ = "_BYTE": s$ = "%%": IF t$ = t2$ THEN GOTO t2sfound
+    t2$ = "LONG": s$ = "&": IF t$ = t2$ THEN GOTO t2sfound
+    t2$ = "_INTEGER64": s$ = "&&": IF t$ = t2$ THEN GOTO t2sfound
+    t2$ = "_OFFSET": s$ = "%&": IF t$ = t2$ THEN GOTO t2sfound
+    t2$ = "SINGLE": s$ = "!": IF t$ = t2$ THEN GOTO t2sfound
+    t2$ = "DOUBLE": s$ = "#": IF t$ = t2$ THEN GOTO t2sfound
+    t2$ = "_FLOAT": s$ = "##": IF t$ = t2$ THEN GOTO t2sfound
+    t2$ = "STRING": s$ = "$": IF t$ = t2$ THEN GOTO t2sfound
+    t2$ = "UNSIGNED BIT": s$ = "~`1": IF qb64prefix_set = 1 AND t$ = t2$ THEN GOTO t2sfound
+    t2$ = "UNSIGNED BYTE": s$ = "~%%": IF qb64prefix_set = 1 AND t$ = t2$ THEN GOTO t2sfound
+    t2$ = "UNSIGNED LONG": s$ = "~&": IF qb64prefix_set = 1 AND t$ = t2$ THEN GOTO t2sfound
+    t2$ = "UNSIGNED INTEGER64": s$ = "~&&": IF qb64prefix_set = 1 AND t$ = t2$ THEN GOTO t2sfound
+    t2$ = "UNSIGNED INTEGER": s$ = "~%": IF qb64prefix_set = 1 AND t$ = t2$ THEN GOTO t2sfound
+    t2$ = "UNSIGNED OFFSET": s$ = "~%&": IF qb64prefix_set = 1 AND t$ = t2$ THEN GOTO t2sfound
+    t2$ = "UNSIGNED _BIT": s$ = "~`1": IF qb64prefix_set = 1 AND t$ = t2$ THEN GOTO t2sfound
+    t2$ = "UNSIGNED _BYTE": s$ = "~%%": IF qb64prefix_set = 1 AND t$ = t2$ THEN GOTO t2sfound
+    t2$ = "UNSIGNED _INTEGER64": s$ = "~&&": IF qb64prefix_set = 1 AND t$ = t2$ THEN GOTO t2sfound
+    t2$ = "UNSIGNED _OFFSET": s$ = "~%&": IF qb64prefix_set = 1 AND t$ = t2$ THEN GOTO t2sfound
+    t2$ = "_UNSIGNED BIT": s$ = "~`1": IF qb64prefix_set = 1 AND t$ = t2$ THEN GOTO t2sfound
+    t2$ = "_UNSIGNED BYTE": s$ = "~%%": IF qb64prefix_set = 1 AND t$ = t2$ THEN GOTO t2sfound
+    t2$ = "_UNSIGNED INTEGER64": s$ = "~&&": IF qb64prefix_set = 1 AND t$ = t2$ THEN GOTO t2sfound
+    t2$ = "_UNSIGNED OFFSET": s$ = "~%&": IF qb64prefix_set = 1 AND t$ = t2$ THEN GOTO t2sfound
+    t2$ = "BIT": s$ = "`1": IF qb64prefix_set = 1 AND t$ = t2$ THEN GOTO t2sfound
+    t2$ = "BYTE": s$ = "%%": IF qb64prefix_set = 1 AND t$ = t2$ THEN GOTO t2sfound
+    t2$ = "INTEGER64": s$ = "&&": IF qb64prefix_set = 1 AND t$ = t2$ THEN GOTO t2sfound
+    t2$ = "INTEGER": s$ = "%": IF t$ = t2$ THEN GOTO t2sfound
+    t2$ = "OFFSET": s$ = "%&": IF qb64prefix_set = 1 AND t$ = t2$ THEN GOTO t2sfound
+    t2$ = "FLOAT": s$ = "##": IF qb64prefix_set = 1 AND t$ = t2$ THEN GOTO t2sfound
     Give_Error e$: EXIT FUNCTION
     t2sfound:
     type2symbol$ = s$
@@ -22237,7 +22639,7 @@ FUNCTION type2symbol$ (typ$)
         IF isuinteger(t$) = 0 THEN Give_Error e$: EXIT FUNCTION
         v = VAL(t$)
         IF v = 0 THEN Give_Error e$: EXIT FUNCTION
-        IF s$ <> "$" AND v > 56 THEN Give_Error e$: EXIT FUNCTION
+        IF s$ <> "$" AND v > 64 THEN Give_Error e$: EXIT FUNCTION
         IF s$ = "$" THEN
             s$ = s$ + str2$(v)
         ELSE
@@ -22287,7 +22689,7 @@ FUNCTION typname2typ& (t2$)
         IF n$ <> "" THEN
             IF isuinteger(n$) = 0 THEN Give_Error "Invalid index after _BIT type": EXIT FUNCTION
             b = VAL(n$)
-            IF b > 56 THEN Give_Error "Invalid index after _BIT type": EXIT FUNCTION
+            IF b > 64 THEN Give_Error "Invalid index after _BIT type": EXIT FUNCTION
         END IF
         IF unsgn THEN typname2typ& = UBITTYPE + (b - 1) ELSE typname2typ& = BITTYPE + (b - 1)
         EXIT FUNCTION
@@ -22381,7 +22783,7 @@ FUNCTION typname2typ& (t2$)
         n$ = RIGHT$(t$, LEN(t$) - 7)
         IF isuinteger(n$) = 0 THEN Give_Error "Invalid size after " + qb64prefix$ + "BIT *": EXIT FUNCTION
         b = VAL(n$)
-        IF b = 0 OR b > 56 THEN Give_Error "Invalid size after " + qb64prefix$ + "BIT *": EXIT FUNCTION
+        IF b = 0 OR b > 64 THEN Give_Error "Invalid size after " + qb64prefix$ + "BIT *": EXIT FUNCTION
         t = BITTYPE - 1 + b: IF u THEN t = t + ISUNSIGNED
         typname2typ& = t
         EXIT FUNCTION
@@ -22550,8 +22952,10 @@ FUNCTION validlabel (LABEL2$)
 END FUNCTION
 
 SUB xend
-    IF vWatchOn = 1 AND NoChecks = 0 THEN
-        PRINT #12, "*__LONG_VWATCH_LINENUMBER= 0; SUB_VWATCH(__LONG_VWATCH_LINENUMBER);"
+    IF vWatchOn = 1 THEN
+        'check if closedmain = 0 in case a main module ends in an include.
+        IF (inclinenumber(inclevel) = 0 OR closedmain = 0) THEN vWatchAddLabel 0, -1
+        PRINT #12, "*__LONG_VWATCH_LINENUMBER= 0; SUB_VWATCH((ptrszint*)vwatch_global_vars,(ptrszint*)vwatch_local_vars);"
     END IF
     PRINT #12, "sub_end();"
 END SUB
@@ -23767,6 +24171,10 @@ FUNCTION id2fulltypename$
         IF bits = 64 THEN a$ = qb64prefix$ + "INTEGER64"
         IF t AND ISUNSIGNED THEN a$ = qb64prefix$ + "UNSIGNED " + a$
     END IF
+    IF t AND ISOFFSET THEN
+        a$ = qb64prefix$ + "OFFSET"
+        IF t AND ISUNSIGNED THEN a$ = qb64prefix$ + "UNSIGNED " + a$
+    END IF
     id2fulltypename$ = a$
 END FUNCTION
 
@@ -23978,9 +24386,9 @@ SUB Build (path$)
         c$ = GDB_Fix$(c$)
         IF use THEN
             IF os$ = "WIN" THEN
-                SHELL _HIDE "cmd /C " + c$ + " 2>> " + return_path$ + "\" + compilelog$
+                SHELL _HIDE "cmd /C " + c$ + " 2>> " + QuotedFilename$(return_path$ + "\" + compilelog$)
             ELSE
-                SHELL _HIDE c$ + " 2>> " + previous_dir$ + "/" + compilelog$
+                SHELL _HIDE c$ + " 2>> " + QuotedFilename$(previous_dir$ + "/" + compilelog$)
             END IF
         END IF
     LOOP
@@ -24630,26 +25038,6 @@ SUB PreParse (e$)
     LOOP UNTIL l = 0
     IF c <> c1 THEN e$ = "ERROR -- Bad Parenthesis:" + STR$(c) + "( vs" + STR$(c1) + ")": EXIT SUB
 
-    'Modify so that NOT will process properly
-    l = 0
-    DO
-        l = INSTR(l + 1, t$, "NOT")
-        IF l THEN
-            'We need to work magic on the statement so it looks pretty.
-            ' 1 + NOT 2 + 1 is actually processed as 1 + (NOT 2 + 1)
-            'Look for something not proper
-            l1 = INSTR(l + 1, t$, "AND")
-            IF l1 = 0 OR (INSTR(l + 1, t$, "OR") > 0 AND INSTR(l + 1, t$, "OR") < l1) THEN l1 = INSTR(l + 1, t$, "OR")
-            IF l1 = 0 OR (INSTR(l + 1, t$, "XOR") > 0 AND INSTR(l + 1, t$, "XOR") < l1) THEN l1 = INSTR(l + 1, t$, "XOR")
-            IF l1 = 0 OR (INSTR(l + 1, t$, "EQV") > 0 AND INSTR(l + 1, t$, "EQV") < l1) THEN l1 = INSTR(l + 1, t$, "EQV")
-            IF l1 = 0 OR (INSTR(l + 1, t$, "IMP") > 0 AND INSTR(l + 1, t$, "IMP") < l1) THEN l1 = INSTR(l + 1, t$, "IMP")
-            IF l1 = 0 THEN l1 = LEN(t$) + 1
-            t$ = LEFT$(t$, l - 1) + "(" + MID$(t$, l, l1 - l) + ")" + MID$(t$, l + l1 - l)
-            l = l + 3
-            'PRINT t$
-        END IF
-    LOOP UNTIL l = 0
-
     'replace existing CONST values
     sep$ = "()+-*/\><=^"
     FOR i2 = 0 TO constlast
@@ -24684,6 +25072,26 @@ SUB PreParse (e$)
             thisConstName$ = constname(i2) + constnamesymbol(i2)
         NEXT
     NEXT
+
+    'Modify so that NOT will process properly
+    l = 0
+    DO
+        l = INSTR(l + 1, t$, "NOT ")
+        IF l THEN
+            'We need to work magic on the statement so it looks pretty.
+            ' 1 + NOT 2 + 1 is actually processed as 1 + (NOT 2 + 1)
+            'Look for something not proper
+            l1 = INSTR(l + 1, t$, "AND")
+            IF l1 = 0 OR (INSTR(l + 1, t$, "OR") > 0 AND INSTR(l + 1, t$, "OR") < l1) THEN l1 = INSTR(l + 1, t$, "OR")
+            IF l1 = 0 OR (INSTR(l + 1, t$, "XOR") > 0 AND INSTR(l + 1, t$, "XOR") < l1) THEN l1 = INSTR(l + 1, t$, "XOR")
+            IF l1 = 0 OR (INSTR(l + 1, t$, "EQV") > 0 AND INSTR(l + 1, t$, "EQV") < l1) THEN l1 = INSTR(l + 1, t$, "EQV")
+            IF l1 = 0 OR (INSTR(l + 1, t$, "IMP") > 0 AND INSTR(l + 1, t$, "IMP") < l1) THEN l1 = INSTR(l + 1, t$, "IMP")
+            IF l1 = 0 THEN l1 = LEN(t$) + 1
+            t$ = LEFT$(t$, l - 1) + "(" + MID$(t$, l, l1 - l) + ")" + MID$(t$, l + l1 - l)
+            l = l + 3
+            'PRINT t$
+        END IF
+    LOOP UNTIL l = 0
 
     uboundPP_TypeMod = TotalPrefixedPP_TypeMod
     IF qb64prefix_set = 1 THEN uboundPP_TypeMod = TotalPP_TypeMod
@@ -25407,6 +25815,7 @@ FUNCTION EvalPreIF (text$, err$)
             NEXT
             leftside$ = RTRIM$(LEFT$(temp$, i))
             l$ = LTRIM$(RTRIM$(MID$(temp$, i + 1, LEN(l$) - i)))
+            IF validname(l$) = 0 THEN err$ = "Invalid flag name": EXIT FUNCTION
             rightstop = LEN(r$)
             FOR i = 1 TO LEN(r$)
                 IF ASC(r$, i) = 32 THEN EXIT FOR
@@ -25578,6 +25987,30 @@ SUB free_udt_varstrings (n$, udt, file, base_offset)
     LOOP
 END SUB
 
+SUB clear_udt_with_varstrings (n$, udt, file, base_offset)
+    IF NOT udtxvariable(udt) THEN EXIT SUB
+    element = udtxnext(udt)
+    offset = 0
+    DO WHILE element
+        IF udtetype(element) AND ISSTRING THEN
+            IF (udtetype(element) AND ISFIXEDLENGTH) = 0 THEN
+                PRINT #file, "(*(qbs**)(((char*)" + n$ + ")+" + STR$(base_offset + offset) + "))->len=0;"
+            ELSE
+                PRINT #file, "memset((char*)" + n$ + "+" + STR$(base_offset + offset) + ",0," + STR$(udtesize(element) \ 8) + ");"
+            END IF
+        ELSE
+            IF udtetype(element) AND ISUDT THEN
+                clear_udt_with_varstrings n$, udtetype(element) AND 511, file, base_offset + offset
+            ELSE
+                PRINT #file, "memset((char*)" + n$ + "+" + STR$(base_offset + offset) + ",0," + STR$(udtesize(element) \ 8) + ");"
+            END IF
+        END IF
+        offset = offset + udtesize(element) \ 8
+        element = udtenext(element)
+    LOOP
+END SUB
+
+
 SUB initialise_array_udt_varstrings (n$, udt, base_offset, bytesperelement$, acc$)
     IF NOT udtxvariable(udt) THEN EXIT SUB
     offset = base_offset
@@ -25646,9 +26079,12 @@ SUB dump_udts
     CLOSE #f
 END SUB
 
-SUB manageVariableList (name$, __cname$, action AS _BYTE)
-    DIM findItem AS LONG, cname$, i AS LONG
-    cname$ = __cname$
+SUB manageVariableList (__name$, __cname$, localIndex AS LONG, action AS _BYTE)
+    DIM findItem AS LONG, cname$, i AS LONG, j AS LONG, name$, temp$
+    name$ = RTRIM$(__name$)
+    cname$ = RTRIM$(__cname$)
+
+    IF LEN(cname$) = 0 THEN EXIT SUB
 
     findItem = INSTR(cname$, "[")
     IF findItem THEN
@@ -25666,7 +26102,12 @@ SUB manageVariableList (name$, __cname$, action AS _BYTE)
                 IF i > UBOUND(usedVariableList) THEN
                     REDIM _PRESERVE usedVariableList(UBOUND(usedVariableList) + 999) AS usedVarList
                 END IF
+
+                usedVariableList(i).id = currentid
                 usedVariableList(i).used = 0
+                usedVariableList(i).watch = 0
+                usedVariableList(i).displayFormat = 0
+                usedVariableList(i).storage = ""
                 usedVariableList(i).linenumber = linenumber
                 usedVariableList(i).includeLevel = inclevel
                 IF inclevel > 0 THEN
@@ -25675,12 +26116,62 @@ SUB manageVariableList (name$, __cname$, action AS _BYTE)
                     thisincname$ = MID$(incname$(inclevel), LEN(thisincname$) + 1)
                     usedVariableList(i).includedFile = thisincname$
                 ELSE
+                    totalMainVariablesCreated = totalMainVariablesCreated + 1
                     usedVariableList(i).includedLine = 0
                     usedVariableList(i).includedFile = ""
                 END IF
+                usedVariableList(i).scope = subfuncn
+                usedVariableList(i).subfunc = subfunc
+                usedVariableList(i).varType = id2fulltypename$
                 usedVariableList(i).cname = cname$
-                usedVariableList(i).name = name$
+                usedVariableList(i).localIndex = localIndex
+
+                'remove eventual instances of fix046$ in name$
+                DO WHILE INSTR(name$, fix046$)
+                    x = INSTR(name$, fix046$): name$ = LEFT$(name$, x - 1) + "." + RIGHT$(name$, LEN(name$) - x + 1 - LEN(fix046$))
+                LOOP
+
+                IF LEN(RTRIM$(id.musthave)) > 0 THEN
+                    usedVariableList(i).name = name$ + RTRIM$(id.musthave)
+                ELSEIF LEN(RTRIM$(id.mayhave)) > 0 THEN
+                    usedVariableList(i).name = name$ + RTRIM$(id.mayhave)
+                ELSE
+                    usedVariableList(i).name = name$
+                END IF
+
+                IF (id.arrayelements > 0) THEN
+                    usedVariableList(i).isarray = -1
+                    usedVariableList(i).name = usedVariableList(i).name + "()"
+                ELSE
+                    usedVariableList(i).isarray = 0
+                END IF
+                usedVariableList(i).watchRange = ""
+                usedVariableList(i).arrayElementSize = 0
+                usedVariableList(i).indexes = ""
+                usedVariableList(i).elements = ""
+                usedVariableList(i).elementTypes = ""
+                usedVariableList(i).elementOffset = ""
                 totalVariablesCreated = totalVariablesCreated + 1
+
+                temp$ = MKL$(-1) + MKL$(LEN(cname$)) + cname$
+                found = INSTR(backupVariableWatchList$, temp$)
+                IF found THEN
+                    'this variable existed in a previous edit of this program
+                    'in this same session; let's preselect it.
+                    j = CVL(MID$(backupVariableWatchList$, found + LEN(temp$), 4))
+
+                    'if there have been changes in TYPEs, this variable won't be preselected
+                    IF (LEN(backupUsedVariableList(j).elements) > 0 AND backupTypeDefinitions$ = typeDefinitions$) OR _
+                        (LEN(backupUsedVariableList(j).elements) = 0) THEN
+                        usedVariableList(i).watch = backupUsedVariableList(j).watch
+                        usedVariableList(i).watchRange = backupUsedVariableList(j).watchRange
+                        usedVariableList(i).indexes = backupUsedVariableList(j).indexes
+                        usedVariableList(i).displayFormat = backupUsedVariableList(j).displayFormat
+                        usedVariableList(i).elements = backupUsedVariableList(j).elements
+                        usedVariableList(i).elementTypes = backupUsedVariableList(j).elementTypes
+                        usedVariableList(i).elementOffset = backupUsedVariableList(j).elementOffset
+                    END IF
+                END IF
             END IF
         CASE ELSE 'find and mark as used
             IF found THEN
@@ -25787,6 +26278,25 @@ FUNCTION SCase2$ (t$)
     END IF
 END FUNCTION
 
+SUB increaseUDTArrays
+    x = UBOUND(udtxname)
+    REDIM _PRESERVE udtxname(x + 1000) AS STRING * 256
+    REDIM _PRESERVE udtxcname(x + 1000) AS STRING * 256
+    REDIM _PRESERVE udtxsize(x + 1000) AS LONG
+    REDIM _PRESERVE udtxbytealign(x + 1000) AS INTEGER 'first element MUST be on a byte alignment & size is a multiple of 8
+    REDIM _PRESERVE udtxnext(x + 1000) AS LONG
+    REDIM _PRESERVE udtxvariable(x + 1000) AS INTEGER 'true if the udt contains variable length elements
+    'elements
+    REDIM _PRESERVE udtename(x + 1000) AS STRING * 256
+    REDIM _PRESERVE udtecname(x + 1000) AS STRING * 256
+    REDIM _PRESERVE udtebytealign(x + 1000) AS INTEGER
+    REDIM _PRESERVE udtesize(x + 1000) AS LONG
+    REDIM _PRESERVE udtetype(x + 1000) AS LONG
+    REDIM _PRESERVE udtetypesize(x + 1000) AS LONG
+    REDIM _PRESERVE udtearrayelements(x + 1000) AS LONG
+    REDIM _PRESERVE udtenext(x + 1000) AS LONG
+END SUB
+
 '$INCLUDE:'utilities\strings.bas'
 '$INCLUDE:'subs_functions\extensions\opengl\opengl_methods.bas'
 '$INCLUDE:'utilities\ini-manager\ini.bm'
@@ -25795,3 +26305,5 @@ DEFLNG A-Z
 
 '-------- Optional IDE Component (2/2) --------
 '$INCLUDE:'ide\ide_methods.bas'
+
+

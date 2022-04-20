@@ -37,45 +37,7 @@ The '''DECLARE LIBRARY''' declaration allows the use of external library [[SUB]]
 
 
 {{PageExamples}}
-''Example 1:'' Using an '''SDL''' library procedure as a program SUB procedure to move the mouse pointer to a coordinate (works in versions prior to 1.000):
-{{CodeStart}} '' ''
-{{Cl|DECLARE LIBRARY}}
-    {{Cl|SUB}} SDL_WarpMouse ({{Cl|BYVAL}} column {{Cl|AS}} {{Cl|LONG}}, {{Cl|BYVAL}} row {{Cl|AS}} {{Cl|LONG}}) 'SDL procedure name
-{{Cl|DECLARE LIBRARY|END DECLARE}}
-{{Cl|SCREEN (statement)|SCREEN}} {{Cl|_NEWIMAGE}}(640, 480, 256)  'simulate screen 12 with 256 colors
-{{Cl|RANDOMIZE}} {{Cl|TIMER}}
-
-{{Cl|DO}}
-    {{Cl|_DELAY}} 1
-    x = {{Cl|RND}} * 640: y = {{Cl|RND}} * 480
-    {{Cl|LINE}} (x, y)-{{Cl|STEP}}(10, 10), {{Cl|RND}} * 100 + 32, BF
-    MouseMove x + 5, y + 5
-{{Cl|LOOP}} {{Cl|UNTIL}} {{Cl|LEN}}({{Cl|INKEY$}})  'any keypress quits
-{{Cl|END}}
-
-{{Cl|SUB}} MouseMove (x {{Cl|AS}} {{Cl|LONG}}, y {{Cl|AS}} {{Cl|LONG}})
-    SDL_WarpMouse x, y     'call SDL library procedure
-{{Cl|END SUB}} '' ''
-{{CodeEnd}}
-{{small|Code by Galleon}}
-:''Explanation:'' The SDL Library is included and loaded with QB64 versions prior to 1.000, so these procedures are directly available for use. 
-
-&lt;center>'''Using [[ALIAS]] to create a program SUB or FUNCTION''' using '''QB64 SDL ONLY'''&lt;/center>
-{{CodeStart}} '' ''
-{{Cl|SCREEN}} 12
-{{Cl|DECLARE LIBRARY}}
-    {{Cl|SUB}} MouseMove {{Cl|ALIAS}} SDL_WarpMouse ({{Cl|BYVAL}} column&amp;, {{Cl|BYVAL}} row&amp;)
-{{Cl|DECLARE LIBRARY|END DECLARE}}
-
-{{Cl|_DELAY}} 2
-MouseMove 100, 100
-{{Cl|_DELAY}} 2
-MouseMove 200, 200 '' ''
-{{CodeEnd}}
-:''Explanation:'' When a Library procedure is used to represent another procedure name use [[ALIAS]] instead. Saves creating a SUB!
-
-
-''Example 2:'' Don't know if a C function is defined by C++ or QB64? Try using empty quotes.
+''Example:'' Don't know if a C function is defined by C++ or QB64? Try using empty quotes.
 {{CodeStart}} '' ''
 {{Cl|DECLARE LIBRARY}} ""
     {{Cl|FUNCTION}} addone&amp; ({{Cl|BYVAL}} value&amp;)
@@ -87,7 +49,6 @@ MouseMove 200, 200 '' ''
 
 
 &lt;center>'''QB64 version 1.000 and up produce standalone executables. External DLL files must be distributed with your program.'''&lt;/center>
-&lt;center>'''Note: QB64 versions prior to 1.000 require all default DLL files to either be with the program or in the C:\WINDOWS\SYSTEM32 folder.'''&lt;/center>
 
 
 ''See also:''

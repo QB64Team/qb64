@@ -1,119 +1,149 @@
-qbs*oldstr3163=NULL;
-if(_SUB_XFILEPRINT_STRING_A->tmp||_SUB_XFILEPRINT_STRING_A->fixed||_SUB_XFILEPRINT_STRING_A->readonly){
-oldstr3163=_SUB_XFILEPRINT_STRING_A;
-if (oldstr3163->cmem_descriptor){
-_SUB_XFILEPRINT_STRING_A=qbs_new_cmem(oldstr3163->len,0);
+int32 *_FUNC_VALIDLABEL_LONG_VALIDLABEL=NULL;
+if(_FUNC_VALIDLABEL_LONG_VALIDLABEL==NULL){
+_FUNC_VALIDLABEL_LONG_VALIDLABEL=(int32*)mem_static_malloc(4);
+*_FUNC_VALIDLABEL_LONG_VALIDLABEL=0;
+}
+qbs*oldstr3236=NULL;
+if(_FUNC_VALIDLABEL_STRING_LABEL2->tmp||_FUNC_VALIDLABEL_STRING_LABEL2->fixed||_FUNC_VALIDLABEL_STRING_LABEL2->readonly){
+oldstr3236=_FUNC_VALIDLABEL_STRING_LABEL2;
+if (oldstr3236->cmem_descriptor){
+_FUNC_VALIDLABEL_STRING_LABEL2=qbs_new_cmem(oldstr3236->len,0);
 }else{
-_SUB_XFILEPRINT_STRING_A=qbs_new(oldstr3163->len,0);
+_FUNC_VALIDLABEL_STRING_LABEL2=qbs_new(oldstr3236->len,0);
 }
-memcpy(_SUB_XFILEPRINT_STRING_A->chr,oldstr3163->chr,oldstr3163->len);
+memcpy(_FUNC_VALIDLABEL_STRING_LABEL2->chr,oldstr3236->chr,oldstr3236->len);
 }
-qbs*oldstr3164=NULL;
-if(_SUB_XFILEPRINT_STRING_CA->tmp||_SUB_XFILEPRINT_STRING_CA->fixed||_SUB_XFILEPRINT_STRING_CA->readonly){
-oldstr3164=_SUB_XFILEPRINT_STRING_CA;
-if (oldstr3164->cmem_descriptor){
-_SUB_XFILEPRINT_STRING_CA=qbs_new_cmem(oldstr3164->len,0);
-}else{
-_SUB_XFILEPRINT_STRING_CA=qbs_new(oldstr3164->len,0);
+int32 *_FUNC_VALIDLABEL_LONG_CREATE=NULL;
+if(_FUNC_VALIDLABEL_LONG_CREATE==NULL){
+_FUNC_VALIDLABEL_LONG_CREATE=(int32*)mem_static_malloc(4);
+*_FUNC_VALIDLABEL_LONG_CREATE=0;
 }
-memcpy(_SUB_XFILEPRINT_STRING_CA->chr,oldstr3164->chr,oldstr3164->len);
+byte_element_struct *byte_element_3237=NULL;
+if (!byte_element_3237){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3237=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3237=(byte_element_struct*)mem_static_malloc(12);
 }
-qbs *_SUB_XFILEPRINT_STRING_U=NULL;
-if (!_SUB_XFILEPRINT_STRING_U)_SUB_XFILEPRINT_STRING_U=qbs_new(0,0);
-int32 pass3165;
-qbs *_SUB_XFILEPRINT_STRING_A3=NULL;
-if (!_SUB_XFILEPRINT_STRING_A3)_SUB_XFILEPRINT_STRING_A3=qbs_new(0,0);
-int32 *_SUB_XFILEPRINT_LONG_B=NULL;
-if(_SUB_XFILEPRINT_LONG_B==NULL){
-_SUB_XFILEPRINT_LONG_B=(int32*)mem_static_malloc(4);
-*_SUB_XFILEPRINT_LONG_B=0;
+qbs *_FUNC_VALIDLABEL_STRING_CLABEL=NULL;
+if (!_FUNC_VALIDLABEL_STRING_CLABEL)_FUNC_VALIDLABEL_STRING_CLABEL=qbs_new(0,0);
+qbs *_FUNC_VALIDLABEL_STRING_LABEL=NULL;
+if (!_FUNC_VALIDLABEL_STRING_LABEL)_FUNC_VALIDLABEL_STRING_LABEL=qbs_new(0,0);
+int32 *_FUNC_VALIDLABEL_LONG_N=NULL;
+if(_FUNC_VALIDLABEL_LONG_N==NULL){
+_FUNC_VALIDLABEL_LONG_N=(int32*)mem_static_malloc(4);
+*_FUNC_VALIDLABEL_LONG_N=0;
 }
-int32 *_SUB_XFILEPRINT_LONG_I=NULL;
-if(_SUB_XFILEPRINT_LONG_I==NULL){
-_SUB_XFILEPRINT_LONG_I=(int32*)mem_static_malloc(4);
-*_SUB_XFILEPRINT_LONG_I=0;
+int32 *_FUNC_VALIDLABEL_LONG_HASHRES=NULL;
+if(_FUNC_VALIDLABEL_LONG_HASHRES==NULL){
+_FUNC_VALIDLABEL_LONG_HASHRES=(int32*)mem_static_malloc(4);
+*_FUNC_VALIDLABEL_LONG_HASHRES=0;
 }
-int64 fornext_value3168;
-int64 fornext_finalvalue3168;
-int64 fornext_step3168;
-uint8 fornext_step_negative3168;
-qbs *_SUB_XFILEPRINT_STRING_A2=NULL;
-if (!_SUB_XFILEPRINT_STRING_A2)_SUB_XFILEPRINT_STRING_A2=qbs_new(0,0);
-qbs *_SUB_XFILEPRINT_STRING_E=NULL;
-if (!_SUB_XFILEPRINT_STRING_E)_SUB_XFILEPRINT_STRING_E=qbs_new(0,0);
-qbs *_SUB_XFILEPRINT_STRING_L=NULL;
-if (!_SUB_XFILEPRINT_STRING_L)_SUB_XFILEPRINT_STRING_L=qbs_new(0,0);
-int32 pass3169;
-qbs *_SUB_XFILEPRINT_STRING_PUFORMAT=NULL;
-if (!_SUB_XFILEPRINT_STRING_PUFORMAT)_SUB_XFILEPRINT_STRING_PUFORMAT=qbs_new(0,0);
-int64 fornext_value3173;
-int64 fornext_finalvalue3173;
-int64 fornext_step3173;
-uint8 fornext_step_negative3173;
-int32 *_SUB_XFILEPRINT_LONG_TYP=NULL;
-if(_SUB_XFILEPRINT_LONG_TYP==NULL){
-_SUB_XFILEPRINT_LONG_TYP=(int32*)mem_static_malloc(4);
-*_SUB_XFILEPRINT_LONG_TYP=0;
+int32 pass3238;
+int32 *_FUNC_VALIDLABEL_LONG_HASHRESFLAGS=NULL;
+if(_FUNC_VALIDLABEL_LONG_HASHRESFLAGS==NULL){
+_FUNC_VALIDLABEL_LONG_HASHRESFLAGS=(int32*)mem_static_malloc(4);
+*_FUNC_VALIDLABEL_LONG_HASHRESFLAGS=0;
 }
-int32 pass3174;
-byte_element_struct *byte_element_3175=NULL;
-if (!byte_element_3175){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3175=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3175=(byte_element_struct*)mem_static_malloc(12);
+int32 *_FUNC_VALIDLABEL_LONG_HASHRESREF=NULL;
+if(_FUNC_VALIDLABEL_LONG_HASHRESREF==NULL){
+_FUNC_VALIDLABEL_LONG_HASHRESREF=(int32*)mem_static_malloc(4);
+*_FUNC_VALIDLABEL_LONG_HASHRESREF=0;
 }
-qbs *_SUB_XFILEPRINT_STRING_PUF=NULL;
-if (!_SUB_XFILEPRINT_STRING_PUF)_SUB_XFILEPRINT_STRING_PUF=qbs_new(0,0);
-int32 *_SUB_XFILEPRINT_LONG_LAST=NULL;
-if(_SUB_XFILEPRINT_LONG_LAST==NULL){
-_SUB_XFILEPRINT_LONG_LAST=(int32*)mem_static_malloc(4);
-*_SUB_XFILEPRINT_LONG_LAST=0;
+int32 *_FUNC_VALIDLABEL_LONG_ONECOMMANDSUB=NULL;
+if(_FUNC_VALIDLABEL_LONG_ONECOMMANDSUB==NULL){
+_FUNC_VALIDLABEL_LONG_ONECOMMANDSUB=(int32*)mem_static_malloc(4);
+*_FUNC_VALIDLABEL_LONG_ONECOMMANDSUB=0;
 }
-int64 fornext_value3183;
-int64 fornext_finalvalue3183;
-int64 fornext_step3183;
-uint8 fornext_step_negative3183;
-int32 pass3184;
-byte_element_struct *byte_element_3197=NULL;
-if (!byte_element_3197){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3197=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3197=(byte_element_struct*)mem_static_malloc(12);
+qbs *_FUNC_VALIDLABEL_STRING_A=NULL;
+if (!_FUNC_VALIDLABEL_STRING_A)_FUNC_VALIDLABEL_STRING_A=qbs_new(0,0);
+int32 *_FUNC_VALIDLABEL_LONG_B=NULL;
+if(_FUNC_VALIDLABEL_LONG_B==NULL){
+_FUNC_VALIDLABEL_LONG_B=(int32*)mem_static_malloc(4);
+*_FUNC_VALIDLABEL_LONG_B=0;
 }
-int32 *_SUB_XFILEPRINT_LONG_NL=NULL;
-if(_SUB_XFILEPRINT_LONG_NL==NULL){
-_SUB_XFILEPRINT_LONG_NL=(int32*)mem_static_malloc(4);
-*_SUB_XFILEPRINT_LONG_NL=0;
+int32 *_FUNC_VALIDLABEL_LONG_X=NULL;
+if(_FUNC_VALIDLABEL_LONG_X==NULL){
+_FUNC_VALIDLABEL_LONG_X=(int32*)mem_static_malloc(4);
+*_FUNC_VALIDLABEL_LONG_X=0;
 }
-int64 fornext_value3211;
-int64 fornext_finalvalue3211;
-int64 fornext_step3211;
-uint8 fornext_step_negative3211;
-int32 *_SUB_XFILEPRINT_LONG_GOTOFPU=NULL;
-if(_SUB_XFILEPRINT_LONG_GOTOFPU==NULL){
-_SUB_XFILEPRINT_LONG_GOTOFPU=(int32*)mem_static_malloc(4);
-*_SUB_XFILEPRINT_LONG_GOTOFPU=0;
+int64 fornext_value3241;
+int64 fornext_finalvalue3241;
+int64 fornext_step3241;
+uint8 fornext_step_negative3241;
+byte_element_struct *byte_element_3242=NULL;
+if (!byte_element_3242){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3242=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3242=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_SUB_XFILEPRINT_LONG_USETAB=NULL;
-if(_SUB_XFILEPRINT_LONG_USETAB==NULL){
-_SUB_XFILEPRINT_LONG_USETAB=(int32*)mem_static_malloc(4);
-*_SUB_XFILEPRINT_LONG_USETAB=0;
+int32 *_FUNC_VALIDLABEL_LONG_A=NULL;
+if(_FUNC_VALIDLABEL_LONG_A==NULL){
+_FUNC_VALIDLABEL_LONG_A=(int32*)mem_static_malloc(4);
+*_FUNC_VALIDLABEL_LONG_A=0;
 }
-int32 *_SUB_XFILEPRINT_LONG_NEWLINE=NULL;
-if(_SUB_XFILEPRINT_LONG_NEWLINE==NULL){
-_SUB_XFILEPRINT_LONG_NEWLINE=(int32*)mem_static_malloc(4);
-*_SUB_XFILEPRINT_LONG_NEWLINE=0;
+byte_element_struct *byte_element_3243=NULL;
+if (!byte_element_3243){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3243=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3243=(byte_element_struct*)mem_static_malloc(12);
 }
-int32 *_SUB_XFILEPRINT_LONG_EXTRASPACE=NULL;
-if(_SUB_XFILEPRINT_LONG_EXTRASPACE==NULL){
-_SUB_XFILEPRINT_LONG_EXTRASPACE=(int32*)mem_static_malloc(4);
-*_SUB_XFILEPRINT_LONG_EXTRASPACE=0;
+qbs *_FUNC_VALIDLABEL_STRING_T=NULL;
+if (!_FUNC_VALIDLABEL_STRING_T)_FUNC_VALIDLABEL_STRING_T=qbs_new(0,0);
+byte_element_struct *byte_element_3244=NULL;
+if (!byte_element_3244){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3244=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3244=(byte_element_struct*)mem_static_malloc(12);
 }
-byte_element_struct *byte_element_3212=NULL;
-if (!byte_element_3212){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3212=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3212=(byte_element_struct*)mem_static_malloc(12);
+qbs *_FUNC_VALIDLABEL_STRING_ADDSYMBOL=NULL;
+if (!_FUNC_VALIDLABEL_STRING_ADDSYMBOL)_FUNC_VALIDLABEL_STRING_ADDSYMBOL=qbs_new(0,0);
+byte_element_struct *byte_element_3245=NULL;
+if (!byte_element_3245){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3245=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3245=(byte_element_struct*)mem_static_malloc(12);
 }
-qbs *_SUB_XFILEPRINT_STRING_EBAK=NULL;
-if (!_SUB_XFILEPRINT_STRING_EBAK)_SUB_XFILEPRINT_STRING_EBAK=qbs_new(0,0);
-int32 *_SUB_XFILEPRINT_LONG_PNRTNUM=NULL;
-if(_SUB_XFILEPRINT_LONG_PNRTNUM==NULL){
-_SUB_XFILEPRINT_LONG_PNRTNUM=(int32*)mem_static_malloc(4);
-*_SUB_XFILEPRINT_LONG_PNRTNUM=0;
+int32 *_FUNC_VALIDLABEL_LONG_DP=NULL;
+if(_FUNC_VALIDLABEL_LONG_DP==NULL){
+_FUNC_VALIDLABEL_LONG_DP=(int32*)mem_static_malloc(4);
+*_FUNC_VALIDLABEL_LONG_DP=0;
 }
-int32 pass3213;
+int64 fornext_value3247;
+int64 fornext_finalvalue3247;
+int64 fornext_step3247;
+uint8 fornext_step_negative3247;
+byte_element_struct *byte_element_3248=NULL;
+if (!byte_element_3248){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3248=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3248=(byte_element_struct*)mem_static_malloc(12);
+}
+byte_element_struct *byte_element_3249=NULL;
+if (!byte_element_3249){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3249=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3249=(byte_element_struct*)mem_static_malloc(12);
+}
+int32 *_FUNC_VALIDLABEL_LONG_I=NULL;
+if(_FUNC_VALIDLABEL_LONG_I==NULL){
+_FUNC_VALIDLABEL_LONG_I=(int32*)mem_static_malloc(4);
+*_FUNC_VALIDLABEL_LONG_I=0;
+}
+byte_element_struct *byte_element_3250=NULL;
+if (!byte_element_3250){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3250=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3250=(byte_element_struct*)mem_static_malloc(12);
+}
+int32 *_FUNC_VALIDLABEL_LONG_NX=NULL;
+if(_FUNC_VALIDLABEL_LONG_NX==NULL){
+_FUNC_VALIDLABEL_LONG_NX=(int32*)mem_static_malloc(4);
+*_FUNC_VALIDLABEL_LONG_NX=0;
+}
+int64 fornext_value3252;
+int64 fornext_finalvalue3252;
+int64 fornext_step3252;
+uint8 fornext_step_negative3252;
+int32 *_FUNC_VALIDLABEL_LONG_C=NULL;
+if(_FUNC_VALIDLABEL_LONG_C==NULL){
+_FUNC_VALIDLABEL_LONG_C=(int32*)mem_static_malloc(4);
+*_FUNC_VALIDLABEL_LONG_C=0;
+}
+qbs *_FUNC_VALIDLABEL_STRING_LABEL3=NULL;
+if (!_FUNC_VALIDLABEL_STRING_LABEL3)_FUNC_VALIDLABEL_STRING_LABEL3=qbs_new(0,0);
+int64 fornext_value3254;
+int64 fornext_finalvalue3254;
+int64 fornext_step3254;
+uint8 fornext_step_negative3254;
+int64 fornext_value3256;
+int64 fornext_finalvalue3256;
+int64 fornext_step3256;
+uint8 fornext_step_negative3256;
+byte_element_struct *byte_element_3257=NULL;
+if (!byte_element_3257){
+if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3257=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3257=(byte_element_struct*)mem_static_malloc(12);
+}

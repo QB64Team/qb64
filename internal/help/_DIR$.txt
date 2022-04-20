@@ -7,7 +7,7 @@ The [[_DIR$]] function returns common paths in '''Windows''' only such as My Doc
 
 
 {{PageParameters}}
-* ''folderspecification'' may be "desktop", "download", "documents", "music", "video", "pictures", "appdata", "program data", "local data".
+* ''folderspecification'' may be "desktop", "download", "documents", "music", "video", "pictures", "appdata", "program data", "local data", "program files", "program files (x86)", "temp".
 * Some variation is accepted for the folder specification:
 :: MY DOCUMENTS, TEXT, DOCUMENT, DOCUMENTS, DOWNLOAD, DOWNLOADS
 :: MY MUSIC, MUSIC, AUDIO, SOUND, SOUNDS
@@ -31,7 +31,7 @@ Example: Displaying default paths in Windows only.
 {{Cl|PRINT}} "MUSIC=" + {{Cl|_DIR$}}("music")
 {{Cl|PRINT}} "VIDEO=" + {{Cl|_DIR$}}("video")
 {{Cl|PRINT}} "APPLICATION DATA=" + {{Cl|_DIR$}}("data")
-{{Cl|PRINT}} "LOCAL APPLICATION DATA=" + {{Cl|_DIR$}}("local application data"
+{{Cl|PRINT}} "LOCAL APPLICATION DATA=" + {{Cl|_DIR$}}("local application data")
 {{CodeEnd}}
 {{OutputStart}}DESKTOP=C:\Documents and Settings\Administrator\Desktop\
 DOWNLOADS=C:\Documents and Settings\Administrator\Downloads\

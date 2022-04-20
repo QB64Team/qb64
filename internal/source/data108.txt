@@ -1,12 +1,18 @@
-qbs *_FUNC_SCASE_STRING_SCASE=NULL;
-if (!_FUNC_SCASE_STRING_SCASE)_FUNC_SCASE_STRING_SCASE=qbs_new(0,0);
-qbs*oldstr3692=NULL;
-if(_FUNC_SCASE_STRING_T->tmp||_FUNC_SCASE_STRING_T->fixed||_FUNC_SCASE_STRING_T->readonly){
-oldstr3692=_FUNC_SCASE_STRING_T;
-if (oldstr3692->cmem_descriptor){
-_FUNC_SCASE_STRING_T=qbs_new_cmem(oldstr3692->len,0);
-}else{
-_FUNC_SCASE_STRING_T=qbs_new(oldstr3692->len,0);
+int32 *_SUB_DUMP_UDTS_LONG_F=NULL;
+if(_SUB_DUMP_UDTS_LONG_F==NULL){
+_SUB_DUMP_UDTS_LONG_F=(int32*)mem_static_malloc(4);
+*_SUB_DUMP_UDTS_LONG_F=0;
 }
-memcpy(_FUNC_SCASE_STRING_T->chr,oldstr3692->chr,oldstr3692->len);
+int32 *_SUB_DUMP_UDTS_LONG_I=NULL;
+if(_SUB_DUMP_UDTS_LONG_I==NULL){
+_SUB_DUMP_UDTS_LONG_I=(int32*)mem_static_malloc(4);
+*_SUB_DUMP_UDTS_LONG_I=0;
 }
+int64 fornext_value3772;
+int64 fornext_finalvalue3772;
+int64 fornext_step3772;
+uint8 fornext_step_negative3772;
+int64 fornext_value3776;
+int64 fornext_finalvalue3776;
+int64 fornext_step3776;
+uint8 fornext_step_negative3776;

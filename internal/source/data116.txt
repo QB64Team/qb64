@@ -1,17 +1,34 @@
-byte_element_struct *byte_element_3759=NULL;
-if (!byte_element_3759){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3759=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3759=(byte_element_struct*)mem_static_malloc(12);
+qbs *_FUNC_GL2QB_TYPE_CONVERT_STRING_GL2QB_TYPE_CONVERT=NULL;
+if (!_FUNC_GL2QB_TYPE_CONVERT_STRING_GL2QB_TYPE_CONVERT)_FUNC_GL2QB_TYPE_CONVERT_STRING_GL2QB_TYPE_CONVERT=qbs_new(0,0);
+qbs*oldstr3822=NULL;
+if(_FUNC_GL2QB_TYPE_CONVERT_STRING_A->tmp||_FUNC_GL2QB_TYPE_CONVERT_STRING_A->fixed||_FUNC_GL2QB_TYPE_CONVERT_STRING_A->readonly){
+oldstr3822=_FUNC_GL2QB_TYPE_CONVERT_STRING_A;
+if (oldstr3822->cmem_descriptor){
+_FUNC_GL2QB_TYPE_CONVERT_STRING_A=qbs_new_cmem(oldstr3822->len,0);
+}else{
+_FUNC_GL2QB_TYPE_CONVERT_STRING_A=qbs_new(oldstr3822->len,0);
 }
-int16 *_SUB_INICOMMIT_INTEGER_FILENUM=NULL;
-if(_SUB_INICOMMIT_INTEGER_FILENUM==NULL){
-_SUB_INICOMMIT_INTEGER_FILENUM=(int16*)mem_static_malloc(2);
-*_SUB_INICOMMIT_INTEGER_FILENUM=0;
+memcpy(_FUNC_GL2QB_TYPE_CONVERT_STRING_A->chr,oldstr3822->chr,oldstr3822->len);
 }
-byte_element_struct *byte_element_3760=NULL;
-if (!byte_element_3760){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3760=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3760=(byte_element_struct*)mem_static_malloc(12);
+qbs*oldstr3823=NULL;
+if(_FUNC_GL2QB_TYPE_CONVERT_STRING_SYMBOL->tmp||_FUNC_GL2QB_TYPE_CONVERT_STRING_SYMBOL->fixed||_FUNC_GL2QB_TYPE_CONVERT_STRING_SYMBOL->readonly){
+oldstr3823=_FUNC_GL2QB_TYPE_CONVERT_STRING_SYMBOL;
+if (oldstr3823->cmem_descriptor){
+_FUNC_GL2QB_TYPE_CONVERT_STRING_SYMBOL=qbs_new_cmem(oldstr3823->len,0);
+}else{
+_FUNC_GL2QB_TYPE_CONVERT_STRING_SYMBOL=qbs_new(oldstr3823->len,0);
 }
-byte_element_struct *byte_element_3761=NULL;
-if (!byte_element_3761){
-if ((mem_static_pointer+=12)<mem_static_limit) byte_element_3761=(byte_element_struct*)(mem_static_pointer-12); else byte_element_3761=(byte_element_struct*)mem_static_malloc(12);
+memcpy(_FUNC_GL2QB_TYPE_CONVERT_STRING_SYMBOL->chr,oldstr3823->chr,oldstr3823->len);
 }
+qbs*oldstr3824=NULL;
+if(_FUNC_GL2QB_TYPE_CONVERT_STRING_CTYP->tmp||_FUNC_GL2QB_TYPE_CONVERT_STRING_CTYP->fixed||_FUNC_GL2QB_TYPE_CONVERT_STRING_CTYP->readonly){
+oldstr3824=_FUNC_GL2QB_TYPE_CONVERT_STRING_CTYP;
+if (oldstr3824->cmem_descriptor){
+_FUNC_GL2QB_TYPE_CONVERT_STRING_CTYP=qbs_new_cmem(oldstr3824->len,0);
+}else{
+_FUNC_GL2QB_TYPE_CONVERT_STRING_CTYP=qbs_new(oldstr3824->len,0);
+}
+memcpy(_FUNC_GL2QB_TYPE_CONVERT_STRING_CTYP->chr,oldstr3824->chr,oldstr3824->len);
+}
+qbs *_FUNC_GL2QB_TYPE_CONVERT_STRING_B=NULL;
+if (!_FUNC_GL2QB_TYPE_CONVERT_STRING_B)_FUNC_GL2QB_TYPE_CONVERT_STRING_B=qbs_new(0,0);

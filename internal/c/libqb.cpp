@@ -64,7 +64,7 @@ return (word << shift) | (word >> (32 - shift));
     uint64 qbr_longdouble_to_uint64(long double f){if (f<0) return(f-0.5f); else return(f+0.5f);}
     int32 qbr_float_to_long(float f){if (f<0) return(f-0.5f); else return(f+0.5f);}
     int32 qbr_double_to_long(double f){if (f<0) return(f-0.5f); else return(f+0.5f);}
-    void fpu_reinit() { // do nothing }
+    void fpu_reinit() { } // do nothing
     #else
     //QBASIC compatible rounding via FPU:
     //FLDS=load single
@@ -1364,6 +1364,7 @@ extern uint32 qbevent;
 extern int32 console;
 extern int32 screen_hide_startup;
 extern int32 asserts;
+extern int32 vwatch;
 //...
 
 int64 exit_code=0;
@@ -5396,6 +5397,14 @@ extern uint32 error_retry;
 
 void sub__echo(qbs *message);
 
+void unlockvWatchHandle() {
+    if (vwatch>0) vwatch=-1;
+}
+
+int32 vWatchHandle() {
+    return vwatch;
+}
+
 void sub__assert(int32 expression, qbs *assert_message, int32 passed) {
     if (asserts==0) return;
     if (expression==0) {
@@ -5492,13 +5501,29 @@ char *human_error(int32 errorcode) {
     }
 }
 
+qbs *func_mid(qbs *str,int32 start,int32 l,int32 passed);
+qbs *qbs_new_txt_len(const char *txt,int32 len);
+qbs *func_command(int32 index, int32 passed);
+
 void fix_error(){
     char *errtitle = NULL, *errmess = NULL, *cp;
     int prevent_handling = 0, len, v;
     if ((new_error >= 300) && (new_error <= 315)) prevent_handling = 1;
     if (!error_goto_line || error_handling || prevent_handling) {
+        //strip path from binary name
+        static int32 i;
+        static qbs *binary_name=NULL;
+        if (!binary_name) binary_name=qbs_new(0,0);
+        qbs_set(binary_name,qbs_add(func_command( 0 ,1),qbs_new_txt_len("\0",1)));
+        for(i=binary_name->len;i>0;i--){
+            if ((binary_name->chr[i-1]==47)||(binary_name->chr[i-1]==92)) {
+                qbs_set(binary_name,func_mid(binary_name, i + 1,NULL,0));
+                break;
+            }
+        }
+        
         cp = human_error(new_error);        
-        #define FIXERRMSG_TITLE "%s%u"
+        #define FIXERRMSG_TITLE "%s%u - %s"
         #define FIXERRMSG_BODY "Line: %u (in %s)\n%s%s"
         #define FIXERRMSG_MAINFILE "main module"
         #define FIXERRMSG_CONT "\nContinue?"
@@ -5510,10 +5535,10 @@ void fix_error(){
         if (!errmess) exit(0); //At this point we just give up
         snprintf(errmess, len + 1, FIXERRMSG_BODY, (inclercl ? inclercl : ercl), (inclercl ? includedfilename : FIXERRMSG_MAINFILE), cp, (!prevent_handling ? FIXERRMSG_CONT : ""));
         
-        len = snprintf(errtitle, 0, FIXERRMSG_TITLE, (!prevent_handling ? FIXERRMSG_UNHAND : FIXERRMSG_CRIT), new_error);
+        len = snprintf(errtitle, 0, FIXERRMSG_TITLE, (!prevent_handling ? FIXERRMSG_UNHAND : FIXERRMSG_CRIT), new_error, binary_name->chr);
         errtitle = (char*)malloc(len + 1);
         if (!errtitle) exit(0); //At this point we just give up
-        snprintf(errtitle, len + 1, FIXERRMSG_TITLE, (!prevent_handling ? FIXERRMSG_UNHAND : FIXERRMSG_CRIT), new_error);
+        snprintf(errtitle, len + 1, FIXERRMSG_TITLE, (!prevent_handling ? FIXERRMSG_UNHAND : FIXERRMSG_CRIT), new_error, binary_name->chr);
         
         if (prevent_handling){
             v=MessageBox2(NULL,errmess,errtitle,MB_OK);
@@ -5595,6 +5620,9 @@ void end(){
     while(1) Sleep(16);
 }
 
+int32 stop_program_state() {
+    return stop_program;
+}
 
 
 //MEM_STATIC memory manager
@@ -6453,6 +6481,8 @@ qbs *ui642string(uint64 v){ static qbs *tqbs; tqbs=qbs_new(8,1); *((uint64*)(tqb
 qbs *s2string(float v){ static qbs *tqbs; tqbs=qbs_new(4,1); *((float*)(tqbs->chr))=v; return tqbs;}
 qbs *d2string(double v){ static qbs *tqbs; tqbs=qbs_new(8,1); *((double*)(tqbs->chr))=v; return tqbs;}
 qbs *f2string(long double v){ static qbs *tqbs; tqbs=qbs_new(32,1); memset(tqbs->chr,0,32); *((long double*)(tqbs->chr))=v; return tqbs;}
+qbs *o2string(ptrszint v){ static qbs *tqbs; tqbs=qbs_new(sizeof(ptrszint),1); memset(tqbs->chr,0,sizeof(ptrszint)); *((ptrszint*)(tqbs->chr))=v; return tqbs;}
+qbs *uo2string(uptrszint v){ static qbs *tqbs; tqbs=qbs_new(sizeof(uptrszint),1); memset(tqbs->chr,0,sizeof(uptrszint)); *((uptrszint*)(tqbs->chr))=v; return tqbs;}
 qbs *bit2string(uint32 bsize,int64 v){
     static qbs* tqbs;
     tqbs=qbs_new(8,1);
@@ -6483,6 +6513,8 @@ uint64 string2ui64(qbs*str){ if (str->len<8) {error(5); return 0;} else {return 
 float string2s(qbs*str){ if (str->len<4) {error(5); return 0;} else {return *((float*)str->chr);} }
 double string2d(qbs*str){ if (str->len<8) {error(5); return 0;} else {return *((double*)str->chr);} }
 long double string2f(qbs*str){ if (str->len<32) {error(5); return 0;} else {return *((long double*)str->chr);} }
+ptrszint string2o(qbs*str){ if (str->len<sizeof(ptrszint)) {error(5); return 0;} else {return *((ptrszint*)str->chr);} }
+uptrszint string2uo(qbs*str){ if (str->len<sizeof(uptrszint)) {error(5); return 0;} else {return *((uptrszint*)str->chr);} }
 uint64 string2ubit(qbs*str,uint32 bsize){
     int64 bmask;
     if (str->len<((bsize+7)>>3)) {error(5); return 0;}
@@ -6541,6 +6573,11 @@ qbs *func_string(int32 characters,int32 asciivalue){
     tqbs=qbs_new(characters,1);
     if (characters) memset(tqbs->chr,asciivalue&0xFF,characters);
     return tqbs;
+}
+
+void set_qbs_size(ptrszint *target_qbs,int32 newlength) {
+    qbs_set((qbs*)(*target_qbs), func_space(newlength));
+    return;
 }
 
 int32 func_instr(int32 start,qbs *str,qbs *substr,int32 passed){
@@ -10616,6 +10653,9 @@ void qbs_print(qbs* str,int32 finish_on_new_line){
         static qbs* strz; if (!strz) strz=qbs_new(0,0);
         qbs_set(strz,qbs_add(str,qbs_new_txt_len("\0",1)));
         if (finish_on_new_line) cout<<(char*)strz->chr<<endl; else cout<<(char*)strz->chr;
+        #ifndef QB64_WINDOWS
+            std::cout.flush();
+        #endif
         return;
     }
     
@@ -12631,17 +12671,22 @@ int32 func__blink(){
 }
 
 int64 func__handle(){
-    //#ifdef QB64_GUI
-        #ifdef QB64_WINDOWS
-            #ifdef DEPENDENCY_CONSOLE_ONLY
+    #ifdef QB64_WINDOWS
+        #ifdef DEPENDENCY_CONSOLE_ONLY
+            if (!window_handle) {
                 char pszConsoleTitle[1024];
                 GetConsoleTitle(pszConsoleTitle,1024);
                 window_handle = FindWindow(NULL, pszConsoleTitle);
-            #endif
-            while (!window_handle){Sleep(100);}
+            }
             return (ptrszint)window_handle;
         #endif
-    //#endif
+
+        if (!screen_hide){
+            while (!window_exists){Sleep(100);}
+            while (!window_handle){Sleep(100);}
+            return (ptrszint)window_handle;
+        }
+    #endif
     
     return 0;
 }
@@ -12652,6 +12697,13 @@ qbs *func__title(){
         }else{
         return qbs_new_txt((char*)window_title);
     }
+}
+
+void set_foreground_window(ptrszint i) {
+    #ifdef QB64_WINDOWS
+        BOOL result = SetForegroundWindow((HWND) i);
+    #endif
+    return;
 }
 
 int32 func__hasfocus() {
@@ -13095,7 +13147,11 @@ void sub_close(int32 i2,int32 passed){
     
     
     for (i=1;i<=special_handles->indexes;i++){
-        sub_close(-i-1,1);
+        if (vwatch>0 && vwatch==i) {
+            //keep connection to the IDE open for $DEBUG mode
+        } else {
+            sub_close(-i-1,1);
+        }
     }
     
     
@@ -15474,6 +15530,79 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         return;
     }
     
+        qbs *func__bin(int64 value,int32 neg_bits){
+        
+        static int32 i,i2,i3,neg;
+        static int64 value2;
+        static qbs *str;
+        
+        str=qbs_new(64,1);
+        
+        //negative?
+        if ((value>>63)&1) neg=1; else neg=0;
+        
+        //calc. most significant bit
+        i2=0;
+        value2=value;
+        if (neg){
+            for (i=1;i<=64;i++){
+                if (!(value2&1)) i2=i;
+                value2>>=1;
+            }
+            if (i2>=neg_bits){
+                //doesn't fit in neg_bits, so expand to next 16/32/64 boundary
+                i3=64;
+                if (i2<32) i3=32;
+                if (i2<16) i3=16;
+                i2=i3;
+            }else i2=neg_bits;
+            }else{
+            for (i=1;i<=64;i++){
+                if (value2&1) i2=i;
+                value2>>=1;
+            }
+        }
+        
+        if (!i2){str->chr[0]=48; str->len=1; return str;}//"0"
+        
+        //calc. number of characters required in i3
+        i3=i2; // equal for BIN$ because one bit = one char
+        
+        //build string
+        str->len=i3; i3--;
+        for (i=1;i<=i2;i++){
+            str->chr[i3--]=(value&1)+48;
+            value>>=1;
+        }
+        
+        return str;
+        
+    }
+    
+    //note: QBASIC doesn't have a BIN$ function
+    //      QB64   uses 32 bin digits for SINGLE/DOUBLE/FLOAT but if this range is exceeded
+    //      it uses up to 64 bin digits before generating an "OVERFLOW" error
+    //performs overflow check before calling func__bin
+    qbs *func__bin_float(long double value){
+        static qbs *str;
+        static int64 ivalue;
+        static int64 uivalue;
+        //ref: uint64 0-18446744073709551615
+        //      int64 \969223372036854775808 to 9223372036854775807
+        if ((value>=9.223372036854776E18)||(value<=-9.223372036854776E18)){
+            //note: ideally, the following line would be used, however, qbr_longdouble_to_uint64 just does the same as qbr
+            //if ((value>=1.844674407370956E19)||(value<=-9.223372036854776E18)){
+            str=qbs_new(0,1); error(6);//Overflow
+            return str;
+        }
+        if (value>=0){
+            uivalue=qbr_longdouble_to_uint64(value);
+            ivalue=uivalue;
+            }else{
+            ivalue=qbr(value);
+        }
+        return func__bin(ivalue,32);
+    }
     
     qbs *func_oct(int64 value,int32 neg_bits){
         
@@ -15529,10 +15658,10 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         
     }
     
-    //note: QBASIC uses 8 characters for SINGLE/DOUBLE or generates "OVERFLOW" if this range is exceeded
-    //      QB64   uses 8 characters for SINGLE/DOUBLE/FLOAT but if this range is exceeded
-    //      it uses up to 16 characters before generating an "OVERFLOW" error
-    //performs overflow check before calling func_hex
+    //note: QBASIC uses 11 oct digits for SINGLE/DOUBLE or generates "OVERFLOW" if this range is exceeded
+    //      QB64   uses 11 oct digits for SINGLE/DOUBLE/FLOAT but if this range is exceeded
+    //      it uses up to 22 oct digits before generating an "OVERFLOW" error
+    //performs overflow check before calling func_oct
     qbs *func_oct_float(long double value){
         static qbs *str;
         static int64 ivalue;
@@ -15601,9 +15730,9 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         
     }
     
-    //note: QBASIC uses 8 characters for SINGLE/DOUBLE or generates "OVERFLOW" if this range is exceeded
-    //      QB64   uses 8 characters for SINGLE/DOUBLE/FLOAT but if this range is exceeded
-    //      it uses up to 16 characters before generating an "OVERFLOW" error
+    //note: QBASIC uses 8 hex digits for SINGLE/DOUBLE or generates "OVERFLOW" if this range is exceeded
+    //      QB64   uses 8 hex digits for SINGLE/DOUBLE/FLOAT but if this range is exceeded
+    //      it uses up to 16 hex digits before generating an "OVERFLOW" error
     //performs overflow check before calling func_hex
     qbs *func_hex_float(long double value){
         static qbs *str;
@@ -16196,19 +16325,13 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         }
         
         if (gfs->type==1){//RANDOM
-            return gfs_getpos(i)/gfs->record_length+1;
+            return gfs_getpos(i)/gfs->record_length;
         }
         if (gfs->type==2){//BINARY
             return gfs_getpos(i);
         }
         //APPEND/OUTPUT/INPUT
-        int64 pos;
-        pos=gfs_getpos(i);
-        if (!pos) return 1;
-        pos--;
-        pos/=128;
-        pos++;
-        return pos;
+        return gfs_getpos(i)/128;
     }
     
     qbs *func_input(int32 n,int32 i,int32 passed){
@@ -18075,6 +18198,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                     if (qbs_equal(str,qbs_new_txt ("TOPRIGHT_BOTTOMLEFT"))) {mouse_cursor_style=GLUT_CURSOR_TOP_RIGHT_CORNER; goto cursor_valid;}
                     if (qbs_equal(str,qbs_new_txt ("WAIT"))) {mouse_cursor_style=GLUT_CURSOR_WAIT; goto cursor_valid;}
                     if (qbs_equal(str,qbs_new_txt ("HELP"))) {mouse_cursor_style=GLUT_CURSOR_HELP; goto cursor_valid;}
+                    if(qbs_equal(str,qbs_new_txt("CYCLE"))||qbs_equal(str, qbs_new_txt("MOVE"))) {mouse_cursor_style=GLUT_CURSOR_CYCLE; goto cursor_valid;}
                     error(5); return;
                 }
                 cursor_valid:
@@ -18443,8 +18567,9 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         //Creating/destroying an image surface:
         
         int32 func__newimage(int32 x,int32 y,int32 bpp,int32 passed){
-            #ifdef QB64_WINDOWS && WINVER >= 0x0600 //this block is not compatible with XP
-            static bool j;
+            #ifdef QB64_WINDOWS
+            #if WINVER >= 0x0600 //this block is not compatible with XP
+			static bool j;
             if(j != 1){
                 FARPROC dpiaware;
                 HMODULE user32 = LoadLibrary(TEXT("user32.dll"));
@@ -18458,6 +18583,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
 					FreeLibrary(user32);
                 }
             }
+			#endif
             #endif
             static int32 i;
             if (new_error) return 0;
@@ -21342,60 +21468,101 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             goto nextchar;
         }
         
-        
-        
-        #ifdef QB64_UNIX
-            extern char** environ;
-            #define envp environ
-            #else /* WINDOWS */
+        #ifdef QB64_WINDOWS
             #define envp _environ
+        #else
+            extern char **environ;
+            #define envp environ
         #endif
-        size_t environ_count;
-        
-        qbs *func_environ(qbs *name)
-        {
-            static char *withNull;
-            withNull=(char*)malloc(name->len+1);
-            withNull[name->len]=0;//add NULL terminator
-            memcpy(withNull,name->chr,name->len);
 
-            static char *cp;
-            static qbs *tqbs;
-            static int32 bytes;
-            cp=getenv(withNull);
-            if (cp){
-                bytes=strlen(cp);
-                tqbs=qbs_new(bytes,1);
-                memcpy(tqbs->chr,cp,bytes); 
-                }else{
-                tqbs=qbs_new(0,1);
+        int32 func__environcount() {
+            //count array bound
+             char **p = envp;
+             while (*++p);
+             return p - envp;
+         }
+             
+        qbs *func_environ(qbs *name) {
+            char *query, *result;
+            qbs *tqbs;
+            query = (char *)malloc(name->len + 1);
+            query[name->len] = '\0'; //add NULL terminator
+            memcpy(query, name->chr, name->len);
+            result = getenv(query);
+            if (result) {
+                int result_length = strlen(result);
+                tqbs = qbs_new(result_length, 1);
+                memcpy(tqbs->chr, result, result_length);
+            }
+            else {
+                tqbs = qbs_new(0, 1);
             }
             return tqbs;
         }
-        
-        qbs *func_environ(int32 number)
-        {
-            static qbs *tqbs;
-            static char *cp;
-            static int32 bytes;
-            if (number<=0){tqbs=qbs_new(0,1); error(5); return tqbs;}
-            if (number>=environ_count){tqbs=qbs_new(0,1); return tqbs;}
-            cp=*(envp+number-1);
-            bytes=strlen(cp);
-            tqbs=qbs_new(bytes,1);
-            memcpy(tqbs->chr,cp,bytes);
+
+        qbs *func_environ(int32 number) {
+            char *result;
+            qbs *tqbs;
+            int result_length;
+            if (number <= 0) {
+                tqbs = qbs_new(0, 1);
+                error(5);
+                return tqbs;
+            }
+            //Check we do not go beyond array bound
+            char **p = envp;
+            while (*++p);
+            if (number > p - envp) {
+                tqbs = qbs_new(0, 1);
+                return tqbs;
+            }
+            result = envp[number - 1];
+            result_length = strlen(result);
+            tqbs = qbs_new(result_length, 1);
+            memcpy(tqbs->chr, result, result_length);
             return tqbs;
         }
         
-        void sub_environ(qbs *str)
-        {
-            static char *cp;
-            cp=(char*)malloc(str->len+1);
-            cp[str->len]=0;//add NULL terminator
-            memcpy(cp,str->chr,str->len);
-            putenv(cp);
-            free(cp);
-            environ_count++;
+        void sub_environ(qbs *str) {
+            char *buf;
+            char *separator;
+            buf = (char *)malloc(str->len + 1);
+            buf[str->len] = '\0';
+            memcpy(buf, str->chr, str->len);
+            //Name and value may be separated by = or space
+            separator = strchr(buf, ' ');
+            if (!separator) {
+                separator = strchr(buf, '=');
+            }
+            if (!separator) {
+                //It is an error is there is no separator
+                error(5);
+                return;
+            }
+            // Split into two separate strings
+            *separator = '\0';
+            if (separator == &buf[str->len] - 1) {
+                //Separator is at end of string, so remove the variable
+				#ifdef QB64_WINDOWS
+					*separator = '=';
+					_putenv(buf);
+				#else
+					unsetenv(buf);
+				#endif
+            }
+            else {
+				#ifdef QB64_WINDOWS
+					#if WINVER >= 0x0600
+					_putenv_s(buf, separator + 1);
+					#else
+					*separator = '=';
+					_putenv(buf);
+					#endif
+				#else
+					setenv(buf, separator + 1, 1);
+				#endif
+            }
+            free(buf);
         }
         
         #ifdef QB64_WINDOWS
@@ -21406,16 +21573,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                 MessageBox2(NULL,(char*)s->chr,"showvalue",MB_OK|MB_SYSTEMMODAL);
             }
         #endif
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+
         
         //Referenced: http://johnnie.jerrata.com/winsocktutorial/
         //Much of the unix sockets code based on http://beej.us/guide/bgnet/
@@ -21428,8 +21586,6 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             #include <sys/socket.h>
             #include <netdb.h>
         #endif
-        
-        
         
         #define NETWORK_ERROR -1
         #define NETWORK_OK     0
@@ -21516,7 +21672,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                     sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
                     if (sockfd == -1) continue;
                     setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
-                    if (bind(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
+                    if (::bind(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
                         close(sockfd);
                         continue;
                     }
@@ -21698,14 +21854,18 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         
         void tcp_out(void *connection,void *offset,ptrszint bytes){
             #if !defined(DEPENDENCY_SOCKETS)
-                #elif defined(QB64_WINDOWS) || defined(QB64_UNIX)
+            #elif defined(QB64_WINDOWS) || defined(QB64_UNIX)
+                // Handle Windows which might not have this flag (it would be a no-op anyway)
+                #if !defined(MSG_NOSIGNAL)
+                #define MSG_NOSIGNAL 0
+                #endif
                 tcp_connection *tcp; tcp=(tcp_connection*)connection;
                 int total = 0;        // how many bytes we've sent
                 int bytesleft = bytes; // how many we have left to send
                 int n;
                 
                 while(total < bytes) {
-                    n = send(tcp->socket, (char*)((char *)offset + total), bytesleft, 0);
+                    n = send(tcp->socket, (char*)((char *)offset + total), bytesleft, MSG_NOSIGNAL);
                     if (n < 0) {
                         tcp->connected = 0;
                         return;
@@ -21866,7 +22026,11 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
             if ((method==0)||(method==1)){
                 
                 if (parts<2) return -1;
-                if (qbs_equal(qbs_ucase(info_part[1]),qbs_new_txt("TCP/IP"))==0) return -1;
+                if (qbs_equal(qbs_ucase(info_part[1]),qbs_new_txt("TCP/IP"))==0) {
+                    if (qbs_equal(qbs_ucase(info_part[1]),qbs_new_txt("QB64IDE"))==0 || vwatch!=-1) {
+                        return -1;
+                    }
+                }
                 
                 d=func_val(info_part[2]);
                 port=qbr_double_to_long(d);//***assume*** port number is within valid range
@@ -21897,6 +22061,7 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
                     //init stream
                     my_stream_struct->in=NULL; my_stream_struct->in_size=0; my_stream_struct->in_limit=0;
                     
+                    if (vwatch==-1) vwatch=my_handle;
                     return my_handle;
                 }//client
                 
@@ -26135,15 +26300,16 @@ void sub_put2(int32 i,int64 offset,void *element,int32 passed){
         int32 func__screenhide(){return -screen_hide;}
         
         void sub__consoletitle(qbs* s){
-            if (new_error) return;
-            static qbs *sz=NULL; if (!sz) sz=qbs_new(0,0);
-            static qbs *cz=NULL; if (!cz){cz=qbs_new(1,0); cz->chr[0]=0;}
-            qbs_set(sz,qbs_add(s,cz));
-            if (console){ if (console_active){
-                #ifdef QB64_WINDOWS
-                    SetConsoleTitle((char*)sz->chr);
-                #endif
-            }}
+            #ifdef QB64_WINDOWS
+                char *title;
+                title = (char *)malloc(s->len + 1);
+                title[s->len] = '\0'; //add NULL terminator
+                memcpy(title, s->chr, s->len);
+                if (console){ if (console_active){
+                    SetConsoleTitle(title);
+                    Sleep(40);
+                }}
+            #endif
         }
         
         
@@ -27189,19 +27355,6 @@ int main( int argc, char* argv[] ){
     ontimer[0].id=0;
     ontimer[0].state=0;
     ontimer[0].active=0;
-    
-    
-    
-    
-    
-    
-    
-    {
-        /* For bounds check on numeric ENVIRON$ */
-        char **p = envp;
-        while (*p++);
-        environ_count = p - envp;
-    }
     
     fontwidth[8]=8; fontwidth[14]=8; fontwidth[16]=8;
     fontheight[8]=8; fontheight[14]=14; fontheight[16]=16;
@@ -29859,7 +30012,8 @@ void sub__numlock(int32 options){
 }
 
 void sub__consolefont(qbs* FontName, int FontSize){
-    #ifdef QB64_WINDOWS && WINVER >= 0x0600 //this block is not compatible with XP
+    #ifdef QB64_WINDOWS
+	#if WINVER >= 0x0600 //this block is not compatible with XP
     SECURITY_ATTRIBUTES SecAttribs = {sizeof(SECURITY_ATTRIBUTES), 0, 1};
     HANDLE cl_conout = CreateFileA("CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, & SecAttribs, OPEN_EXISTING, 0, 0);
     static int OneTimePause;
@@ -29881,6 +30035,7 @@ void sub__consolefont(qbs* FontName, int FontSize){
 
     SetCurrentConsoleFontEx(cl_conout, NULL, &info);
     #endif
+	#endif
 }
 
 

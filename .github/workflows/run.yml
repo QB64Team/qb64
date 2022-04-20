@@ -24,16 +24,16 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         branch: development
-    - name: Setup aws
-      if: github.event_name == 'push'
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-2
     - name: Publish to S3
       if: github.event_name == 'push'
       run: .ci/deploy.sh lnx
+      env:
+        # We are using Digital Ocean Spaces but they are API compatible with S3
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        # AWS_REGION is useless but aws-cli gives errors if its not set
+        AWS_REGION: us-east-2
+        S3_ENDPOINT: https://nyc3.digitaloceanspaces.com
 
   macos-build:
     runs-on: macos-latest
@@ -44,16 +44,14 @@ jobs:
       run: .ci/bootstrap.sh osx
     - name: Compile
       run: .ci/compile.sh
-    - name: Setup aws
-      if: github.event_name == 'push'
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-2
     - name: Publish to S3
       if: github.event_name == 'push'
       run: .ci/deploy.sh osx
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: us-east-2
+        S3_ENDPOINT: https://nyc3.digitaloceanspaces.com
 
   windows-x86-build:
     runs-on: windows-latest
@@ -66,16 +64,14 @@ jobs:
       run: .ci/bootstrap.bat
     - name: Compile
       run: .ci/compile.bat
-    - name: Setup aws
-      if: github.event_name == 'push'
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-2
     - name: Publish to S3
       if: github.event_name == 'push'
       run: .ci/deploy.ps1
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: us-east-2
+        S3_ENDPOINT: https://nyc3.digitaloceanspaces.com
 
   windows-x64-build:
     runs-on: windows-latest
@@ -88,13 +84,11 @@ jobs:
       run: .ci/bootstrap.bat
     - name: Compile
       run: .ci/compile.bat
-    - name: Setup aws
-      if: github.event_name == 'push'
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-2
     - name: Publish to S3
       if: github.event_name == 'push'
       run: .ci/deploy.ps1
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: us-east-2
+        S3_ENDPOINT: https://nyc3.digitaloceanspaces.com
